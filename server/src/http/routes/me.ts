@@ -13,7 +13,7 @@ import { notify } from "../../services/notify.ts";
 import { generateVcf } from "../../domain/vcf.ts";
 import { toVcf } from "./contacts.ts";
 
-const TIME_ZONES = new Set(Intl.supportedValuesOf("timeZone"));
+const TIME_ZONES = new Set(["UTC", ...Intl.supportedValuesOf("timeZone")]); // the list omits "UTC", which browsers report
 export const DELETION_GRACE_MS = 14 * 86_400_000;
 const month = (t: number) => new Date(t).toISOString().slice(0, 7);
 

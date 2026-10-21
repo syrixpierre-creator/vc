@@ -1026,7 +1026,7 @@ export default {
   "ref.payout.rejected": "Le paiement a été refusé. Voir les détails dans votre portefeuille.",
   "ref.pending": "En attente",
   "ref.people": "Personnes invitées",
-  "ref.privacy": "Seuls les prénoms sont affichés, jamais les e-mails.",
+  "ref.privacy": "Seules les initiales sont affichées, jamais les noms ni les e-mails.",
   "ref.qualified": "Qualifiés",
   "ref.restricted": "Les parrainages sont restreints sur votre compte. Contactez le support pour en savoir plus.",
   "ref.review": "Certains parrainages sont en vérification. C'est normal et peut prendre quelques jours.",

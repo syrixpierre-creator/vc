@@ -153,3 +153,21 @@ test("referral landing: only well-formed codes are remembered; anything else goe
     assert.ok(!r.headers.getSetCookie().some(c => c.startsWith("__Host-ref=")), ref);
   }
 });
+
+test("payout details: a recovery phrase is refused with an explicit warning, whatever the method", async () => {
+  const u = await h.login("phrase-1", "phrase@example.com");
+  const phrase = "abandon ability able about above absent absorb abstract absurd abuse access accident";
+  for (const kind of ["paypal", "binance_pay", "pix"]) {
+    const r = await h.send(u, "/api/payout-methods", { kind, details: phrase, recipientName: "Someone" });
+    assert.equal(r.status, 400, kind);
+    assert.equal(((await r.json()) as { error: string }).error, "looks_like_secret", kind);
+  }
+});
+
+test("profile: UTC is an accepted time zone (browsers report it; Intl's list omits it)", async () => {
+  const u = await h.login("tz-1", "tz@example.com");
+  const r = await h.send(u, "/api/me", { timeZone: "UTC" }, "PATCH");
+  assert.equal(r.status, 200);
+  assert.equal((await h.json<{ timeZone: string }>(h.get(u, "/api/me"))).timeZone, "UTC");
+  assert.equal((await h.send(u, "/api/me", { timeZone: "Mars/Olympus" }, "PATCH")).status, 400);
+});

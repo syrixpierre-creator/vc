@@ -13,13 +13,13 @@ const KINDS = ["paypal", "binance_pay", "pix"] as const;
 /** Accepted payout identifiers. Never a password, private key, recovery phrase, card number, CVV or PIN. */
 function validateDetails(kind: (typeof KINDS)[number], details: string): string {
   const d = details.trim();
+  if (d.split(/\s+/).length >= 12) throw new HttpError(400, "looks_like_secret"); // a 12-24 word recovery phrase is never a payout address
   if (d.length < 3 || d.length > 140) throw new HttpError(400, "invalid_details");
   if (kind === "paypal" && !EMAIL.test(d)) throw new HttpError(400, "invalid_paypal_email");
   if (kind === "binance_pay" && !(/^\d{6,12}$/.test(d) || EMAIL.test(d))) throw new HttpError(400, "invalid_binance_id"); // Binance Pay ID or the account e-mail
   if (kind === "pix" && !(EMAIL.test(d) || /^\+?\d{10,14}$/.test(d.replace(/[\s().-]/g, "")) || /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(d) || /^\d{11}$|^\d{14}$/.test(d.replace(/\D/g, "")))) {
     throw new HttpError(400, "invalid_pix_key"); // e-mail, phone, random key, CPF (11 digits) or CNPJ (14 digits)
   }
-  if (d.split(/\s+/).length >= 12) throw new HttpError(400, "looks_like_secret"); // a 12-24 word recovery phrase is never a payout address
   return d;
 }
 function hintFor(kind: (typeof KINDS)[number], d: string): string {

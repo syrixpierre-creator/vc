@@ -232,7 +232,7 @@ export function avatar(user, cls = "") {
   return el;
 }
 export function field(label, control, { hint, id } = {}) {
-  const cid = id ?? control.id ?? `f-${Math.random().toString(36).slice(2, 8)}`;
+  const cid = id || control.id || `f-${Math.random().toString(36).slice(2, 8)}`; // an element without id has id === ""
   control.id = cid;
   return h("div", { class: "field" }, h("label", { for: cid }, label), control, hint ? h("span", { class: "hint" }, hint) : null);
 }

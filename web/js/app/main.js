@@ -131,6 +131,7 @@ async function render() {
     content.focus({ preventScroll: true });
     scrollTo({ top: 0 });
   } catch (e) {
+    console.error(e); // shown in the browser console for support; the page shows a friendly message
     if (seq !== renderSeq || (e instanceof ApiError && e.status === 401)) return;
     content.replaceChildren(h("div", { class: "callout bad", role: "alert" }, icon("alert"), h("div", {}, h("b", {}, t("err.pageFailed")), h("div", { class: "small muted" }, errText(e)),
       h("button", { class: "btn btn-sm mt-1", type: "button", onclick: render }, t("common.retry")))));

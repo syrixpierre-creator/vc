@@ -1026,7 +1026,7 @@ export default {
   "ref.payout.rejected": "O pagamento foi recusado. Veja os detalhes na carteira.",
   "ref.pending": "Pendentes",
   "ref.people": "Pessoas convidadas",
-  "ref.privacy": "Só os primeiros nomes aparecem, nunca e-mails.",
+  "ref.privacy": "Só as iniciais aparecem, nunca nomes ou e-mails.",
   "ref.qualified": "Qualificadas",
   "ref.restricted": "As indicações estão restritas na sua conta. Fale com o suporte para saber mais.",
   "ref.review": "Algumas indicações estão em revisão. É normal e pode levar alguns dias.",

@@ -12,7 +12,8 @@
     "start": "node src/main.ts",
     "worker": "node src/worker.ts",
     "migrate": "node src/migrate.ts",
-    "dev": "node src/dev.ts"
+    "dev": "node src/dev.ts",
+    "e2e": "node --test ../e2e/app.e2e.mjs"
   },
   "dependencies": {
     "bullmq": "^5.81.5",

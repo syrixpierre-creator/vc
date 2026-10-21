@@ -20,7 +20,7 @@ export default async function backups() {
         h("td", { class: "actions" }, h("div", { class: "row end wrap" },
           h("a", { class: "btn btn-sm", href: `/api/backups/${b.id}/download`, download: "" }, icon("download"), t("bk.download")),
           h("button", { class: "btn btn-sm", type: "button", onclick: () => restore(b) }, icon("history"), t("bk.restore")),
-          h("button", { class: "btn btn-ghost btn-icon btn-sm", type: "button", "aria-label": t("common.delete"), onclick: () => remove(b) }, icon("trash")))))))))));
+          h("button", { class: "btn btn-ghost btn-icon btn-sm", type: "button", "aria-label": t("common.delete"), onclick: () => remove(b) }, icon("trash"))))))))));
   }
   function createBtn() { return h("button", { class: "btn btn-primary", type: "button", onclick: create }, icon("plus"), t("bk.create")); }
   function create() {

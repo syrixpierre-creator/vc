@@ -67,6 +67,7 @@ async function render() {
     if (my !== seq) return;
     content.replaceChildren(node);
   } catch (e) {
+    console.error(e); // shown in the browser console for support; the page shows a friendly message
     if (my !== seq || (e instanceof ApiError && e.status === 401)) return;
     content.replaceChildren(h("div", { class: "callout bad", role: "alert" }, icon("alert"), h("div", {}, h("b", {}, e instanceof ApiError && e.status === 403 ? t("adm.forbidden") : t("err.pageFailed")),
       h("div", { class: "small muted" }, errText(e)), h("button", { class: "btn btn-sm mt-1", type: "button", onclick: render }, t("common.retry")))));

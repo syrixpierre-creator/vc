@@ -1026,7 +1026,7 @@ export default {
   "ref.payout.rejected": "El pago fue rechazado. Mira los detalles en tu billetera.",
   "ref.pending": "Pendientes",
   "ref.people": "Personas invitadas",
-  "ref.privacy": "Solo se muestran los nombres de pila, nunca los correos.",
+  "ref.privacy": "Solo se muestran las iniciales, nunca nombres ni correos.",
   "ref.qualified": "Calificados",
   "ref.restricted": "Los referidos están restringidos en tu cuenta. Contacta con soporte para más información.",
   "ref.review": "Algunos referidos están en revisión. Es normal y puede tardar unos días.",

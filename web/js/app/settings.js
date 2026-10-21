@@ -19,7 +19,7 @@ export default async function settings({ app }) {
   const name = h("input", { class: "input", value: me.name, maxlength: 80 });
   const country = h("select", { class: "select" }, countries.items.map(c => ({ ...c, n: countryName(c.code) })).sort((a, b) => a.n.localeCompare(b.n, currentLang()))
     .map(c => h("option", { value: c.code, selected: c.code === me.countryCode }, `${c.n} (${c.dial})`)));
-  const zones = Intl.supportedValuesOf("timeZone");
+  const zones = ["UTC", ...Intl.supportedValuesOf("timeZone")]; // the list omits "UTC", which browsers report
   const tz = h("select", { class: "select" }, zones.map(z => h("option", { value: z, selected: z === (me.timeZone ?? Intl.DateTimeFormat().resolvedOptions().timeZone) }, z.replace(/_/g, " "))));
   const lang = h("select", { class: "select" }, Object.entries(LANGS).map(([k, v]) => h("option", { value: k, selected: k === me.language }, v)));
   const saveProfile = h("button", { class: "btn btn-primary", type: "button" }, t("common.save"));
@@ -87,7 +87,7 @@ export default async function settings({ app }) {
       me.status === "pending_deletion"
         ? h("div", { class: "callout bad" }, icon("alert"), h("div", { class: "grow small" }, t("banner.deletion", { date: new Date(me.deletionAt).toLocaleDateString(currentLang()) })),
           h("button", { class: "btn btn-sm", type: "button", onclick: e => act(async () => { await api("/api/me/delete/cancel", { method: "POST", body: {} }); await app.refreshMe(); app.render(); }, { btn: e.currentTarget, ok: t("banner.deletionCancelled") }) }, t("banner.keepAccount")))
-        : h("div", { class: "row" }, h("button", { class: "btn btn-danger", type: "button", onclick: deleteAccount }, icon("trash"), t("set.deleteBtn"))))), { cls: "danger-zone" }));
+        : h("div", { class: "row" }, h("button", { class: "btn btn-danger", type: "button", onclick: deleteAccount }, icon("trash"), t("set.deleteBtn")))), { cls: "danger-zone" }));
 
   async function deleteAccount() {
     const typed = h("input", { class: "input", autocomplete: "off", placeholder: "DELETE", "aria-label": t("set.typeDelete") });

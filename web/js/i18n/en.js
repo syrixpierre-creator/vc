@@ -1025,7 +1025,7 @@ export default {
   "ref.payout.rejected": "The payout was rejected. See the details in your wallet.",
   "ref.pending": "Pending",
   "ref.people": "People you invited",
-  "ref.privacy": "Only first names are shown, never e-mails.",
+  "ref.privacy": "Only initials are shown, never names or e-mails.",
   "ref.qualified": "Qualified",
   "ref.restricted": "Referrals are restricted on your account. Contact support for details.",
   "ref.review": "Some referrals are under review. This is routine and can take a few days.",
