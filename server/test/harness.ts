@@ -67,7 +67,7 @@ export async function freshDatabase(): Promise<{ db: Db; url: string; drop: () =
 
 export interface Session { cookie: string; csrf: string; userId: string }
 
-export async function startHarness(opts: { ready?: () => Promise<boolean>; rules?: Record<string, LimitRule>; adminEmail?: string } = {}) {
+export async function startHarness(opts: { ready?: () => Promise<boolean>; rules?: Record<string, LimitRule>; adminEmail?: string; webRoot?: string } = {}) {
   const { publicKey, privateKey } = generateKeyPairSync("rsa", { modulusLength: 2048 });
   const jwks: Jwks = { keys: [{ ...(publicKey.export({ format: "jwk" }) as Record<string, unknown>), kid: "k1" } as unknown as Jwks["keys"][number]] };
   const codes = new Map<string, TokenResponse>();
@@ -101,7 +101,7 @@ export async function startHarness(opts: { ready?: () => Promise<boolean>; rules
     rules: { authCallback: { max: 10_000, windowMs: 60_000 }, rewardClaim: { max: 1000, windowMs: 60_000 }, write: { max: 100_000, windowMs: 60_000 }, contactCreate: { max: 10_000, windowMs: 60_000 },
       adminAction: { max: 10_000, windowMs: 60_000 }, challenge: { max: 10_000, windowMs: 60_000 }, bulk: { max: 1000, windowMs: 60_000 }, backup: { max: 1000, windowMs: 60_000 }, export: { max: 1000, windowMs: 60_000 },
       account: { max: 1000, windowMs: 60_000 }, support: { max: 1000, windowMs: 60_000 }, syncNow: { max: 1000, windowMs: 60_000 }, ...(opts.rules ?? {}) },
-    config: { appUrl: APP, sessionSecret: "s".repeat(40), adminEmail: opts.adminEmail ?? "syrixcompany@gmail.com", google: { clientId: CLIENT_ID, redirectUri: `${APP}/api/auth/google/callback` } } });
+    config: { appUrl: APP, sessionSecret: "s".repeat(40), adminEmail: opts.adminEmail ?? "syrixcompany@gmail.com", ...(opts.webRoot ? { webRoot: opts.webRoot } : {}), google: { clientId: CLIENT_ID, redirectUri: `${APP}/api/auth/google/callback` } } });
   const server: Server = createServer((q, r) => { void handler(q, r); });
   await new Promise<void>(res => server.listen(0, "127.0.0.1", res));
   const base = `http://127.0.0.1:${(server.address() as AddressInfo).port}`;

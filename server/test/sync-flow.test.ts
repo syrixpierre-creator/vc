@@ -133,10 +133,9 @@ test("revoked access: the job fails without retries, status asks to reconnect, r
   h.fake.refresh = async () => ({ accessToken: "at-new", expiresIn: 3600 });
   await h.connectContacts(s, { sub: "c6", email: "c6@x.com", accessToken: "at-reconnected", refreshToken: "rt-new" });
   const r = await h.send(s, "/api/google-contacts/sync-now", {});
-  assert.deepEqual(await r.json(), { queued: 2 }, "the failed one is retried and the new one is queued");
+  assert.deepEqual(await r.json(), { queued: 1 }, "reconnecting already re-queued the failed one; Sync now queues the contact saved while revoked");
   await h.runSync();
-  // the worker clock is 2h ahead in this test, so the token saved at reconnect time already counts as expired and is refreshed
-  assert.deepEqual(h.remote.calls.map(x => x.token), ["at-new", "at-new"]);
+  assert.deepEqual(h.remote.calls.map(x => x.token), ["at-reconnected", "at-reconnected"], "the fresh token from the reconnect is used, no refresh needed");
   assert.equal(await stateOf(h, s, c.id), "synced");
   assert.equal(await stateOf(h, s, more.id), "synced");
 }));
