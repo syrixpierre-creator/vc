@@ -1,31 +1,23 @@
+# SYRIX VCF — public entry point. Caddy obtains and renews the HTTPS certificate for {$DOMAIN} automatically.
+# The app sets the Content-Security-Policy and the other page headers itself; Caddy adds transport-level ones.
+{
+	email {$ACME_EMAIL}
+}
+
 {$DOMAIN} {
 	encode zstd gzip
 	header {
 		Strict-Transport-Security "max-age=31536000; includeSubDomains"
-		X-Content-Type-Options nosniff
-		X-Frame-Options DENY
-		Referrer-Policy strict-origin-when-cross-origin
-		Permissions-Policy "geolocation=(), microphone=(), camera=()"
-		# The pages use inline scripts/styles, hence 'unsafe-inline'. Tighten with nonces later.
-		# If ADS_ENABLED=true, add the ad provider's domains to script-src, frame-src, img-src and connect-src.
-		Content-Security-Policy "default-src 'self'; img-src 'self' data:; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline'; connect-src 'self'; frame-ancestors 'none'; base-uri 'self'; form-action 'self'"
 		-Server
 	}
 	request_body {
 		max_size 6MB
 	}
-
-	# referral links land on /register?ref=CODE and start Google sign-in with the code attached
-	@register path /register
-	redir @register /api/auth/google/start?ref={query.ref} 302
-
-	@api path /api/* /healthz /readyz
-	handle @api {
-		reverse_proxy app:3000
+	reverse_proxy app:3000 {
+		header_up X-Forwarded-Proto {scheme}
 	}
-	handle {
-		root * /srv/web
-		try_files {path} /index.html
-		file_server
+	log {
+		output stdout
+		format json
 	}
 }
