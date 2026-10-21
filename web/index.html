@@ -1,193 +1,305 @@
 <!doctype html>
-<html lang="en" dir="ltr" data-theme="light">
+<html lang="en" dir="ltr" data-theme="dark">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<title>SYRIX VCF — Contacts, backed up and synced | BY SYRIX VISION COMPANY</title>
-<meta name="description" content="Manage contacts, sync them to your own Google Contacts, and keep VCF backups. By Syrix Vision Company.">
-<meta property="og:title" content="SYRIX VCF">
-<meta property="og:description" content="Contacts, backed up and synced. By Syrix Vision Company.">
-<meta property="og:image" content="assets/logo-full.jpg">
-<link rel="icon" href="assets/emblem-dark.svg" type="image/svg+xml">
-<link rel="stylesheet" href="styles.css">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>SYRIX VCF — Contacts protected and in sync | BY SYRIX VISION COMPANY</title>
+<meta name="description" content="Manage your contacts, sync new ones to your own Google Contacts, keep encrypted VCF backups, and earn rewards through referrals and monthly challenges. By Syrix Vision Company.">
+<link rel="canonical" href="%APP_URL%/">
+<meta name="theme-color" content="#060A13">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="SYRIX VCF">
+<meta property="og:title" content="SYRIX VCF — Contacts protected and in sync">
+<meta property="og:description" content="Google Contacts sync, encrypted VCF backups, referral rewards and monthly challenges. By Syrix Vision Company.">
+<meta property="og:url" content="%APP_URL%/">
+<meta property="og:image" content="%APP_URL%/assets/og.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="%APP_URL%/assets/og.png">
+<link rel="alternate" hreflang="en" href="%APP_URL%/?lang=en"><link rel="alternate" hreflang="fr" href="%APP_URL%/?lang=fr"><link rel="alternate" hreflang="pt" href="%APP_URL%/?lang=pt">
+<link rel="alternate" hreflang="es" href="%APP_URL%/?lang=es"><link rel="alternate" hreflang="ar" href="%APP_URL%/?lang=ar"><link rel="alternate" hreflang="x-default" href="%APP_URL%/">
+<link rel="icon" href="/assets/favicon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="/assets/apple-touch-icon.png">
+<link rel="manifest" href="/site.webmanifest">
+<link rel="preload" href="/assets/fonts/inter-latin.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="/css/core.css">
+<link rel="stylesheet" href="/css/site.css">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"SYRIX VCF","applicationCategory":"BusinessApplication","operatingSystem":"Web","publisher":{"@type":"Organization","name":"Syrix Vision Company","email":"syrixcompany@gmail.com"}}</script>
+<script type="module" src="/js/site.js"></script>
 </head>
-<body>
-<div id="intro" role="dialog" aria-label="SYRIX VCF">
-  <button class="btn btn-sm skip" id="skip" data-i18n="skip">Skip</button>
+<body class="site">
+<a class="skip-link" href="#main" data-i18n="site.skip">Skip to content</a>
+
+<!-- cinematic introduction (first visit; skippable; never shown with reduced motion) -->
+<div class="intro" id="intro" hidden aria-hidden="true">
+  <button class="btn btn-ghost btn-sm intro-skip" id="introSkip" type="button" data-i18n="site.intro.skip">Skip intro</button>
   <div class="intro-stage">
-    <img class="intro-logo" src="assets/logo-full.jpg" alt="SYRIX VCF">
-    <svg class="intro-net" viewBox="0 0 400 60" aria-hidden="true">
-      <line x1="40" y1="30" x2="140" y2="14" style="animation-delay:1s"/>
-      <line x1="140" y1="14" x2="230" y2="38" style="animation-delay:1.2s"/>
-      <line x1="230" y1="38" x2="360" y2="20" style="animation-delay:1.4s"/>
-      <circle cx="40" cy="30" r="4" style="animation-delay:.9s"/><circle cx="140" cy="14" r="4" style="animation-delay:1.1s"/>
-      <circle cx="230" cy="38" r="4" style="animation-delay:1.3s"/><circle cx="360" cy="20" r="4" style="animation-delay:1.5s"/>
+    <svg class="intro-mark" viewBox="0 0 64 64" aria-hidden="true">
+      <defs>
+        <linearGradient id="iR" x1="8" y1="6" x2="58" y2="60" gradientUnits="userSpaceOnUse"><stop stop-color="#F1F5FF"/><stop offset=".5" stop-color="#8EAEFF"/><stop offset="1" stop-color="#9C7BF7"/></linearGradient>
+        <linearGradient id="iN" x1="8" y1="58" x2="58" y2="6" gradientUnits="userSpaceOnUse"><stop stop-color="#5B7CFF"/><stop offset=".55" stop-color="#B9CBFF"/><stop offset="1" stop-color="#FFFFFF"/></linearGradient>
+        <mask id="iM" maskUnits="userSpaceOnUse" x="0" y="0" width="64" height="64"><rect width="64" height="64" fill="#fff"/><polygon points="7,59 34.5,34.5 58,6 29.5,29.5" fill="#000" stroke="#000" stroke-width="5.5" stroke-linejoin="round"/></mask>
+      </defs>
+      <circle class="im-ring" cx="32" cy="32" r="24" fill="none" stroke="url(#iR)" stroke-width="4.6" mask="url(#iM)" pathLength="100"/>
+      <polygon class="im-needle" points="7,59 34.5,34.5 58,6 29.5,29.5" fill="url(#iN)"/>
+      <g class="im-links" stroke="#CFDCFF" stroke-width="1.7" stroke-linecap="round"><path d="M20.5 21 26.5 15.5M20.5 21 17.5 29.5" pathLength="10"/><path d="M43.5 43 48.5 36.5M43.5 43 36.5 48.5" pathLength="10"/></g>
+      <g class="im-nodes" fill="#E6EDFF"><circle cx="20.5" cy="21" r="3.1"/><circle cx="26.5" cy="15.5" r="2.3"/><circle cx="17.5" cy="29.5" r="2.1"/><circle cx="43.5" cy="43" r="3.1"/><circle cx="48.5" cy="36.5" r="2.3"/><circle cx="36.5" cy="48.5" r="2.1"/></g>
     </svg>
-    <p class="intro-tag">BY SYRIX VISION COMPANY</p>
+    <div class="intro-word"><span class="w1">SYRIX</span> <span class="w2">VCF</span></div>
+    <div class="intro-tag">BY SYRIX VISION COMPANY</div>
+    <div class="intro-sync" aria-hidden="true"><span></span><span></span><span></span><span></span><span></span></div>
   </div>
 </div>
 
+<div class="annc" id="annc" hidden><div class="wrap annc-in"><span class="badge blue" data-i18n="site.annc.new">New</span><span id="anncText"></span><button class="btn btn-ghost btn-icon btn-sm" id="anncClose" type="button" data-i18n-attr="aria-label:common.close"><svg class="i i-sm" aria-hidden="true"><use href="/assets/icons.svg#i-x"/></svg></button></div></div>
 
-<div class="annc"><b>New:</b> monthly challenges and referral rewards are open. Rules are published before you take part.</div>
-<header class="nav"><div class="wrap">
-  <a class="brand" href="#top"><img src="assets/emblem-dark.svg" alt=""><span>SYRIX VCF<small>BY SYRIX VISION COMPANY</small></span></a>
-  <nav class="nav-links" aria-label="Main">
-    <a href="#products" data-i18n="nav_products">Company</a><a href="#privacy" data-i18n="nav_privacy">Privacy</a><a href="#rewards" data-i18n="nav_rewards">Rewards</a><a href="#challenges" data-i18n="nav_ch">Challenges</a><a href="#faq" data-i18n="nav_faq">FAQ</a>
+<header class="nav" id="top">
+  <div class="wrap nav-in">
+    <a class="brand" href="/" aria-label="SYRIX VCF — BY SYRIX VISION COMPANY">
+      <img src="/assets/logo-mark.svg" width="34" height="34" alt="">
+      <span class="brand-text"><span class="brand-name">SYRIX <b>VCF</b></span><span class="brand-sig">BY SYRIX VISION COMPANY</span></span>
+    </a>
+    <nav class="nav-links" aria-label="Main" data-i18n-attr="aria-label:site.nav.main">
+      <a href="#features" data-i18n="site.nav.features">Features</a>
+      <a href="#rewards" data-i18n="site.nav.rewards">Rewards</a>
+      <a href="#challenges" data-i18n="site.nav.challenges">Challenges</a>
+      <a href="#security" data-i18n="site.nav.security">Security</a>
+      <a href="#faq" data-i18n="site.nav.faq">FAQ</a>
+    </nav>
+    <div class="nav-right">
+      <label class="sr-only" for="langSel" data-i18n="common.language">Language</label>
+      <select class="select select-sm lang-select" id="langSel"><option value="en">English</option><option value="fr">Français</option><option value="pt">Português</option><option value="es">Español</option><option value="ar">العربية</option></select>
+      <button class="btn btn-ghost btn-icon btn-sm" id="themeBtn" type="button" data-i18n-attr="aria-label:common.theme"><svg class="i" aria-hidden="true"><use href="/assets/icons.svg#i-sun"/></svg></button>
+      <a class="btn btn-primary btn-sm signin-link" href="/api/auth/google/start?next=%2Fapp%2F" data-i18n="site.nav.signin">Sign in</a>
+      <button class="btn btn-ghost btn-icon btn-sm nav-burger" id="burger" type="button" aria-expanded="false" aria-controls="mobileNav" data-i18n-attr="aria-label:site.nav.menu"><svg class="i" aria-hidden="true"><use href="/assets/icons.svg#i-menu"/></svg></button>
+    </div>
+  </div>
+  <nav class="mobile-nav" id="mobileNav" hidden>
+    <a href="#features" data-i18n="site.nav.features">Features</a><a href="#rewards" data-i18n="site.nav.rewards">Rewards</a><a href="#challenges" data-i18n="site.nav.challenges">Challenges</a>
+    <a href="#security" data-i18n="site.nav.security">Security</a><a href="#faq" data-i18n="site.nav.faq">FAQ</a><a href="/support" data-i18n="site.footer.support">Support</a>
   </nav>
-  <div class="nav-right">
-    <select class="lang" id="lang" aria-label="Language"><option value="en">English</option><option value="fr">Français</option><option value="pt">Português</option><option value="es">Español</option><option value="ar">العربية</option></select>
-    <a class="btn btn-sm btn-primary" href="/api/auth/google/start?next=%2Fapp%2F" data-i18n="signin">Sign in</a>
-  </div>
-</div></header>
+</header>
 
-<main id="top">
-<div class="hero2"><div class="wrap">
-  <div>
-    <h1 data-i18n="h1">Your address book, protected and in sync.</h1>
-    <p class="lead" data-i18n="lead">SYRIX VCF stores your contacts securely, sends new ones to your own Google Contacts, and keeps VCF backups you can restore after a preview.</p>
-    <div class="cta-row"><a class="gbtn" href="/api/auth/google/start?next=%2Fapp%2F"><svg viewBox="0 0 48 48" aria-hidden="true"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg><span data-i18n="cta1">Sign in with Google</span></a><a class="btn" href="#rewards" data-i18n="cta2">See the rewards</a></div>
-    <div class="trust"><span><i></i>Google-only sign-in</span><span><i></i>You control Contacts access</span><span><i></i>Manual, reviewed payouts</span></div>
-  </div>
-  <div class="demo-card" id="demo">
-    <h3><span data-i18n="demo_t">Try the workflow</span><small data-i18n="demo_s">Demo, nothing is saved</small></h3>
-    <label class="fld">Name<input id="dn" value="Amina Moreau" maxlength="40"></label>
-    <label class="fld">Phone number (one per contact)<input id="dp" value="" placeholder="+33 6 •• •• •• 78" maxlength="22" inputmode="tel" autocomplete="off"></label>
-    <button class="btn btn-primary" id="dgo" style="width:100%;justify-content:center">Save and sync</button>
-    <div class="steps4"><div>Create</div><div>Save</div><div>Sync</div><div>Export</div></div>
-    <p class="demo-out" id="dout" aria-live="polite">Phone numbers are always shown partly hidden.</p>
-  </div>
-</div></div>
+<main id="main">
+<!-- hero -->
+<section class="hero">
+  <div class="hero-glow" aria-hidden="true"></div>
+  <div class="wrap hero-in">
+    <div class="hero-copy">
+      <p class="eyebrow" id="refNote" hidden><svg class="i i-sm" aria-hidden="true"><use href="/assets/icons.svg#i-gift"/></svg><span data-i18n="site.hero.invited">You were invited. Sign in with Google to accept.</span></p>
+      <p class="eyebrow" id="eyebrow"><span class="dot-live" aria-hidden="true"></span><span data-i18n="site.hero.eyebrow">Contacts · Google sync · VCF backups · Rewards</span></p>
+      <h1><span data-i18n="site.hero.h1a">Your address book,</span> <span class="grad-text" data-i18n="site.hero.h1b">protected and in sync.</span></h1>
+      <p class="lead" data-i18n="site.hero.lead">SYRIX VCF keeps your contacts organised, sends the ones you create to your own Google Contacts, and stores encrypted VCF backups you can restore after a preview. Invite friends and take on monthly challenges along the way.</p>
+      <div class="cta-row" id="join">
+        <a class="btn btn-google btn-lg signin-link" href="/api/auth/google/start?next=%2Fapp%2F"><svg class="i" viewBox="0 0 48 48" aria-hidden="true"><use href="/assets/icons.svg#i-google"/></svg><span data-i18n="site.hero.cta">Sign in with Google</span></a>
+        <a class="btn btn-lg" href="#features"><span data-i18n="site.hero.cta2">Explore the features</span><svg class="i flip" aria-hidden="true"><use href="/assets/icons.svg#i-arrow-right"/></svg></a>
+      </div>
+      <ul class="trust">
+        <li><svg class="i i-sm" aria-hidden="true"><use href="/assets/icons.svg#i-shield"/></svg><span data-i18n="site.hero.t1">Google-only sign-in, no password to leak</span></li>
+        <li><svg class="i i-sm" aria-hidden="true"><use href="/assets/icons.svg#i-lock"/></svg><span data-i18n="site.hero.t2">You decide when Contacts access starts and stops</span></li>
+        <li><svg class="i i-sm" aria-hidden="true"><use href="/assets/icons.svg#i-check-circle"/></svg><span data-i18n="site.hero.t3">Rewards reviewed and paid by a person</span></li>
+      </ul>
+    </div>
 
-<section class="band" id="products"><div class="wrap">
-  <p class="kicker">Syrix Vision Company</p>
-  <h2 data-i18n="co_h">One company, a growing family of products</h2>
-  <p class="sec-lead" data-i18n="co_p">We build software people use every day. SYRIX VCF is the contact layer of that ecosystem.</p>
-  <div class="prod">
-    <div class="cur"><div class="mk">VCF</div><h3>SYRIX VCF</h3><p>Contact management, Google Contacts sync, VCF backups, referrals and monthly challenges.</p><p style="margin-top:14px"><span class="tag">You are here</span></p></div>
-    <div><div class="mk">FLX</div><h3>SYRIX FLIX</h3><p>Streaming for films, series, anime and K-Dramas, on web and mobile.</p></div>
-    <div><div class="mk">CM</div><h3>Codvax Mart</h3><p>A marketplace of digital products made for developers.</p></div>
+    <figure class="hero-visual" aria-labelledby="hvCap">
+      <div class="hv-card">
+        <div class="hv-head"><span class="hv-title" data-i18n="site.visual.title">Contacts</span><span class="badge ok"><span class="dot"></span><span data-i18n="site.visual.connected">Google connected</span></span></div>
+        <ul class="hv-list">
+          <li><span class="avatar sm">AM</span><span class="grow"><b>Amina Moreau</b><span class="ltr">+33 •• •• •• 78</span></span><span class="hv-state s1"></span></li>
+          <li><span class="avatar sm">LF</span><span class="grow"><b>Lucas Ferreira</b><span class="ltr">+55 •• •• •• 21</span></span><span class="hv-state s2"></span></li>
+          <li><span class="avatar sm">SM</span><span class="grow"><b>Sofía Martínez</b><span class="ltr">+34 •• •• •• 05</span></span><span class="hv-state s3"></span></li>
+          <li class="hv-new"><span class="avatar sm">YB</span><span class="grow"><b>Youssef Benali</b><span class="ltr">+212 •• •• •• 64</span></span><span class="hv-state s4"></span></li>
+        </ul>
+      </div>
+      <svg class="hv-wires" viewBox="0 0 220 300" aria-hidden="true" preserveAspectRatio="none"><path d="M0 70 C 90 70, 110 40, 210 40"/><path d="M0 230 C 90 230, 110 260, 210 260"/></svg>
+      <div class="hv-node n-google"><span class="icon-tile blue"><svg class="i" aria-hidden="true"><use href="/assets/icons.svg#i-cloud"/></svg></span><span><b data-i18n="site.visual.google">Your Google Contacts</b><small data-i18n="site.visual.googleSub">Only the account you authorise</small></span></div>
+      <div class="hv-node n-backup"><span class="icon-tile violet"><svg class="i" aria-hidden="true"><use href="/assets/icons.svg#i-archive"/></svg></span><span><b data-i18n="site.visual.backup">Encrypted VCF backup</b><small data-i18n="site.visual.backupSub">vCard 2.1 · 3.0 · 4.0</small></span></div>
+      <figcaption id="hvCap" class="hv-cap" data-i18n="site.visual.caption">Illustration of the workflow. Real synchronisation starts only after you connect your own Google account.</figcaption>
+    </figure>
   </div>
-</div></section>
+</section>
 
-<section class="band" id="privacy"><div class="wrap">
-  <p class="kicker">Privacy</p>
-  <h2 data-i18n="pv_h">Your contacts stay yours</h2>
-  <p class="sec-lead" data-i18n="pv_p">Clear lines about what we store, what we send to Google, and what we never do.</p>
-  <div class="priv">
-    <div><h3>What we store</h3><ul><li>Contacts you create or import</li><li>Sync status and error history</li><li>Payout details, encrypted</li></ul></div>
-    <div class="mid"><h3>What goes to Google</h3><ul><li>New contacts, only to the account you authorised</li><li>Nothing while sync is paused</li><li>Revoke access whenever you want</li></ul></div>
-    <div class="no"><h3>What we never do</h3><ul><li>Show contacts in profiles or leaderboards</li><li>Sell or share address books</li><li>Message the people in your contacts</li><li>Use your contacts to target ads</li></ul></div>
+<!-- workflow -->
+<section class="band" id="how" aria-labelledby="howH">
+  <div class="wrap">
+    <p class="kicker" data-i18n="site.how.kicker">How it works</p>
+    <h2 id="howH" data-i18n="site.how.h">From a new contact to a safe backup in four steps</h2>
+    <ol class="steps">
+      <li><span class="step-n">1</span><span class="icon-tile blue"><svg class="i" aria-hidden="true"><use href="/assets/icons.svg#i-user-plus"/></svg></span><h3 data-i18n="site.how.s1">Create</h3><p data-i18n="site.how.s1p">Add a contact with several numbers, e-mails, organisation and notes. Numbers are normalised to the international format.</p></li>
+      <li><span class="step-n">2</span><span class="icon-tile blue"><svg class="i" aria-hidden="true"><use href="/assets/icons.svg#i-database"/></svg></span><h3 data-i18n="site.how.s2">Save</h3><p data-i18n="site.how.s2p">It is stored in your private address book. Duplicates are caught before they are saved.</p></li>
+      <li><span class="step-n">3</span><span class="icon-tile blue"><svg class="i" aria-hidden="true"><use href="/assets/icons.svg#i-sync"/></svg></span><h3 data-i18n="site.how.s3">Sync</h3><p data-i18n="site.how.s3p">If you connected Google Contacts and kept automatic sync on, it is sent to your own Google account in the background.</p></li>
+      <li><span class="step-n">4</span><span class="icon-tile blue"><svg class="i" aria-hidden="true"><use href="/assets/icons.svg#i-download"/></svg></span><h3 data-i18n="site.how.s4">Export</h3><p data-i18n="site.how.s4p">Download a VCF file at any time, or keep encrypted backups and restore them after a preview.</p></li>
+    </ol>
   </div>
-</div></section>
+</section>
 
-<section class="band" id="rewards"><div class="wrap split">
-  <div>
-    <p class="kicker">Referral rewards</p>
-    <h2 data-i18n="rw_h">Your balance grows with every qualified referral</h2>
-    <p class="sec-lead" data-i18n="rw_p">Each qualified referral adds to your balance. You can request a withdrawal once it reaches $15. Payouts are reviewed and sent manually, and the status stays “Payment in progress” until the team confirms the transfer.</p>
-    <ul class="rules">
-      <li>Only qualified referrals count: Google sign-in, verified account, anti-fraud checks passed.</li>
-      <li>A link click or a self-referral never counts.</li>
-      <li>Rules are published before you take part and do not change after you earn progress.</li>
-    </ul>
+<!-- features -->
+<section class="band" id="features" aria-labelledby="featH">
+  <div class="wrap">
+    <p class="kicker" data-i18n="site.feat.kicker">Features</p>
+    <h2 id="featH" data-i18n="site.feat.h">Everything your address book needs, nothing it does not</h2>
+    <p class="sec-lead" data-i18n="site.feat.lead">The contact tools work on their own. Referrals, rewards and challenges are optional extras.</p>
+    <div class="feat-grid">
+      <article class="feat"><span class="icon-tile blue"><svg class="i" aria-hidden="true"><use href="/assets/icons.svg#i-contacts"/></svg></span><h3 data-i18n="site.feat.f1">Contact management</h3><p data-i18n="site.feat.f1p">Search, filter, sort, labels, bulk actions and a change history that records which fields changed.</p></article>
+      <article class="feat"><span class="icon-tile blue"><svg class="i" aria-hidden="true"><use href="/assets/icons.svg#i-sync"/></svg></span><h3 data-i18n="site.feat.f2">Google Contacts sync</h3><p data-i18n="site.feat.f2p">New and edited contacts go to the Google account you authorise, with retries, pause and resume. Nothing is ever deleted in Google.</p></article>
+      <article class="feat"><span class="icon-tile blue"><svg class="i" aria-hidden="true"><use href="/assets/icons.svg#i-file"/></svg></span><h3 data-i18n="site.feat.f3">VCF import and export</h3><p data-i18n="site.feat.f3p">vCard 2.1, 3.0 and 4.0. Every import is previewed first, with duplicates and invalid records listed.</p></article>
+      <article class="feat"><span class="icon-tile violet"><svg class="i" aria-hidden="true"><use href="/assets/icons.svg#i-archive"/></svg></span><h3 data-i18n="site.feat.f4">Backup and restore</h3><p data-i18n="site.feat.f4p">Encrypted backups, weekly automatic copies, and restores that only re-create what is missing.</p></article>
+      <article class="feat"><span class="icon-tile violet"><svg class="i" aria-hidden="true"><use href="/assets/icons.svg#i-merge"/></svg></span><h3 data-i18n="site.feat.f5">Duplicates and clean-up</h3><p data-i18n="site.feat.f5p">Suggestions by shared number, e-mail or name, and a merge that keeps every number and note.</p></article>
+      <article class="feat"><span class="icon-tile violet"><svg class="i" aria-hidden="true"><use href="/assets/icons.svg#i-gift"/></svg></span><h3 data-i18n="site.feat.f6">Referral rewards</h3><p data-i18n="site.feat.f6p">A $10.00 reward at 500 qualified referrals, with badges and XP at every milestone on the way.</p></article>
+      <article class="feat"><span class="icon-tile ok"><svg class="i" aria-hidden="true"><use href="/assets/icons.svg#i-target"/></svg></span><h3 data-i18n="site.feat.f7">Monthly challenges</h3><p data-i18n="site.feat.f7p">At least eight demanding challenges each month, verified by the server, with published terms.</p></article>
+      <article class="feat"><span class="icon-tile ok"><svg class="i" aria-hidden="true"><use href="/assets/icons.svg#i-crown"/></svg></span><h3 data-i18n="site.feat.f8">XP, levels and VIP</h3><p data-i18n="site.feat.f8p">Levels from Rookie to Legend, Bronze to Legend VIP ranks, achievements and streaks. XP is never money.</p></article>
+      <article class="feat"><span class="icon-tile ok"><svg class="i" aria-hidden="true"><use href="/assets/icons.svg#i-trophy"/></svg></span><h3 data-i18n="site.feat.f9">Community and leaderboards</h3><p data-i18n="site.feat.f9p">Weekly, monthly and all-time boards, opt-in and pseudonym only. Announcements and shareable cards.</p></article>
+      <article class="feat"><span class="icon-tile warn"><svg class="i" aria-hidden="true"><use href="/assets/icons.svg#i-shield"/></svg></span><h3 data-i18n="site.feat.f10">Security and privacy</h3><p data-i18n="site.feat.f10p">Encrypted tokens and payout details, session control, data export and account deletion.</p></article>
+      <article class="feat"><span class="icon-tile warn"><svg class="i" aria-hidden="true"><use href="/assets/icons.svg#i-globe"/></svg></span><h3 data-i18n="site.feat.f11">Five languages</h3><p data-i18n="site.feat.f11p">English, French, Portuguese, Spanish and Arabic, with a right-to-left layout for Arabic.</p></article>
+      <article class="feat"><span class="icon-tile warn"><svg class="i" aria-hidden="true"><use href="/assets/icons.svg#i-lifebuoy"/></svg></span><h3 data-i18n="site.feat.f12">Real support</h3><p data-i18n="site.feat.f12p">Tickets answered by the team for bugs, payments, accounts, partnerships and ideas.</p></article>
+    </div>
   </div>
-  <div class="calc">
-    <div class="mtext"><span>Qualified referrals</span><span id="cn" style="font-family:var(--font-num)">500</span></div>
-    <div class="amount" id="amt">$10.00<small>USD</small></div>
-    <input type="range" id="rg" min="0" max="2000" step="10" value="500" aria-label="Qualified referrals">
-    <div class="rail"><span style="left:25%">$5 · 500</span><span style="left:50%">$10 · 1,000</span><span style="left:75%">$15 · withdraw</span></div>
-    <div class="pills"><button class="pill" data-n="250">250</button><button class="pill on" data-n="500">500</button><button class="pill" data-n="1000">1,000</button><button class="pill" data-n="1500">1,500</button><button class="pill" data-n="10000">10,000</button><button class="pill" data-n="1000000">1,000,000</button></div>
-    <div class="status" id="st">Below the $15 withdrawal minimum.</div>
-    <p class="fine">Illustration of the published rate: $0.01 per qualified referral. Subject to the reward rules and review.</p>
-  </div>
-</div></section>
+</section>
 
-<section class="band" id="challenges"><div class="wrap chal">
-  <div>
-    <p class="kicker">Monthly challenges</p>
-    <h2 data-i18n="ch_h">Hard goals. Verified by the server.</h2>
-    <p class="sec-lead">At least eight challenges each month across four tiers. None is completed by logging in or clicking.</p>
-    <div class="cta-row"><a class="btn" href="/api/auth/google/start?next=%2Fapp%2F">View challenges</a></div>
+<!-- rewards -->
+<section class="band band-alt" id="rewards" aria-labelledby="rwH">
+  <div class="wrap split">
+    <div>
+      <p class="kicker" data-i18n="site.rw.kicker">Referral rewards</p>
+      <h2 id="rwH" data-i18n="site.rw.h">$10.00 when 500 of your referrals qualify</h2>
+      <p class="sec-lead" data-i18n="site.rw.lead">Share your link. Each person who signs up through it and passes the published checks counts as a qualified referral. At 500, a one-time $10.00 USD reward is created and paid out manually.</p>
+      <h3 class="h-small" data-i18n="site.rw.rulesH">What makes a referral qualified</h3>
+      <ul class="checks">
+        <li data-i18n="site.rw.r1">They sign up through your link with their own Google account.</li>
+        <li data-i18n="site.rw.r2">Their Google e-mail is verified and the account is at least 24 hours old.</li>
+        <li data-i18n="site.rw.r3">They pass anti-fraud checks. Unusual bursts from one network go to a human review, never to an automatic ban.</li>
+        <li data-i18n="site.rw.r4">Link clicks, self-referrals and second accounts never count.</li>
+        <li data-i18n="site.rw.r5">The rules are published before you take part and do not change after you have earned progress.</li>
+      </ul>
+      <p class="fine"><a href="/legal/reward-rules" data-i18n="site.rw.full">Read the full reward rules</a></p>
+    </div>
+    <div class="stack-lg">
+      <div class="card reward-card">
+        <div class="row between"><span class="label" data-i18n="site.rw.cardLabel">Milestone reward</span><span class="badge gold"><svg class="i i-sm" aria-hidden="true"><use href="/assets/icons.svg#i-coins"/></svg>USD</span></div>
+        <div class="reward-amount num">$10.00</div>
+        <div class="row between small muted"><span data-i18n="site.rw.cardProgress">Qualified referrals</span><span class="num">500 / 500</span></div>
+        <div class="progress gold"><span class="full"></span></div>
+        <ol class="ladder" aria-label="Milestones" data-i18n-attr="aria-label:site.rw.ladder">
+          <li><b class="num">10</b><span data-i18n="site.rw.m10">Badge + 50 XP</span></li>
+          <li><b class="num">25</b><span data-i18n="site.rw.m25">Badge + 100 XP</span></li>
+          <li><b class="num">50</b><span data-i18n="site.rw.m50">Badge + 200 XP</span></li>
+          <li><b class="num">100</b><span data-i18n="site.rw.m100">Badge + 400 XP</span></li>
+          <li><b class="num">250</b><span data-i18n="site.rw.m250">Badge + 800 XP</span></li>
+          <li class="top"><b class="num">500</b><span data-i18n="site.rw.m500">$10.00 + badge + 1,500 XP</span></li>
+        </ol>
+      </div>
+      <div class="card">
+        <h3 class="h-small" data-i18n="site.rw.payH">How the payout works</h3>
+        <ol class="timeline">
+          <li><b data-i18n="site.rw.p1">Reward created</b><span data-i18n="site.rw.p1d">Exactly once, when the 500th referral qualifies.</span></li>
+          <li><b data-i18n="site.rw.p2">Payment in progress</b><span data-i18n="site.rw.p2d">A payout request is opened to your PayPal, Binance Pay or Pix destination.</span></li>
+          <li><b data-i18n="site.rw.p3">Reviewed by a person</b><span data-i18n="site.rw.p3d">The team checks the request and sends the money.</span></li>
+          <li><b data-i18n="site.rw.p4">Paid</b><span data-i18n="site.rw.p4d">Marked paid only with a transaction reference. A failed transfer is never shown as paid.</span></li>
+        </ol>
+      </div>
+    </div>
   </div>
-  <div class="chal-card"><span class="badge b-leg">Legendary</span><h3 style="font-size:22px;margin-top:12px">Growth Architect</h3><p style="color:var(--steel);font-size:14px;margin-top:6px">Obtain 75 qualified referrals and pass the eligibility and anti-fraud checks. Sample challenge.</p>
-    <div class="cd" aria-label="Time left this month"><div><b id="d">--</b><small>days</small></div><div><b id="h">--</b><small>hours</small></div><div><b id="m">--</b><small>min</small></div></div>
-    <p style="font-size:12px;color:var(--steel-dim)">Time left this month</p></div>
-</div></section>
+</section>
 
-<aside class="ad-slot" aria-label="Advertisement" hidden><div class="ad-label">Advertisement</div><div class="ad-body">Ad space (preview)</div></aside>
-
-<section class="band"><div class="wrap chal">
-  <div>
-    <p class="kicker">Share your progress</p>
-    <h2>Milestone cards, ready to share</h2>
-    <p class="sec-lead">Share a card on WhatsApp or Telegram. It never contains contact data, and your referral link appears only if you add it.</p>
+<!-- challenges -->
+<section class="band" id="challenges" aria-labelledby="chH">
+  <div class="wrap">
+    <div class="row between wrap">
+      <div>
+        <p class="kicker" data-i18n="site.ch.kicker">Monthly challenges</p>
+        <h2 id="chH" data-i18n="site.ch.h">Hard goals, verified by the server</h2>
+        <p class="sec-lead" data-i18n="site.ch.lead">At least eight challenges every month across four tiers. None is completed by logging in or clicking: progress comes from real, measurable work.</p>
+      </div>
+      <div class="countdown card" aria-live="off">
+        <span class="label" data-i18n="site.ch.left">This month ends in</span>
+        <div class="cd"><div><b class="num" id="cdD">--</b><small data-i18n="site.ch.days">days</small></div><div><b class="num" id="cdH">--</b><small data-i18n="site.ch.hours">hours</small></div><div><b class="num" id="cdM">--</b><small data-i18n="site.ch.min">min</small></div></div>
+      </div>
+    </div>
+    <div class="tier-grid">
+      <article class="tier diff-advanced"><span class="diff-badge" data-i18n="diff.advanced">Advanced</span><h3 data-i18n="site.ch.t1">Referral Strategist</h3><p data-i18n="site.ch.t1p">Obtain 25 qualified referrals during the challenge period.</p><span class="tier-reward"><svg class="i i-sm" aria-hidden="true"><use href="/assets/icons.svg#i-sparkle"/></svg><span data-i18n="site.ch.t1r">500 XP</span></span></article>
+      <article class="tier diff-expert"><span class="diff-badge" data-i18n="diff.expert">Expert</span><h3 data-i18n="site.ch.t2">Consistency Master</h3><p data-i18n="site.ch.t2p">Complete verified activities on 20 separate days in the month.</p><span class="tier-reward"><svg class="i i-sm" aria-hidden="true"><use href="/assets/icons.svg#i-sparkle"/></svg><span data-i18n="site.ch.t2r">250 XP</span></span></article>
+      <article class="tier diff-elite"><span class="diff-badge" data-i18n="diff.elite">Elite</span><h3 data-i18n="site.ch.t3">Elite Recruiter</h3><p data-i18n="site.ch.t3p">Reach 150 qualified referrals that pass every check.</p><span class="tier-reward"><svg class="i i-sm" aria-hidden="true"><use href="/assets/icons.svg#i-medal"/></svg><span data-i18n="site.ch.t3r">Elite badge</span></span></article>
+      <article class="tier diff-legendary"><span class="diff-badge" data-i18n="diff.legendary">Legendary</span><h3 data-i18n="site.ch.t4">Growth Architect</h3><p data-i18n="site.ch.t4p">Obtain 75 qualified referrals that pass the published eligibility and anti-fraud checks.</p><span class="tier-reward"><svg class="i i-sm" aria-hidden="true"><use href="/assets/icons.svg#i-crown"/></svg><span data-i18n="site.ch.t4r">Legendary badge</span></span></article>
+    </div>
+    <p class="fine mt-2"><span data-i18n="site.ch.note">Sample challenges. The live list, rewards, deadlines and terms are in the app; cash or Telegram and WhatsApp rewards are only offered with an assigned budget.</span> <a href="/legal/challenge-rules" data-i18n="site.ch.rules">Challenge rules</a></p>
   </div>
-  <div class="share"><img src="assets/emblem.svg" alt=""><div class="big">500</div><p>Qualified referrals reached. Sample card.</p></div>
-</div></section>
+</section>
 
-<section class="band" id="faq"><div class="wrap faq">
-  <h2 data-i18n="q_h">Questions</h2>
-  <div style="margin-top:28px">
-    <details><summary>Why does Google ask for Contacts access?</summary><p>Only to create and update contacts in the account you authorise. You can pause, disconnect or revoke it, and your local contacts stay.</p></details>
-    <details><summary>How does withdrawal work?</summary><p>Once your balance reaches $15 you can request a withdrawal to PayPal, Binance Pay or Pix. The team reviews it, sends the money, then confirms it. A failed transfer is never shown as paid.</p></details>
-    <details><summary>Is there a limit to what I can earn?</summary><p>The rate applies to qualified referrals only. Reward budgets and anti-fraud review can apply, and the published rules always come first.</p></details>
-    <details><summary>How many phone numbers can I save per contact?</summary><p>One. Each contact holds a single phone number, which keeps your address book simple and easy to sync.</p></details>
-    <details><summary>Are there ads?</summary><p>Ads can appear on public pages and the dashboard overview, always labelled and only after you agree. They never appear on pages that show your contacts, your wallet or payout details, and they never use your contacts. Reward rules do not depend on you clicking ads.</p></details>
-    <details><summary>Can I delete my account?</summary><p>Yes, from settings. You can export your data first.</p></details>
+<!-- security & privacy -->
+<section class="band band-alt" id="security" aria-labelledby="secH">
+  <div class="wrap">
+    <p class="kicker" data-i18n="site.sec.kicker">Security and privacy</p>
+    <h2 id="secH" data-i18n="site.sec.h">Your contacts stay yours</h2>
+    <p class="sec-lead" data-i18n="site.sec.lead">Clear lines about what we store, what goes to Google and what never happens.</p>
+    <div class="priv-grid">
+      <div class="card"><span class="icon-tile blue"><svg class="i" aria-hidden="true"><use href="/assets/icons.svg#i-database"/></svg></span><h3 data-i18n="site.sec.c1">What we store</h3>
+        <ul class="checks"><li data-i18n="site.sec.c1a">The contacts you create or import, in your private address book</li><li data-i18n="site.sec.c1b">Sync status and error history, never contact contents in logs</li><li data-i18n="site.sec.c1c">Google tokens and payout details, encrypted with AES-256</li></ul></div>
+      <div class="card"><span class="icon-tile violet"><svg class="i" aria-hidden="true"><use href="/assets/icons.svg#i-cloud"/></svg></span><h3 data-i18n="site.sec.c2">What goes to Google</h3>
+        <ul class="checks"><li data-i18n="site.sec.c2a">Sign-in asks only for your name and e-mail</li><li data-i18n="site.sec.c2b">Contacts access is a separate permission you grant later, if you want sync</li><li data-i18n="site.sec.c2c">Contacts go only to the account you signed in with; nothing while sync is paused</li></ul></div>
+      <div class="card"><span class="icon-tile bad"><svg class="i" aria-hidden="true"><use href="/assets/icons.svg#i-ban"/></svg></span><h3 data-i18n="site.sec.c3">What never happens</h3>
+        <ul class="crosses"><li data-i18n="site.sec.c3a">Your contacts in profiles, leaderboards or reports</li><li data-i18n="site.sec.c3b">Selling or sharing address books</li><li data-i18n="site.sec.c3c">Messages sent to the people in your contacts</li><li data-i18n="site.sec.c3d">Deleting anything in your Google Contacts</li></ul></div>
+      <div class="card"><span class="icon-tile ok"><svg class="i" aria-hidden="true"><use href="/assets/icons.svg#i-sliders"/></svg></span><h3 data-i18n="site.sec.c4">You stay in control</h3>
+        <ul class="checks"><li data-i18n="site.sec.c4a">Pause sync, disconnect Google or revoke access at any time</li><li data-i18n="site.sec.c4b">See your active sessions and sign out other devices</li><li data-i18n="site.sec.c4c">Download all your data or delete your account</li></ul></div>
+    </div>
   </div>
-</div></section>
+</section>
+
+<!-- FAQ -->
+<section class="band" id="faq" aria-labelledby="faqH">
+  <div class="wrap faq-wrap">
+    <div>
+      <p class="kicker" data-i18n="site.faq.kicker">FAQ</p>
+      <h2 id="faqH" data-i18n="site.faq.h">Questions, answered plainly</h2>
+      <p class="sec-lead" data-i18n="site.faq.lead">Something missing? Write to us and a person will answer.</p>
+      <a class="btn mt-2" href="/support"><svg class="i" aria-hidden="true"><use href="/assets/icons.svg#i-lifebuoy"/></svg><span data-i18n="site.faq.contact">Contact support</span></a>
+    </div>
+    <div class="faq">
+      <details><summary data-i18n="site.faq.q1">Why only Google sign-in?</summary><p data-i18n="site.faq.a1">It means no password stored here and no password to leak. Your Google account is identified by its stable Google ID; we never see or ask for your Google password.</p></details>
+      <details><summary data-i18n="site.faq.q2">What does the Google Contacts permission allow?</summary><p data-i18n="site.faq.a2">Sign-in only shares your name and e-mail. If you choose to connect Google Contacts, Google asks you separately to let SYRIX VCF create and update contacts in your own account. You can revoke it from the app or from your Google account at any time.</p></details>
+      <details><summary data-i18n="site.faq.q3">How does synchronisation work?</summary><p data-i18n="site.faq.a3">Every contact you save is queued and sent in the background to the Google account you authorised. Failed attempts are retried with increasing delays. Deleting a contact here never deletes it in Google, and a conflict is shown to you instead of being overwritten.</p></details>
+      <details><summary data-i18n="site.faq.q4">Which VCF files can I import?</summary><p data-i18n="site.faq.a4">vCard 2.1, 3.0 and 4.0, up to 5 MB per file. You see a preview first: how many contacts will be added, which ones are duplicates and which records are invalid. Nothing is written until you confirm.</p></details>
+      <details><summary data-i18n="site.faq.q5">Who counts as a qualified referral?</summary><p data-i18n="site.faq.a5">Someone who signs up through your link with their own verified Google account, keeps the account for at least 24 hours and passes the anti-fraud checks. Clicks, self-referrals and duplicate accounts never count.</p></details>
+      <details><summary data-i18n="site.faq.q6">When is the $10.00 reward paid?</summary><p data-i18n="site.faq.a6">When your 500th referral qualifies, the reward is created once and a payout request is opened. Payouts are sent manually after review, usually within a few business days. You can follow every status change in your wallet.</p></details>
+      <details><summary data-i18n="site.faq.q7">What if a payout fails?</summary><p data-i18n="site.faq.a7">The status shows Failed with the reason, and the amount goes back to your available balance. Nothing is shown as paid unless the transfer was confirmed with a reference. You can update your payout details and the team can retry after checking.</p></details>
+      <details><summary data-i18n="site.faq.q8">How hard are the challenges?</summary><p data-i18n="site.faq.a8">Deliberately hard. Each one needs real, measurable work such as qualified referrals, verified synchronisations or activity on many separate days. Progress is computed by the server, and the terms cannot change once someone has qualified.</p></details>
+      <details><summary data-i18n="site.faq.q9">Is XP worth money?</summary><p data-i18n="site.faq.a9">No. XP, levels, VIP ranks and badges show your progress and unlock benefits inside the app. They can never be withdrawn or exchanged for money.</p></details>
+      <details><summary data-i18n="site.faq.q10">How do I delete my account?</summary><p data-i18n="site.faq.a10">In Settings, choose Delete my account. You have 14 days to change your mind; after that your contacts, backups and personal details are erased. Records the law requires, such as completed payments, are kept without your name.</p></details>
+      <details><summary data-i18n="site.faq.q11">Who can see my contacts?</summary><p data-i18n="site.faq.a11">Only you. Administrators see counts and sync status, never the contents of an address book. Contacts never appear in profiles, leaderboards or shared cards.</p></details>
+    </div>
+  </div>
+</section>
+
+<aside class="ad-slot" aria-label="Advertisement" data-i18n-attr="aria-label:site.ad.label" hidden><div class="ad-label" data-i18n="site.ad.label">Advertisement</div><div class="ad-body"></div></aside>
+
+<section class="final-cta">
+  <div class="wrap final-in">
+    <img src="/assets/logo-mark.svg" width="56" height="56" alt="">
+    <h2 data-i18n="site.final.h">Start with your address book. Keep it safe for good.</h2>
+    <p class="muted" data-i18n="site.final.p">Free to use. Sign in with Google in a few seconds.</p>
+    <a class="btn btn-google btn-lg signin-link" href="/api/auth/google/start?next=%2Fapp%2F"><svg class="i" viewBox="0 0 48 48" aria-hidden="true"><use href="/assets/icons.svg#i-google"/></svg><span data-i18n="site.hero.cta">Sign in with Google</span></a>
+  </div>
+</section>
 </main>
 
-<footer><div class="wrap">
-  <div class="fcols">
-    <div><div class="brand"><img src="assets/emblem-dark.svg" alt=""><span>SYRIX VCF<small>BY SYRIX VISION COMPANY</small></span></div><p style="margin-top:14px">syrixcompany@gmail.com</p></div>
-    <div><h5>Product</h5><a href="#rewards">Rewards</a><a href="#challenges">Challenges</a><a href="#privacy">Privacy</a></div>
-    <div><h5>Company</h5><a href="#products">Syrix Vision Company</a><a href="#">Brand kit</a><a href="#">Status</a></div>
-    <div><h5>Legal</h5><a href="#">Terms</a><a href="#">Privacy policy</a><a href="#">Reward rules</a><a href="#">Challenge rules</a></div>
+<footer class="footer">
+  <div class="wrap footer-in">
+    <div class="footer-brand">
+      <img src="/assets/logo-full.svg" class="logo-dark" width="210" height="47" alt="SYRIX VCF — BY SYRIX VISION COMPANY">
+      <img src="/assets/logo-full-light.svg" class="logo-light" width="210" height="47" alt="SYRIX VCF — BY SYRIX VISION COMPANY">
+      <p class="muted small" data-i18n="site.footer.about">Contact management, Google Contacts sync and VCF backups, with referral rewards and monthly challenges.</p>
+      <a class="small" href="mailto:syrixcompany@gmail.com"><svg class="i i-sm inline" aria-hidden="true"><use href="/assets/icons.svg#i-mail"/></svg> syrixcompany@gmail.com</a>
+    </div>
+    <nav class="footer-col" aria-label="Product" data-i18n-attr="aria-label:site.footer.product"><h3 data-i18n="site.footer.product">Product</h3><a href="#features" data-i18n="site.nav.features">Features</a><a href="#rewards" data-i18n="site.nav.rewards">Rewards</a><a href="#challenges" data-i18n="site.nav.challenges">Challenges</a><a href="/app/" data-i18n="site.footer.open">Open the app</a></nav>
+    <nav class="footer-col" aria-label="Legal" data-i18n-attr="aria-label:site.footer.legal"><h3 data-i18n="site.footer.legal">Legal</h3><a href="/legal/terms" data-i18n="legal.terms">Terms of use</a><a href="/legal/privacy" data-i18n="legal.privacy">Privacy policy</a><a href="/legal/reward-rules" data-i18n="legal.rewards">Reward rules</a><a href="/legal/challenge-rules" data-i18n="legal.challenges">Challenge rules</a></nav>
+    <nav class="footer-col" aria-label="Help" data-i18n-attr="aria-label:site.footer.help"><h3 data-i18n="site.footer.help">Help</h3><a href="/support" data-i18n="site.footer.support">Support</a><a href="#faq" data-i18n="site.nav.faq">FAQ</a><a href="/api/openapi.json" data-i18n="site.footer.api">API reference</a></nav>
   </div>
-  <div class="legal">© 2026 Syrix Vision Company. All rights reserved.</div>
-</div></footer>
-
-<script>
-const T={
-fr:{skip:"Passer",nav_products:"Entreprise",nav_privacy:"Confidentialité",nav_rewards:"Récompenses",nav_ch:"Défis",nav_faq:"FAQ",signin:"Connexion",h1:"Votre carnet d'adresses, protégé et synchronisé.",lead:"SYRIX VCF stocke vos contacts en sécurité, envoie les nouveaux vers votre propre Google Contacts et garde des sauvegardes VCF restaurables après aperçu.",cta1:"Se connecter avec Google",cta2:"Voir les récompenses",demo_t:"Essayez le parcours",demo_s:"Démo, rien n'est enregistré",co_h:"Une entreprise, une famille de produits",pv_h:"Vos contacts restent les vôtres",rw_h:"Votre solde grandit à chaque parrainage qualifié",ch_h:"Des objectifs difficiles. Vérifiés par le serveur.",q_h:"Questions"},
-pt:{skip:"Pular",nav_products:"Empresa",nav_privacy:"Privacidade",nav_rewards:"Recompensas",nav_ch:"Desafios",nav_faq:"FAQ",signin:"Entrar",h1:"Sua agenda, protegida e sincronizada.",lead:"O SYRIX VCF guarda seus contatos com segurança, envia os novos ao seu próprio Google Contatos e mantém backups VCF restauráveis após uma prévia.",cta1:"Fazer login com o Google",cta2:"Ver recompensas",demo_t:"Teste o fluxo",demo_s:"Demonstração, nada é salvo",co_h:"Uma empresa, uma família de produtos",pv_h:"Seus contatos continuam seus",rw_h:"Seu saldo cresce a cada indicação qualificada",ch_h:"Metas difíceis. Verificadas pelo servidor.",q_h:"Perguntas"},
-es:{skip:"Omitir",nav_products:"Empresa",nav_privacy:"Privacidad",nav_rewards:"Recompensas",nav_ch:"Retos",nav_faq:"FAQ",signin:"Iniciar sesión",h1:"Tu agenda, protegida y sincronizada.",lead:"SYRIX VCF guarda tus contactos de forma segura, envía los nuevos a tu propio Google Contactos y conserva copias VCF restaurables tras una vista previa.",cta1:"Iniciar sesión con Google",cta2:"Ver recompensas",demo_t:"Prueba el flujo",demo_s:"Demo, no se guarda nada",co_h:"Una empresa, una familia de productos",pv_h:"Tus contactos siguen siendo tuyos",rw_h:"Tu saldo crece con cada referido calificado",ch_h:"Metas difíciles. Verificadas por el servidor.",q_h:"Preguntas"},
-ar:{skip:"تخطي",nav_products:"الشركة",nav_privacy:"الخصوصية",nav_rewards:"المكافآت",nav_ch:"التحديات",nav_faq:"الأسئلة",signin:"تسجيل الدخول",h1:"دفتر عناوينك، محمي ومتزامن.",lead:"يحفظ SYRIX VCF جهات اتصالك بأمان، ويرسل الجديدة منها إلى جهات اتصال Google الخاصة بك، ويحتفظ بنسخ VCF يمكن استعادتها بعد المعاينة.",cta1:"تسجيل الدخول باستخدام Google",cta2:"شاهد المكافآت",demo_t:"جرّب المسار",demo_s:"عرض تجريبي، لا يتم حفظ شيء",co_h:"شركة واحدة، عائلة من المنتجات",pv_h:"جهات اتصالك تبقى لك",rw_h:"رصيدك ينمو مع كل إحالة مؤهلة",ch_h:"أهداف صعبة. يتحقق منها الخادم.",q_h:"أسئلة"}};
-function setLang(l){const d=T[l]||{};document.documentElement.lang=l;document.documentElement.dir=l==='ar'?'rtl':'ltr';
- document.querySelectorAll('[data-i18n]').forEach(e=>{if(!e.dataset.en)e.dataset.en=e.textContent;e.textContent=d[e.dataset.i18n]||e.dataset.en});
- localStorage.setItem('lang',l);document.getElementById('lang').value=l}
-document.getElementById('lang').addEventListener('change',e=>setLang(e.target.value));
-const sv=localStorage.getItem('lang')||(navigator.language||'en').slice(0,2);if(T[sv])setLang(sv);
-
-/* intro */
-const intro=document.getElementById('intro');const closeIntro=()=>{intro.classList.add('done');sessionStorage.setItem('introSeen','1')};
-if(sessionStorage.getItem('introSeen')||new URLSearchParams(location.search).has('nointro')||matchMedia('(prefers-reduced-motion:reduce)').matches)intro.classList.add('done');else setTimeout(closeIntro,3600);
-document.getElementById('skip').addEventListener('click',closeIntro);
-
-/* phone masking: keep country code + last 2 digits */
-function mask(v){const d=v.replace(/[^\d+]/g,'');if(d.length<6)return '••••';return d.slice(0,Math.min(3,d.length-4))+' •• •• •• '+d.slice(-2)}
-/* demo: the typed number is hidden as soon as the field loses focus */
-const dp=document.getElementById('dp');
-dp.addEventListener('blur',()=>{if(dp.value&&!dp.dataset.raw){dp.dataset.raw=dp.value;dp.value=mask(dp.value)}});
-dp.addEventListener('focus',()=>{if(dp.dataset.raw){dp.value=dp.dataset.raw;delete dp.dataset.raw}});
-/* demo */
-const dgo=document.getElementById('dgo'),st=[...document.querySelectorAll('.steps4 div')],out=document.getElementById('dout');
-dgo.addEventListener('click',()=>{st.forEach(s=>s.classList.remove('on'));const n=document.getElementById('dn').value.trim()||'Contact';const p=mask(dp.dataset.raw||dp.value||'+33612345678');
- const msgs=['Contact created','Saved in the database','Queued for Google Contacts (demo)','VCF export ready (demo)'];
- st.forEach((s,i)=>setTimeout(()=>{s.classList.add('on');out.textContent=msgs[i]+(i===0?`: ${n}, ${p}`:'')},i*600))});
-/* rewards calculator: $0.01 per qualified referral, withdraw from $15 */
-const rg=document.getElementById('rg'),pills=[...document.querySelectorAll('.pill')];
-function calc(n){n=Math.max(0,Math.min(1e6,n));const usd=n*0.01;
- document.getElementById('cn').textContent=n.toLocaleString('en-US');
- document.getElementById('amt').innerHTML='$'+usd.toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2})+'<small>USD</small>';
- const s=document.getElementById('st');if(usd>=15){s.className='status ok';s.textContent='Withdrawal available: balance is above $15.'}else{s.className='status';s.textContent='Below the $15 withdrawal minimum ($'+(15-usd).toFixed(2)+' to go).'}
- pills.forEach(b=>b.classList.toggle('on',+b.dataset.n===n));rg.value=Math.min(n,2000)}
-rg.addEventListener('input',()=>calc(+rg.value));pills.forEach(b=>b.addEventListener('click',()=>calc(+b.dataset.n)));calc(500);
-/* month countdown */
-function tick(){const now=new Date(),end=new Date(now.getFullYear(),now.getMonth()+1,1);let s=Math.max(0,(end-now)/1000);
- document.getElementById('d').textContent=Math.floor(s/86400);document.getElementById('h').textContent=Math.floor(s%86400/3600);document.getElementById('m').textContent=Math.floor(s%3600/60)}
-tick();setInterval(tick,30000);
-</script>
-<script src="ads.js" defer></script>
-</body></html>
+  <div class="wrap footer-bottom">
+    <span class="sig">SYRIX VCF — BY SYRIX VISION COMPANY</span>
+    <span class="faint small">© <span id="year">2026</span> Syrix Vision Company</span>
+    <label class="row small"><svg class="i i-sm" aria-hidden="true"><use href="/assets/icons.svg#i-globe"/></svg><span class="sr-only" data-i18n="common.language">Language</span><select class="select select-sm lang-select" id="langSel2"><option value="en">English</option><option value="fr">Français</option><option value="pt">Português</option><option value="es">Español</option><option value="ar">العربية</option></select></label>
+  </div>
+</footer>
+<script src="/ads.js" defer></script>
+</body>
+</html>

@@ -66,6 +66,11 @@ test("challenge: terms are frozen once someone qualifies", () => {
   assert.ok(validateUpdate(def, { ...def, threshold: 5 }, true).length > 0);
   assert.ok(validateUpdate(def, { ...def, endsAt: def.endsAt - DAY }, true).length > 0);
   assert.deepEqual(validateUpdate(def, { ...def, endsAt: def.endsAt + DAY }, true), []);
+  // once published, terms only move in the participants' favour, even before anyone qualified
+  const pub = { ...def, published: true };
+  assert.ok(validateUpdate(pub, { ...def, threshold: def.threshold - 1 }, false).length > 0);
+  assert.ok(validateUpdate(pub, { ...def, endsAt: def.endsAt - DAY }, false).length > 0);
+  assert.deepEqual(validateUpdate(pub, { ...def, threshold: def.threshold + 5, endsAt: def.endsAt + DAY }, false), []);
 });
 test("challenge: a month needs at least 8 real challenges", () => {
   const tiers = ["advanced", "expert", "elite", "legendary"] as const;

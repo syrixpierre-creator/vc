@@ -50,23 +50,24 @@ export function registerAuth(app: AppCtx) {
     const clearOauth = `${OAUTH_COOKIE}=; Path=/; HttpOnly; Secure; SameSite=Lax; Max-Age=0`;
     if (!state || !statesMatch(state, bound)) {
       await store.addSecurityEvent({ kind: "oauth_state_mismatch", detail: {}, ipPrefix: ipPrefix(c.ip), at: now() });
-      throw new HttpError(400, "invalid_state");
+      return fail(app, c, "expired"); // a browser navigation: show a page, not JSON
     }
     const pending = await store.takePending(state);
-    if (!pending) throw new HttpError(400, "invalid_state");
+    if (!pending) return fail(app, c, "expired");
     if (c.url.searchParams.get("error")) { // the user pressed Cancel at Google
       c.setCookies.push(clearOauth);
       if (pending.purpose === "contacts") return send(c, 302, "", { Location: `${pending.next}?e=denied` });
       return fail(app, c, "denied");
     }
-    if (!code) throw new HttpError(400, "invalid_state");
+    if (!code) return fail(app, c, "expired");
     let ident, tok;
     try {
       tok = await app.deps.google.exchangeCode(code, pending.codeVerifier, config.google.redirectUri);
       ident = verifyIdToken(tok.idToken, await app.deps.google.getJwks(), { audience: config.google.clientId, nonce: pending.nonce, now: now() });
     } catch {
       await store.addSecurityEvent({ kind: "login_failed", detail: { reason: "google_verification_failed" }, ipPrefix: ipPrefix(c.ip), at: now() });
-      throw new HttpError(401, "google_verification_failed");
+      c.setCookies.push(clearOauth);
+      return fail(app, c, "verification");
     }
 
     if (pending.purpose === "contacts") { // connecting Google Contacts: bound to the signed-in user, never to someone else's account

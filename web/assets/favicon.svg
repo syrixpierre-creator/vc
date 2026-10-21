@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><defs>
+  <linearGradient id="fvr" x1="8" y1="6" x2="58" y2="60" gradientUnits="userSpaceOnUse"><stop stop-color="#F1F5FF"/><stop offset=".5" stop-color="#8EAEFF"/><stop offset="1" stop-color="#9C7BF7"/></linearGradient>
+  <linearGradient id="fvn" x1="8" y1="58" x2="58" y2="6" gradientUnits="userSpaceOnUse"><stop stop-color="#5B7CFF"/><stop offset=".55" stop-color="#B9CBFF"/><stop offset="1" stop-color="#FFFFFF"/></linearGradient>
+  <mask id="fvm" maskUnits="userSpaceOnUse" x="0" y="0" width="64" height="64"><rect width="64" height="64" fill="#fff"/>
+    <polygon points="7,59 34.5,34.5 58,6 29.5,29.5" fill="#000" stroke="#000" stroke-width="5.5" stroke-linejoin="round"/></mask><linearGradient id="fvb" x1="0" y1="0" x2="64" y2="64" gradientUnits="userSpaceOnUse"><stop stop-color="#0E1A36"/><stop offset="1" stop-color="#070B14"/></linearGradient></defs>
+<rect width="64" height="64" rx="14" fill="url(#fvb)"/><g transform="translate(5 5) scale(.84)">
+  <circle cx="32" cy="32" r="24" fill="none" stroke="url(#fvr)" stroke-width="4.6" mask="url(#fvm)"/>
+  <polygon points="7,59 34.5,34.5 58,6 29.5,29.5" fill="url(#fvn)"/>
+  <g stroke="#CFDCFF" stroke-width="1.7" stroke-linecap="round" opacity=".92"><path d="M20.5 21 26.5 15.5M20.5 21 17.5 29.5"/><path d="M43.5 43 48.5 36.5M43.5 43 36.5 48.5"/></g>
+  <g fill="#E6EDFF"><circle cx="20.5" cy="21" r="3.1"/><circle cx="26.5" cy="15.5" r="2.3"/><circle cx="17.5" cy="29.5" r="2.1"/><circle cx="43.5" cy="43" r="3.1"/><circle cx="48.5" cy="36.5" r="2.3"/><circle cx="36.5" cy="48.5" r="2.1"/></g></g></svg>

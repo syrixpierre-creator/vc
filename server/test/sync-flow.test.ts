@@ -66,7 +66,8 @@ test("connect: contacts can only be linked to the Google account the user signed
   const r = await h.send(a, "/api/google-contacts/connect", {});
   const state = new URL(((await r.json()) as { url: string }).url).searchParams.get("state")!;
   const anon = await fetch(`${h.base}/api/auth/google/callback?state=${state}&code=x`, { redirect: "manual", headers: { cookie: `__Host-oauth=${state}` } });
-  assert.ok([400, 401].includes(anon.status), "no session, no connection");
+  assert.ok(anon.headers.get("location")?.startsWith("/signin-error"), "no session, no connection");
+  assert.equal((await status(h, a)).status, "not_connected");
 }));
 
 test("auto sync: nothing is queued before connecting; after connecting each save is queued; turning it off stops queueing", () => withH(async h => {

@@ -116,7 +116,7 @@ export function createStatic(o: { root: string; appUrl: string; ads?: { enabled:
       res.end(`User-agent: *\nAllow: /\nDisallow: /app/\nDisallow: /admin/\nDisallow: /api/\n\nSitemap: ${appUrl}/sitemap.xml\n`);
       return true;
     }
-    const pages = ["/", "/features", "/rewards", "/challenges", "/security", "/faq", "/support", "/legal/terms", "/legal/privacy", "/legal/reward-rules", "/legal/challenge-rules"];
+    const pages = ["/", "/support", "/legal/terms", "/legal/privacy", "/legal/reward-rules", "/legal/challenge-rules"];
     res.setHeader("Content-Type", "application/xml; charset=utf-8");
     res.end(`<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${pages.map(p => `  <url><loc>${appUrl}${p}</loc></url>`).join("\n")}\n</urlset>\n`);
     return true;

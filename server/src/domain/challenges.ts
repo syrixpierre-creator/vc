@@ -60,8 +60,13 @@ export function canAward(def: ChallengeDef, winnersSoFar: number, spentCents: nu
 }
 
 /** Terms cannot change once someone has qualified. Only the end date may be extended, never shortened. */
-export function validateUpdate(old: ChallengeDef, next: ChallengeDef, anyoneQualified: boolean): string[] {
+export function validateUpdate(old: ChallengeDef & { published?: boolean; rewardXp?: number }, next: ChallengeDef & { rewardXp?: number }, anyoneQualified: boolean): string[] {
   const errs: string[] = [];
+  if (old.published) { // published terms only move in the participants' favour: never easier for some, never a smaller reward or a shorter window
+    if (next.threshold < old.threshold) errs.push("threshold cannot be lowered after publishing");
+    if ((next.rewardCents ?? 0) < (old.rewardCents ?? 0) || (next.rewardXp ?? 0) < (old.rewardXp ?? 0)) errs.push("reward cannot be reduced after publishing");
+    if (next.endsAt < old.endsAt) errs.push("endsAt cannot be shortened after publishing");
+  }
   if (!anyoneQualified) return errs;
   for (const k of ["metric", "threshold", "rewardType", "rewardCents", "difficulty", "startsAt"] as const) {
     if (old[k] !== next[k]) errs.push(`${k} cannot change after a participant qualified`);

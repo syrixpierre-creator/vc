@@ -28,11 +28,14 @@ test("login: callback without the browser-bound cookie or with a replayed state 
   const loc = new URL(start.headers.get("location")!);
   const state = loc.searchParams.get("state")!;
   codes.set("c-x", { idToken: idToken(loc.searchParams.get("nonce")!, "sX", "x@x.com") });
-  assert.equal((await fetch(`${base}/api/auth/google/callback?state=${state}&code=c-x`, { redirect: "manual" })).status, 400, "no cookie");
+  const noCookie = await fetch(`${base}/api/auth/google/callback?state=${state}&code=c-x`, { redirect: "manual" });
+  assert.equal(noCookie.headers.get("location"), "/signin-error?e=expired", "no cookie: a page explaining it, and no session");
+  assert.equal(noCookie.headers.get("set-cookie")?.includes("__Host-sid=") ?? false, false);
   const ok = await fetch(`${base}/api/auth/google/callback?state=${state}&code=c-x`, { redirect: "manual", headers: { cookie: `__Host-oauth=${state}` } });
   assert.equal(ok.status, 302);
   const replay = await fetch(`${base}/api/auth/google/callback?state=${state}&code=c-x`, { redirect: "manual", headers: { cookie: `__Host-oauth=${state}` } });
-  assert.equal(replay.status, 400, "state is one-time use");
+  assert.equal(replay.headers.get("location"), "/signin-error?e=expired", "state is one-time use");
+  assert.equal(replay.headers.get("set-cookie")?.includes("__Host-sid=") ?? false, false);
 });
 
 test("login: unverified Google email is refused", async () => {
@@ -41,7 +44,8 @@ test("login: unverified Google email is refused", async () => {
   const state = loc.searchParams.get("state")!;
   codes.set("c-u", { idToken: idToken(loc.searchParams.get("nonce")!, "sU", "u@x.com", false) });
   const r = await fetch(`${base}/api/auth/google/callback?state=${state}&code=c-u`, { redirect: "manual", headers: { cookie: `__Host-oauth=${state}` } });
-  assert.equal(r.status, 401);
+  assert.equal(r.headers.get("location"), "/signin-error?e=verification");
+  assert.equal(r.headers.get("set-cookie")?.includes("__Host-sid=") ?? false, false, "no session for an unverified e-mail");
 });
 
 test("login: session cookie flags and redirect target are safe", async () => {
