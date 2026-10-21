@@ -1,0 +1,91 @@
+# SYRIX VCF — production stack. Only Caddy publishes ports; PostgreSQL and Redis stay on the private network.
+name: syrix-vcf
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: syrix
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?set POSTGRES_PASSWORD in .env}
+      POSTGRES_DB: syrix
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    networks: [private]
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U syrix -d syrix"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+    logging: &logging
+      driver: json-file
+      options: { max-size: "10m", max-file: "5" }
+
+  redis:
+    image: redis:7-alpine
+    restart: unless-stopped
+    command: ["redis-server", "--appendonly", "yes", "--maxmemory", "256mb", "--maxmemory-policy", "noeviction"]
+    volumes:
+      - redisdata:/data
+    networks: [private]
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+    logging: *logging
+
+  app:
+    build: .
+    restart: unless-stopped
+    # migrations run first (single place that changes the schema); the app only starts if they succeed
+    command: ["sh", "-c", "node server/src/migrate.ts && node server/src/main.ts"]
+    env_file: .env
+    depends_on:
+      postgres: { condition: service_healthy }
+      redis: { condition: service_healthy }
+    networks: [private, edge]
+    healthcheck:
+      test: ["CMD", "node", "-e", "fetch('http://127.0.0.1:3000/readyz').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+    logging: *logging
+
+  worker:
+    build: .
+    restart: unless-stopped
+    command: ["node", "server/src/worker.ts"]
+    env_file: .env
+    depends_on:
+      app: { condition: service_healthy }   # waits for migrations
+    networks: [private]
+    logging: *logging
+
+  caddy:
+    image: caddy:2-alpine
+    restart: unless-stopped
+    environment:
+      DOMAIN: ${DOMAIN:?set DOMAIN in .env}
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./deploy/Caddyfile:/etc/caddy/Caddyfile:ro
+      - ./web:/srv/web:ro
+      - caddy_data:/data
+      - caddy_config:/config
+    depends_on: [app]
+    networks: [edge]
+    logging: *logging
+
+networks:
+  private:
+    internal: true      # no route to the internet or the host: PostgreSQL and Redis are unreachable from outside
+  edge: {}
+
+volumes:
+  pgdata:
+  redisdata:
+  caddy_data:
+  caddy_config:
