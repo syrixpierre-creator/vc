@@ -2,17 +2,17 @@
 export type Cents = number;
 
 export interface RewardPolicy {
-  /** cents earned per qualified referral (default 1 = $0.01: $5 at 500, $10 at 1000) */
+  /** optional cents earned per qualified referral (default 0: the cash reward is the one-time $10 milestone at 500) */
   centsPerReferral: Cents;
-  /** minimum available balance needed to request a withdrawal (default 1500 = $15) */
+  /** minimum available balance needed to request a withdrawal (default 1000 = $10) */
   minWithdrawCents: Cents;
   /** hard ceiling on referrals that can earn money (default 1,000,000) */
   maxRewardedReferrals: number;
 }
 
 export const DEFAULT_POLICY: RewardPolicy = {
-  centsPerReferral: 1,
-  minWithdrawCents: 1500,
+  centsPerReferral: 0,
+  minWithdrawCents: 1000,
   maxRewardedReferrals: 1_000_000,
 };
 
@@ -31,7 +31,7 @@ export function canRequestWithdrawal(availableCents: Cents, p: RewardPolicy = DE
 
 /** Referrals needed before the available balance reaches the withdrawal minimum. */
 export function referralsForWithdrawal(p: RewardPolicy = DEFAULT_POLICY): number {
-  return Math.ceil(p.minWithdrawCents / p.centsPerReferral);
+  return p.centsPerReferral > 0 ? Math.ceil(p.minWithdrawCents / p.centsPerReferral) : Infinity;
 }
 
 export function formatUsd(cents: Cents): string {

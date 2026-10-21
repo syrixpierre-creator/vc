@@ -7,9 +7,10 @@ import { decrypt } from "../src/security/crypto.ts";
 import { KEYRING } from "./harness.ts";
 
 type H = Awaited<ReturnType<typeof startHarness>>;
-async function withH(fn: (h: H) => Promise<void>) { const h = await startHarness(); try { await fn(h); } finally { h.close(); } }
+async function withH(fn: (h: H) => Promise<void>) { const h = await startHarness(); try { await fn(h); } finally { await h.close(); } }
+const jobCount = async (h: H) => Number((await h.sql("SELECT count(*) AS c FROM contact_sync_jobs"))[0]!["c"]);
 let seq = 20_000_000;
-const phone = () => `+3368${String(seq++).padStart(8, "0")}`;
+const phone = () => `+336${String(seq++).padStart(8, "0")}`;
 const addContact = async (h: H, s: Session, name: string) => {
   const r = await h.send(s, "/api/contacts", { fullName: name, phone: phone() });
   assert.equal(r.status, 201);
@@ -33,7 +34,7 @@ test("connect: Contacts access is a separate, incremental request; tokens are st
   assert.equal(r.response.status, 302);
   assert.equal(r.response.headers.get("location"), "/app/#/sync?e=ok");
   assert.equal((await status(h, s)).status, "connected");
-  const stored = h.store.conns.get(s.userId)!;
+  const stored = await h.store.getConnection(s.userId);
   assert.ok(stored.refreshTokenEnc!.startsWith("v1:") && !JSON.stringify(stored).includes("secret"), "no plaintext tokens at rest");
   assert.equal(decrypt(stored.refreshTokenEnc!, KEYRING, `oauth_refresh:${s.userId}`), "rt-secret-1");
   assert.throws(() => decrypt(stored.refreshTokenEnc!, KEYRING, `oauth_refresh:someone-else`), "ciphertext is bound to its owner");
@@ -48,7 +49,7 @@ test("connect: unticked Contacts scope, missing refresh token and Cancel are han
   const cancelled = await h.connectContacts(s, { sub: "c2", email: "c2@x.com", cancel: true });
   assert.equal(cancelled.response.headers.get("location"), "/app/#/sync?e=denied");
   assert.equal((await status(h, s)).status, "not_connected");
-  assert.equal(h.store.conns.get(s.userId), undefined, "nothing stored");
+  assert.deepEqual(await h.store.getConnection(s.userId), { status: "not_connected" }, "nothing stored");
 }));
 
 test("connect: contacts can only be linked to the Google account the user signed in with, and only by that user's session", () => withH(async h => {
@@ -57,7 +58,7 @@ test("connect: contacts can only be linked to the Google account the user signed
   const wrongAccount = await h.connectContacts(a, { sub: "someone-else", email: "other@x.com" });
   assert.equal(wrongAccount.response.status, 302, "a different Google account is refused with a friendly redirect, not raw JSON");
   assert.equal(wrongAccount.response.headers.get("location"), "/app/#/sync?e=account");
-  assert.equal(h.store.conns.get(a.userId), undefined, "nothing was stored for the wrong account");
+  assert.deepEqual(await h.store.getConnection(a.userId), { status: "not_connected" }, "nothing was stored for the wrong account");
   const wrongSession = await h.connectContacts(a, { sub: "ua", email: "ua@x.com", as: b });
   assert.equal(wrongSession.response.status, 403, "callback replayed from another user's session");
   assert.equal((await status(h, a)).status, "not_connected");
@@ -71,15 +72,15 @@ test("connect: contacts can only be linked to the Google account the user signed
 test("auto sync: nothing is queued before connecting; after connecting each save is queued; turning it off stops queueing", () => withH(async h => {
   const s = await h.login("c3", "c3@x.com");
   const early = await addContact(h, s, "Before");
-  assert.equal(h.store.syncJobs.size, 0);
+  assert.equal((await jobCount(h)), 0);
   assert.equal(early.syncState, "local_only");
   await h.connectContacts(s, { sub: "c3", email: "c3@x.com" });
   const c = await addContact(h, s, "After");
-  assert.equal(h.store.syncJobs.size, 1);
+  assert.equal((await jobCount(h)), 1);
   assert.equal(await stateOf(h, s, c.id), "pending");
   await h.send(s, "/api/google-contacts/settings", { autoSync: false }, "PATCH");
   await addContact(h, s, "Quiet");
-  assert.equal(h.store.syncJobs.size, 1, "auto sync off: no new job");
+  assert.equal((await jobCount(h)), 1, "auto sync off: no new job");
 }));
 
 test("worker: a saved contact reaches Google once with the owner's token; edits update it; deleting never touches Google", () => withH(async h => {
@@ -112,7 +113,7 @@ test("worker: an expired access token is refreshed with the stored refresh token
   await h.runSync();
   assert.equal(used, "rt-c5");
   assert.equal(h.remote.calls[0]!.token, "at-fresh");
-  assert.ok(!JSON.stringify(h.store.conns.get(s.userId)).includes("at-fresh"), "refreshed token is encrypted too");
+  assert.ok(!JSON.stringify(await h.store.getConnection(s.userId)).includes("at-fresh"), "refreshed token is encrypted too");
 }));
 
 test("revoked access: the job fails without retries, status asks to reconnect, reconnecting and Sync now recovers", () => withH(async h => {
@@ -124,9 +125,9 @@ test("revoked access: the job fails without retries, status asks to reconnect, r
   assert.equal(h.remote.calls.length, 0);
   assert.equal(await stateOf(h, s, c.id), "failed");
   assert.equal((await status(h, s)).status, "revoked");
-  assert.equal(h.store.conns.get(s.userId)!.refreshTokenEnc, undefined, "dead tokens are dropped");
+  assert.equal((await h.store.getConnection(s.userId)).refreshTokenEnc, undefined, "dead tokens are dropped");
   const more = await addContact(h, s, "Also stuck");
-  assert.equal(h.store.syncJobs.size, 1, "not connected: no new jobs while revoked");
+  assert.equal((await jobCount(h)), 1, "not connected: no new jobs while revoked");
   assert.equal((await h.send(s, "/api/google-contacts/sync-now", {})).status, 409);
 
   h.fake.refresh = async () => ({ accessToken: "at-new", expiresIn: 3600 });
@@ -170,14 +171,14 @@ test("disconnect: Google is told to revoke, tokens are deleted, queued jobs stop
   const r = await h.send(s, "/api/google-contacts/disconnect", {});
   assert.equal(r.status, 200);
   assert.deepEqual(h.fake.revoked, ["rt-to-revoke"]);
-  assert.deepEqual(h.store.conns.get(s.userId), { status: "not_connected" });
+  assert.deepEqual(await h.store.getConnection(s.userId), { status: "not_connected" });
   await h.runSync();
   assert.equal(h.remote.calls.length, 0, "the queued job never runs after disconnecting");
   assert.equal(await stateOf(h, s, c.id), "local_only");
   assert.equal(((await (await h.get(s, "/api/contacts")).json()) as { total: number }).total, 1, "the contact is still here");
   await addContact(h, s, "After");
-  assert.equal([...h.store.syncJobs.values()].filter(j => j.status === "pending").length, 0);
-  assert.ok(h.store.audit.some(a => a.action === "google_contacts.disconnect"));
+  assert.equal((await h.sql("SELECT 1 FROM contact_sync_jobs WHERE status = 'pending'")).length, 0);
+  assert.ok((await h.store.listAudit({ action: "google_contacts.disconnect", limit: 5, offset: 0 })).length > 0);
 }));
 
 test("Sync now backfills contacts saved before connecting, only the caller's own, and needs a connection", () => withH(async h => {

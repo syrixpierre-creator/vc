@@ -2,9 +2,7 @@ import { test, after } from "node:test";
 import assert from "node:assert/strict";
 import { randomUUID } from "node:crypto";
 import { startHarness, type Session } from "./harness.ts";
-import { creditQualified } from "../src/domain/referral-engine.ts";
-import { DEFAULT_POLICY } from "../src/domain/money.ts";
-import { DEFAULT_BUDGET } from "../src/domain/budget.ts";
+import { creditQualified } from "../src/domain/rewards.ts";
 import type { ChallengeRec } from "../src/store/types.ts";
 
 const h = await startHarness();
@@ -12,7 +10,7 @@ after(() => h.close());
 const DAY = 86_400_000;
 const T = Date.now();
 let phoneSeq = 10_000_000;
-const nextPhone = () => `+3367${String(phoneSeq++).padStart(8, "0")}`;
+const nextPhone = () => `+336${String(phoneSeq++).padStart(8, "0")}`;
 
 const body = (over: Record<string, unknown> = {}) => ({
   title: { en: "Operator", fr: "Opérateur" }, description: { en: "Do real work", fr: "Un vrai travail" }, difficulty: "advanced",
@@ -21,11 +19,11 @@ const body = (over: Record<string, unknown> = {}) => ({
 });
 async function admin(sub = `adm-${randomUUID().slice(0, 6)}`): Promise<Session> {
   const a = await h.login(sub, `${sub}@x.com`);
-  h.store.users.get(a.userId)!.roles = ["challenge_manager"];
+  await h.setRoles(a.userId, ["challenge_manager"]);
   return a;
 }
 const seed = async (over: Partial<ChallengeRec> = {}): Promise<ChallengeRec> => {
-  const c: ChallengeRec = { id: randomUUID(), slug: "seeded", title: { en: "Seeded" }, description: { en: "d" }, terms: "terms terms terms", published: true, difficulty: "advanced",
+  const c: ChallengeRec = { id: randomUUID(), slug: `seeded-${randomUUID().slice(0, 8)}`, title: { en: "Seeded" }, description: { en: "d" }, terms: "terms terms terms", published: true, difficulty: "advanced",
     startsAt: T - DAY, endsAt: T + 30 * DAY, metric: "verified_operations", threshold: 5, rewardType: "xp", rewardXp: 50, ...over };
   await h.store.saveChallenge(c);
   return c;
@@ -37,6 +35,8 @@ async function user(sub: string) { return h.login(sub, `${sub}@x.com`); }
 const join = (u: Session, id: string) => h.send(u, `/api/challenges/${id}/join`, {});
 const claim = (u: Session, id: string) => h.send(u, `/api/challenges/${id}/claim`, {});
 const progress = async (u: Session) => (await (await h.get(u, "/api/me/progress")).json()) as { xp: number; level: number; title: string; vip: string; streakDays: number };
+/** XP from one source only (contacts and achievements also give XP, which these tests do not look at). */
+const xpFrom = async (u: Session, prefix: string) => (await h.store.xpRows(u.userId)).filter(x => x.reason.startsWith(prefix)).reduce((a, x) => a + x.amount, 0);
 
 test("admin: only challenge managers create challenges; invalid or incomplete bodies are rejected", async () => {
   const a = await admin(); const u = await user("c-u1");
@@ -53,7 +53,7 @@ test("a month needs at least 8 challenges before anything is published; users th
   const ids: string[] = [];
   const diffs = ["advanced", "expert", "elite", "legendary"];
   for (let i = 0; i < 8; i++) {
-    const r = await h.send(a, "/api/admin/challenges", body({ difficulty: diffs[i % 4], threshold: 10 + i, title: { en: `Challenge ${i}`, fr: `Défi ${i}` } }));
+    const r = await h.send(a, "/api/admin/challenges", body({ difficulty: diffs[i % 4], metric: "active_days", threshold: 10 + i, title: { en: `Challenge ${i}`, fr: `Défi ${i}` } }));
     ids.push(((await r.json()) as { id: string }).id);
   }
   const short = await h.send(a, "/api/admin/challenges/publish-month", { ids: ids.slice(0, 7) });
@@ -65,7 +65,7 @@ test("a month needs at least 8 challenges before anything is published; users th
   await h.send(fr, "/api/me", { language: "fr" }, "PATCH");
   const list = await (await h.get(fr, "/api/challenges")).json() as { items: { title: string }[] };
   assert.ok(list.items.some(i => i.title === "Défi 3"));
-  assert.ok(h.store.audit.some(x => x.action === "challenge.publish_month"));
+  assert.ok((await h.store.listAudit({ action: "challenge.publish_month", limit: 5, offset: 0 })).length > 0);
 });
 
 test("progress is computed by the server from verified work; claim pays once and only when complete", async () => {
@@ -83,9 +83,8 @@ test("progress is computed by the server from verified work; claim pays once and
 
   assert.equal((await claim(u, c.id)).status, 200);
   assert.equal((await claim(u, c.id)).status, 409, "replayed claim is refused");
-  const p = await progress(u);
-  assert.equal(p.xp, 50, "50 XP exactly once");
-  assert.equal(p.vip, "Bronze");
+  assert.equal(await xpFrom(u, "challenge:"), 50, "50 XP exactly once");
+  assert.equal((await progress(u)).vip, "Bronze");
   assert.equal(((await (await h.get(u, "/api/challenges")).json()) as { items: { id: string; status: string }[] }).items.find(i => i.id === c.id)!.status, "reward_delivered");
 });
 
@@ -108,7 +107,7 @@ test("terms are frozen once a participant qualifies; before that an admin may ed
   await join(u, c.id);
   await doWork(u, 8);
   assert.equal((await edit(3)).status, 409, "cannot lower the bar after someone qualified");
-  assert.equal(h.store.challenges.get(c.id)!.threshold, 8);
+  assert.equal((await h.store.getChallenge(c.id))!.threshold, 8);
 });
 
 test("cash challenge: winner cap and budget are enforced, money goes through the ledger", async () => {
@@ -138,7 +137,9 @@ test("non-cash rewards create a pending fulfilment record and are never shown as
   const u = await user("c-tg");
   await join(u, c.id); await doWork(u, 5);
   assert.equal((await claim(u, c.id)).status, 200);
-  assert.ok(h.store.rewardClaims.some(r => r.userId === u.userId && r.kind === "telegram_stars" && r.status === "pending"));
+  const claims = await h.store.listRewardClaimsFor(u.userId);
+  assert.ok(claims.some(r => r.kind === "telegram_stars" && r.status === "pending"));
+  assert.equal((await h.store.fulfillmentForClaim(claims.find(r => r.kind === "telegram_stars")!.id))!.status, "pending", "a fulfilment record waits for a person");
   assert.equal(((await (await h.get(u, "/api/challenges")).json()) as { items: { id: string; status: string }[] }).items.find(i => i.id === c.id)!.status, "reward_pending");
 });
 
@@ -178,11 +179,11 @@ test("a qualified referral gives 10 XP once and counts as challenge progress", a
   const referrer = await user("x-ref");
   const friend = await user("x-friend");
   await join(referrer, c.id);
-  const r = { id: randomUUID(), referrerId: referrer.userId, referredId: friend.userId, status: "pending" as const, networkHash: "n-x", createdAt: 0 };
+  const r = { id: randomUUID(), referrerId: referrer.userId, referredId: friend.userId, status: "pending" as const, networkHash: "ab".repeat(32), createdAt: 0 };
   await h.store.createReferral(r);
-  await creditQualified(h.store, r, T, DEFAULT_POLICY, DEFAULT_BUDGET);
-  await creditQualified(h.store, r, T, DEFAULT_POLICY, DEFAULT_BUDGET).catch(() => undefined);
-  assert.equal((await progress(referrer)).xp, 10, "XP not duplicated");
+  await creditQualified(h.sv, r, T);
+  await creditQualified(h.sv, r, T);
+  assert.equal(await xpFrom(referrer, "referral_qualified"), 10, "XP not duplicated");
   const part = await h.store.getParticipation(c.id, referrer.userId);
   assert.ok(part?.completedAt, "challenge completion recorded by the backend");
 });
@@ -202,5 +203,5 @@ test("work done before joining still counts: the user can join, the completion i
   const a = await admin();
   assert.equal((await h.send(a, `/api/admin/challenges/${c.id}`, body({ threshold: 1 }), "PUT")).status, 409, "terms frozen once someone qualified");
   assert.equal((await claim(u, c.id)).status, 200);
-  assert.equal((await progress(u)).xp, 50);
+  assert.equal(await xpFrom(u, "challenge:"), 50);
 });

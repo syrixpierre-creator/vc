@@ -1,4 +1,5 @@
-import type { Store, Contact } from "../store/types.ts";
+import type { Contact } from "../store/types.ts";
+import type { Store } from "../store/pg.ts";
 import { encrypt, decrypt, type KeyRing } from "../security/crypto.ts";
 import { PeopleApiError, type PeopleApi, type SyncPorts, type SyncContact } from "./engine.ts";
 import { GoogleAuthError } from "../http/google-client.ts";
@@ -9,8 +10,7 @@ const SKEW_MS = 60_000;
 
 /** The user's own contact, as the engine sees it. `version` = last user edit, so every edit gets its own job. */
 export function toSyncContact(c: Contact): SyncContact {
-  const s: SyncContact = { id: c.id, userId: c.userId, fullName: c.fullName, emails: c.emails, version: c.updatedAt };
-  if (c.phone) s.phone = c.phone;
+  const s: SyncContact = { id: c.id, userId: c.userId, fullName: c.fullName, phones: c.phones, emails: c.emails, version: c.updatedAt };
   if (c.organization) s.organization = c.organization;
   if (c.title) s.title = c.title;
   if (c.notes) s.notes = c.notes;
@@ -45,6 +45,10 @@ export interface SyncDeps {
   keyRing: KeyRing;
   now: () => number;
   random?: () => number;
+  /** called once per verified sync success (challenge progress) */
+  onSynced?(userId: string, contactId: string, version: number): Promise<void>;
+  /** called once when a working connection is found revoked (the user is told to reconnect) */
+  onRevoked?(userId: string): Promise<void>;
 }
 
 /** Full engine ports for the worker. Tokens are decrypted only here, only for the owning user, and never logged. */
@@ -59,7 +63,11 @@ export function createSyncPorts(d: SyncDeps): SyncPorts {
         const [c, s] = await Promise.all([d.store.getConnection(userId), d.store.getSyncSettings(userId)]);
         return { status: c.status === "reconnect_requested" ? "revoked" : c.status, paused: s.paused };
       },
-      async markRevoked(userId) { await d.store.saveConnection(userId, { status: "revoked" }); }, // tokens are dropped, the user must reconnect
+      async markRevoked(userId) { // tokens are dropped, the user must reconnect
+        const before = await d.store.getConnection(userId);
+        await d.store.saveConnection(userId, { status: "revoked" });
+        if (before.status === "connected" && d.onRevoked) await d.onRevoked(userId);
+      },
       async accessToken(userId) {
         const c = await d.store.getConnection(userId);
         if (c.status !== "connected" || !c.refreshTokenEnc) throw new PeopleApiError("auth_revoked", "not connected");
@@ -74,6 +82,7 @@ export function createSyncPorts(d: SyncDeps): SyncPorts {
         }
       },
     },
-    log: (userId, outcome) => d.store.addSyncLog(userId, outcome, d.now()),
+    log: (userId, outcome, contactId) => d.store.addSyncLog(userId, outcome, d.now(), contactId),
+    ...(d.onSynced ? { onSynced: d.onSynced } : {}),
   };
 }

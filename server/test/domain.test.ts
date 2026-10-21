@@ -9,19 +9,21 @@ import { loadConfig, ConfigError } from "../src/config/env.ts";
 import { encrypt, decrypt, type KeyRing } from "../src/security/crypto.ts";
 
 /* ---------- money ---------- */
-test("reward curve: $5 at 500, $10 at 1000, linear up to 1,000,000", () => {
-  assert.equal(earnedCents(0), 0);
-  assert.equal(earnedCents(500), 500);
-  assert.equal(earnedCents(1000), 1000);
-  assert.equal(earnedCents(1500), 1500);
-  assert.equal(earnedCents(1_000_000), 1_000_000);
-  assert.equal(earnedCents(5_000_000), 1_000_000, "capped at maxRewardedReferrals");
+test("default policy: no per-referral rate, $10.00 withdrawal minimum (the cash reward is the one-time 500-referral milestone)", () => {
+  assert.equal(DEFAULT_POLICY.centsPerReferral, 0);
+  assert.equal(DEFAULT_POLICY.minWithdrawCents, 1000);
+  assert.equal(earnedCents(500), 0, "no linear rate by default");
+  assert.equal(referralsForWithdrawal(), Infinity);
+  assert.equal(canRequestWithdrawal(999), false);
+  assert.equal(canRequestWithdrawal(1000), true);
 });
-test("withdrawal minimum is $15, reached at 1500 referrals", () => {
-  assert.equal(referralsForWithdrawal(), 1500);
-  assert.equal(canRequestWithdrawal(earnedCents(1499)), false);
-  assert.equal(canRequestWithdrawal(earnedCents(1500)), true);
-  assert.equal(DEFAULT_POLICY.minWithdrawCents, 1500);
+test("optional linear rate stays exact and capped when an administrator enables it", () => {
+  const p = { centsPerReferral: 1, minWithdrawCents: 1500, maxRewardedReferrals: 1_000_000 };
+  assert.equal(earnedCents(0, p), 0);
+  assert.equal(earnedCents(500, p), 500);
+  assert.equal(earnedCents(1_000_000, p), 1_000_000);
+  assert.equal(earnedCents(5_000_000, p), 1_000_000, "capped at maxRewardedReferrals");
+  assert.equal(referralsForWithdrawal(p), 1500);
 });
 test("money rejects non-integers", () => {
   assert.throws(() => earnedCents(1.5));
@@ -80,9 +82,9 @@ test("phone: E.164 normalisation and masking", () => {
 
 /* ---------- VCF ---------- */
 const sample: VcfContact[] = [
-  { name: "Amina Moreau", phone: "+33612345678", emails: ["amina@example.com"], organization: "Syrix; Co, Ltd", note: "Line 1\nLine 2, with; separators" },
-  { name: "ليلى خان", phone: "+971501234567", emails: [] },
-  { name: "João Silva", phone: "+5511912345678", emails: [], title: "Engenheiro" },
+  { name: "Amina Moreau", phones: ["+33612345678", "+33198765432"], emails: ["amina@example.com"], organization: "Syrix; Co, Ltd", note: "Line 1\nLine 2, with; separators" },
+  { name: "ليلى خان", phones: ["+971501234567"], emails: [] },
+  { name: "João Silva", phones: ["+5511912345678"], emails: [], title: "Engenheiro" },
 ];
 for (const v of ["2.1", "3.0", "4.0"] as const) {
   test(`VCF ${v}: round-trip keeps names, numbers and special characters`, () => {
@@ -90,7 +92,7 @@ for (const v of ["2.1", "3.0", "4.0"] as const) {
     assert.equal(out.errors.length, 0);
     assert.equal(out.contacts.length, 3);
     assert.equal(out.contacts[0]!.name, "Amina Moreau");
-    assert.equal(out.contacts[0]!.phone, "+33612345678");
+    assert.deepEqual(out.contacts[0]!.phones, ["+33612345678", "+33198765432"], "several numbers, primary first");
     assert.equal(out.contacts[0]!.organization, "Syrix; Co, Ltd");
     assert.equal(out.contacts[0]!.note, "Line 1\nLine 2, with; separators");
     assert.equal(out.contacts[1]!.name, "ليلى خان");
@@ -98,7 +100,7 @@ for (const v of ["2.1", "3.0", "4.0"] as const) {
   });
 }
 test("VCF: long lines are folded at 75 octets", () => {
-  const long: VcfContact = { name: "Test", phone: "+33612345678", emails: [], note: "é".repeat(200) };
+  const long: VcfContact = { name: "Test", phones: ["+33612345678"], emails: [], note: "é".repeat(200) };
   const text = generateVcf([long], "3.0");
   for (const line of text.split("\r\n")) assert.ok(new TextEncoder().encode(line).length <= 75, "line too long");
   assert.equal(parseVcf(text).contacts[0]!.note, "é".repeat(200));
@@ -112,16 +114,20 @@ test("VCF: invalid records are reported, not imported", () => {
   assert.equal(r.contacts.length, 1);
   assert.deepEqual(r.errors.map(e => e.reason), ["missing name", "invalid phone number", "unterminated card"]);
 });
-test("VCF: only the first phone is kept (one number per contact)", () => {
-  const r = parseVcf("BEGIN:VCARD\r\nVERSION:3.0\r\nFN:Two Phones\r\nTEL:+33612345678\r\nTEL:+33698765432\r\nEND:VCARD\r\n");
-  assert.equal(r.contacts[0]!.phone, "+33612345678");
-  assert.equal(r.ignoredExtraPhones, 1);
+test("VCF: several numbers per contact; duplicates folded, unreadable ones reported, at most 10 kept", () => {
+  const r = parseVcf("BEGIN:VCARD\r\nVERSION:3.0\r\nFN:Two Phones\r\nTEL:+33612345678\r\nTEL:+33698765432\r\nTEL:+33 6 12 34 56 78\r\nTEL:abc\r\nEND:VCARD\r\n");
+  assert.deepEqual(r.contacts[0]!.phones, ["+33612345678", "+33698765432"]);
+  assert.equal(r.ignoredExtraPhones, 1, "the unreadable number");
+  const many = Array.from({ length: 12 }, (_, i) => `TEL:+336123456${String(i).padStart(2, "0")}`).join("\r\n");
+  const r2 = parseVcf(`BEGIN:VCARD\r\nVERSION:3.0\r\nFN:Many\r\n${many}\r\nEND:VCARD\r\n`);
+  assert.equal(r2.contacts[0]!.phones.length, 10);
+  assert.equal(r2.ignoredExtraPhones, 2);
 });
 test("VCF: hostile input cannot inject fields and size limits apply", () => {
-  const evil: VcfContact = { name: "Eve\r\nTEL:+10000000000", phone: "+33612345678", emails: [], note: "x\r\nEND:VCARD\r\nBEGIN:VCARD" };
+  const evil: VcfContact = { name: "Eve\r\nTEL:+10000000000", phones: ["+33612345678"], emails: [], note: "x\r\nEND:VCARD\r\nBEGIN:VCARD" };
   const r = parseVcf(generateVcf([evil], "3.0"));
   assert.equal(r.contacts.length, 1);
-  assert.equal(r.contacts[0]!.phone, "+33612345678");
+  assert.deepEqual(r.contacts[0]!.phones, ["+33612345678"], "no injected number");
   assert.throws(() => parseVcf("x".repeat(100), { maxBytes: 50 }), /too large/);
 });
 test("VCF 2.1: quoted-printable with soft line breaks decodes as UTF-8", () => {

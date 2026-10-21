@@ -2,20 +2,28 @@ export type Role = "super_admin" | "user_manager" | "finance_manager" | "challen
 
 export type Permission =
   | "users.read" | "users.suspend" | "users.restrict" | "sessions.revoke"
-  | "payouts.read" | "payouts.review" | "payouts.mark_paid" | "ledger.adjust"
+  | "payouts.read" | "payouts.review" | "payouts.mark_paid" | "ledger.adjust" | "rewards.fulfil"
   | "challenges.manage" | "announcements.manage" | "tickets.read" | "tickets.respond"
-  | "fraud.review" | "audit.read" | "roles.manage" | "reports.export";
+  | "fraud.review" | "audit.read" | "roles.manage" | "reports.export" | "settings.manage" | "sync.manage" | "deletions.manage";
 
-/** Note: no role has a "contacts content" permission. Admins see counts and sync status, never address books. */
+export const ROLES: readonly Role[] = ["super_admin", "user_manager", "finance_manager", "challenge_manager", "support_agent", "auditor"];
+
+/**
+ * The single place where roles map to permissions (least privilege).
+ * No role has a "contacts content" permission: admins see counts and sync status, never address books.
+ * Finance cannot suspend users; support cannot touch money; the auditor only reads.
+ */
 const MATRIX: Record<Role, readonly Permission[]> = {
-  super_admin: ["users.read", "users.suspend", "users.restrict", "sessions.revoke", "payouts.read", "payouts.review", "payouts.mark_paid",
-    "ledger.adjust", "challenges.manage", "announcements.manage", "tickets.read", "tickets.respond", "fraud.review", "audit.read", "roles.manage", "reports.export"],
-  user_manager: ["users.read", "users.suspend", "users.restrict", "sessions.revoke", "fraud.review"],
-  finance_manager: ["users.read", "payouts.read", "payouts.review", "payouts.mark_paid", "ledger.adjust", "reports.export"],
-  challenge_manager: ["challenges.manage", "announcements.manage"],
-  support_agent: ["users.read", "tickets.read", "tickets.respond"],
-  auditor: ["users.read", "payouts.read", "audit.read"],
+  super_admin: ["users.read", "users.suspend", "users.restrict", "sessions.revoke", "payouts.read", "payouts.review", "payouts.mark_paid", "ledger.adjust", "rewards.fulfil",
+    "challenges.manage", "announcements.manage", "tickets.read", "tickets.respond", "fraud.review", "audit.read", "roles.manage", "reports.export", "settings.manage", "sync.manage", "deletions.manage"],
+  user_manager: ["users.read", "users.suspend", "users.restrict", "sessions.revoke", "fraud.review", "sync.manage", "deletions.manage", "tickets.read"],
+  finance_manager: ["users.read", "payouts.read", "payouts.review", "payouts.mark_paid", "ledger.adjust", "rewards.fulfil", "reports.export"],
+  challenge_manager: ["challenges.manage", "announcements.manage", "rewards.fulfil"],
+  support_agent: ["users.read", "tickets.read", "tickets.respond", "sync.manage"],
+  auditor: ["users.read", "payouts.read", "audit.read", "tickets.read"],
 };
+export const PERMISSIONS: readonly Permission[] = MATRIX.super_admin;
+export function isStaff(roles: readonly Role[]): boolean { return roles.length > 0; }
 
 export function can(roles: readonly Role[], permission: Permission): boolean {
   return roles.some(r => MATRIX[r]?.includes(permission));

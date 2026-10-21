@@ -9,7 +9,7 @@ function personBody(c: SyncContact): Record<string, unknown> {
   const family = words.length > 1 ? words[words.length - 1] : undefined;
   const given = words.length > 1 ? words.slice(0, -1).join(" ") : words[0];
   const body: Record<string, unknown> = { names: [{ givenName: given, ...(family ? { familyName: family } : {}) }] };
-  if (c.phone) body["phoneNumbers"] = [{ value: c.phone, type: "mobile" }];
+  if (c.phones.length) body["phoneNumbers"] = c.phones.map((value, i) => ({ value, type: i === 0 ? "mobile" : "other" }));
   if (c.emails.length) body["emailAddresses"] = c.emails.map(value => ({ value }));
   if (c.organization || c.title) body["organizations"] = [{ ...(c.organization ? { name: c.organization } : {}), ...(c.title ? { title: c.title } : {}) }];
   if (c.notes) body["biographies"] = [{ value: c.notes, contentType: "TEXT_PLAIN" }];

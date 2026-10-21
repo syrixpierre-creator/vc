@@ -3,7 +3,7 @@ import assert from "node:assert/strict";
 import { createPeopleApi } from "../src/sync/people-api.ts";
 import { PeopleApiError, type SyncContact } from "../src/sync/engine.ts";
 
-const contact: SyncContact = { id: "c1", userId: "u1", fullName: "Amina Marie Moreau", phone: "+33612345678", emails: ["a@b.co"], organization: "Syrix", notes: "hello", version: 1 };
+const contact: SyncContact = { id: "c1", userId: "u1", fullName: "Amina Marie Moreau", phones: ["+33612345678"], emails: ["a@b.co"], organization: "Syrix", notes: "hello", version: 1 };
 type Call = { url: string; init: { method?: string; headers?: Record<string, string>; body?: string } };
 const res = (status: number, body: unknown = {}, headers: Record<string, string> = {}) => ({ ok: status >= 200 && status < 300, status, headers: { get: (n: string) => headers[n.toLowerCase()] ?? null }, json: async () => body });
 

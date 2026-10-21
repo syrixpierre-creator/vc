@@ -55,3 +55,16 @@ export function currentStreak(activityDays: readonly string[], todayUtc: string)
   while (set.has(new Date(t).toISOString().slice(0, 10))) { n++; t -= day; }
   return n;
 }
+
+/** Longest run of consecutive UTC days in the list. */
+export function longestStreak(activityDays: readonly string[]): number {
+  const sorted = [...new Set(activityDays)].sort();
+  let best = 0, run = 0, prev = NaN;
+  for (const d of sorted) {
+    const t = Date.parse(d + "T00:00:00Z");
+    run = t - prev === 86_400_000 ? run + 1 : 1;
+    best = Math.max(best, run);
+    prev = t;
+  }
+  return best;
+}

@@ -1,5 +1,12 @@
 export type Difficulty = "advanced" | "expert" | "elite" | "legendary";
-export type Metric = "qualified_referrals" | "active_days" | "verified_operations" | "challenges_completed";
+export type Metric = "qualified_referrals" | "active_days" | "verified_operations" | "challenges_completed"
+  | "contacts_labeled" | "duplicates_reviewed" | "vcf_imports" | "vcf_exports" | "backups_created" | "security_tasks" | "sync_successes" | "admin_verified";
+export const METRICS: readonly Metric[] = ["qualified_referrals", "active_days", "verified_operations", "challenges_completed", "contacts_labeled", "duplicates_reviewed",
+  "vcf_imports", "vcf_exports", "backups_created", "security_tasks", "sync_successes", "admin_verified"];
+export const DIFFICULTIES: readonly Difficulty[] = ["advanced", "expert", "elite", "legendary"];
+export const REWARD_TYPES: readonly RewardType[] = ["xp", "badge", "vip", "premium", "cash", "whatsapp_promotion", "telegram_stars", "telegram_premium"];
+/** Rewards a person has to deliver by hand (tracked in reward_fulfillment, never marked delivered automatically). */
+export const MANUAL_REWARDS: readonly RewardType[] = ["whatsapp_promotion", "telegram_stars", "telegram_premium"];
 export type RewardType = "xp" | "badge" | "vip" | "premium" | "cash" | "whatsapp_promotion" | "telegram_stars" | "telegram_premium";
 
 export interface ChallengeDef {
@@ -15,6 +22,9 @@ export interface ChallengeDef {
   maxWinners?: number;
 }
 export interface ChallengeEvent { type: Metric; at: number; key: string; /** distinct-day metrics use the UTC day of `at` */ }
+/** Minimum threshold per metric for a published challenge: no challenge is completed by a couple of clicks. */
+export const MIN_THRESHOLD: Record<Metric, number> = { qualified_referrals: 10, active_days: 10, verified_operations: 50, challenges_completed: 3, contacts_labeled: 50,
+  duplicates_reviewed: 10, vcf_imports: 3, vcf_exports: 3, backups_created: 3, security_tasks: 4, sync_successes: 50, admin_verified: 5 };
 
 export type ChallengeStatus = "upcoming" | "active" | "completed" | "expired";
 
@@ -69,7 +79,7 @@ export function validateMonthlySet(defs: readonly ChallengeDef[], min = 8): stri
   for (const d of defs) {
     if (!TIERS.includes(d.difficulty)) errs.push(`${d.id}: unknown difficulty`);
     if (d.endsAt <= d.startsAt) errs.push(`${d.id}: end must be after start`);
-    if (!Number.isSafeInteger(d.threshold) || d.threshold < 5) errs.push(`${d.id}: threshold too low for a challenge`);
+    if (!Number.isSafeInteger(d.threshold) || d.threshold < (MIN_THRESHOLD[d.metric] ?? 5)) errs.push(`${d.id}: threshold too low for a challenge (minimum ${MIN_THRESHOLD[d.metric] ?? 5} for ${d.metric})`);
     if (d.rewardType === "cash" && (!d.rewardCents || d.budgetCents === undefined)) errs.push(`${d.id}: cash reward needs an amount and a budget`);
   }
   return errs;

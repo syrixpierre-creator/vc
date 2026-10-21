@@ -34,7 +34,7 @@ function rig(over: { conn?: Connection; api?: Partial<SyncPorts["people"]> } = {
     now: () => t,
     random: () => 0.5,
   };
-  const addContact = (id = "c1", extra: Partial<SyncContact> = {}) => { const c: SyncContact & { state?: string } = { id, userId: "u1", fullName: "Amina", phone: "+33612345678", emails: [], version: 1, ...extra }; contacts.set(id, c); return c; };
+  const addContact = (id = "c1", extra: Partial<SyncContact> = {}) => { const c: SyncContact & { state?: string } = { id, userId: "u1", fullName: "Amina", phones: ["+33612345678"], emails: [], version: 1, ...extra }; contacts.set(id, c); return c; };
   return { ports, jobs, contacts, state, addContact, advance: (ms: number) => { t += ms; } };
 }
 

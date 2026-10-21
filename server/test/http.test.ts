@@ -1,56 +1,14 @@
 import { test, after } from "node:test";
 import assert from "node:assert/strict";
-import { createServer, type Server } from "node:http";
-import { generateKeyPairSync, sign } from "node:crypto";
-import type { AddressInfo } from "node:net";
-import { createApp, type GoogleClient } from "../src/http/app.ts";
-import { MemoryStore } from "../src/store/memory.ts";
-import type { Jwks } from "../src/auth/oauth.ts";
+import { startHarness, APP, type Session } from "./harness.ts";
 
-const APP = "https://vcf.example.com";
-const CLIENT_ID = "client-123";
-const { publicKey, privateKey } = generateKeyPairSync("rsa", { modulusLength: 2048 });
-const jwks: Jwks = { keys: [{ ...(publicKey.export({ format: "jwk" }) as Record<string, unknown>), kid: "k1" } as unknown as Jwks["keys"][number]] };
-const b64 = (o: unknown) => Buffer.from(JSON.stringify(o)).toString("base64url");
-
-/** Fake Google: real RSA signatures, codes mapped to prepared id tokens. */
-const codes = new Map<string, string>();
-const google: GoogleClient = {
-  async exchangeCode(code) { const t = codes.get(code); if (!t) throw new Error("bad code"); return { idToken: t }; },
-  async getJwks() { return jwks; },
-  async refreshAccessToken() { return { accessToken: "x", expiresIn: 3600 }; },
-  async revokeToken() {},
-};
-function idToken(nonce: string, sub: string, email: string, verified = true): string {
-  const h = b64({ alg: "RS256", kid: "k1" });
-  const sec = Math.floor(Date.now() / 1000);
-  const p = b64({ iss: "https://accounts.google.com", aud: CLIENT_ID, sub, email, email_verified: verified, nonce, iat: sec, exp: sec + 600, name: email.split("@")[0] });
-  return `${h}.${p}.${sign("RSA-SHA256", Buffer.from(`${h}.${p}`), privateKey).toString("base64url")}`;
-}
-
-const store = new MemoryStore();
-const handler = createApp({ store, google, keyRing: { current: 1, keys: { 1: "ab".repeat(32) } }, rules: { authCallback: { max: 1000, windowMs: 60_000 } }, config: { appUrl: APP, sessionSecret: "s".repeat(40), adminEmail: "syrixcompany@gmail.com", google: { clientId: CLIENT_ID, redirectUri: `${APP}/api/auth/google/callback` } } });
-const server: Server = createServer((q, r) => { void handler(q, r); });
-await new Promise<void>(res => server.listen(0, "127.0.0.1", res));
-const base = `http://127.0.0.1:${(server.address() as AddressInfo).port}`;
-after(() => { server.close(); });
-
-interface Session { cookie: string; csrf: string; userId: string }
-const cookieHeader = (res: Response) => res.headers.getSetCookie().map(c => c.split(";")[0]).join("; ");
-
-async function login(sub: string, email: string, verified = true): Promise<Session> {
-  const start = await fetch(`${base}/api/auth/google/start`, { redirect: "manual" });
-  const loc = new URL(start.headers.get("location")!);
-  const state = loc.searchParams.get("state")!;
-  codes.set(`code-${sub}`, idToken(loc.searchParams.get("nonce")!, sub, email, verified));
-  const cb = await fetch(`${base}/api/auth/google/callback?state=${state}&code=code-${sub}`, { redirect: "manual", headers: { cookie: `__Host-oauth=${state}` } });
-  assert.equal(cb.status, 302, "callback should redirect");
-  const cookie = cookieHeader(cb).split("; ").find(c => c.startsWith("__Host-sid=") && !c.endsWith("="))!;
-  const me = await (await fetch(`${base}/api/me`, { headers: { cookie } })).json() as { csrfToken: string; id: string };
-  return { cookie, csrf: me.csrfToken, userId: me.id };
-}
+const h = await startHarness();
+after(() => h.close());
+const { base, login } = h;
 const post = (s: Session, path: string, body: unknown, method = "POST", origin = APP, text = false) =>
   fetch(`${base}${path}`, { method, headers: { cookie: s.cookie, origin, "x-csrf-token": s.csrf, "content-type": text ? "text/plain" : "application/json" }, body: text ? String(body) : JSON.stringify(body) });
+const codes = h.codes;
+const idToken = h.idToken;
 
 test("health check and security headers", async () => {
   const r = await fetch(`${base}/healthz`);
@@ -69,7 +27,7 @@ test("login: callback without the browser-bound cookie or with a replayed state 
   const start = await fetch(`${base}/api/auth/google/start`, { redirect: "manual" });
   const loc = new URL(start.headers.get("location")!);
   const state = loc.searchParams.get("state")!;
-  codes.set("c-x", idToken(loc.searchParams.get("nonce")!, "sX", "x@x.com"));
+  codes.set("c-x", { idToken: idToken(loc.searchParams.get("nonce")!, "sX", "x@x.com") });
   assert.equal((await fetch(`${base}/api/auth/google/callback?state=${state}&code=c-x`, { redirect: "manual" })).status, 400, "no cookie");
   const ok = await fetch(`${base}/api/auth/google/callback?state=${state}&code=c-x`, { redirect: "manual", headers: { cookie: `__Host-oauth=${state}` } });
   assert.equal(ok.status, 302);
@@ -81,7 +39,7 @@ test("login: unverified Google email is refused", async () => {
   const start = await fetch(`${base}/api/auth/google/start`, { redirect: "manual" });
   const loc = new URL(start.headers.get("location")!);
   const state = loc.searchParams.get("state")!;
-  codes.set("c-u", idToken(loc.searchParams.get("nonce")!, "sU", "u@x.com", false));
+  codes.set("c-u", { idToken: idToken(loc.searchParams.get("nonce")!, "sU", "u@x.com", false) });
   const r = await fetch(`${base}/api/auth/google/callback?state=${state}&code=c-u`, { redirect: "manual", headers: { cookie: `__Host-oauth=${state}` } });
   assert.equal(r.status, 401);
 });
@@ -90,9 +48,9 @@ test("login: session cookie flags and redirect target are safe", async () => {
   const start = await fetch(`${base}/api/auth/google/start?next=https://evil.example`, { redirect: "manual" });
   const loc = new URL(start.headers.get("location")!);
   const state = loc.searchParams.get("state")!;
-  codes.set("c-r", idToken(loc.searchParams.get("nonce")!, "sR", "r@x.com"));
+  codes.set("c-r", { idToken: idToken(loc.searchParams.get("nonce")!, "sR", "r@x.com") });
   const cb = await fetch(`${base}/api/auth/google/callback?state=${state}&code=c-r`, { redirect: "manual", headers: { cookie: `__Host-oauth=${state}` } });
-  assert.equal(cb.headers.get("location"), "/app", "open redirect neutralised");
+  assert.equal(cb.headers.get("location"), "/app/#/onboarding", "open redirect neutralised (a new account goes to onboarding inside the app)");
   const sid = cb.headers.getSetCookie().find(c => c.startsWith("__Host-sid=") && !c.includes("Max-Age=0"))!;
   for (const f of ["HttpOnly", "Secure", "SameSite=Lax", "Path=/"]) assert.ok(sid.includes(f), f);
 });
@@ -197,18 +155,16 @@ test("payouts: role checks, confirmation + reference required, ledger and audit,
   const user = await login("sP", "p@x.com");
   const finance = await login("sFin", "fin@x.com");
   const support = await login("sSup", "sup@x.com");
-  store.users.get(finance.userId)!.roles = ["finance_manager"];
-  store.users.get(support.userId)!.roles = ["support_agent"];
-  await store.addLedger({ id: "1", userId: user.userId, type: "earn", amountCents: 1500, idempotencyKey: "e1" });
-  await store.addLedger({ id: "2", userId: user.userId, type: "reserve", amountCents: 1500, idempotencyKey: "r1" });
-  await store.savePayout({ id: "payout-0001", userId: user.userId, amountCents: 1500, status: "in_progress", maskedHint: "p••••@x.com" });
-
-  const url = "/api/admin/payouts/payout-0001/status";
+  await h.setRoles(finance.userId, ["finance_manager"]);
+  await h.setRoles(support.userId, ["support_agent"]);
+  const id = await h.makePayout(user, 1500);
+  const url = `/api/admin/payouts/${id}/status`;
+  assert.equal((await post(finance, url, { to: "in_progress" })).status, 200);
   assert.equal((await post(user, url, { to: "paid", confirmPaid: true, txReference: "PP-1" })).status, 403, "regular user");
   assert.equal((await post(support, url, { to: "paid", confirmPaid: true, txReference: "PP-1" })).status, 403, "support cannot pay");
   assert.equal((await post(finance, url, { to: "paid" })).status, 409, "needs confirmation");
   assert.equal((await post(finance, url, { to: "paid", confirmPaid: true })).status, 409, "needs reference");
-  assert.equal(store.payouts.get("payout-0001")!.status, "in_progress");
+  assert.equal((await h.store.getPayout(id))!.status, "in_progress");
 
   assert.equal((await post(finance, url, { to: "paid", confirmPaid: true, txReference: "PP-8841" })).status, 200);
   assert.equal((await post(finance, url, { to: "paid", confirmPaid: true, txReference: "PP-8841" })).status, 409, "paid is terminal");
@@ -216,22 +172,31 @@ test("payouts: role checks, confirmation + reference required, ledger and audit,
 
   const w = await (await fetch(`${base}/api/wallet`, { headers: { cookie: user.cookie } })).json() as { earned: number; available: number; reserved: number; paid: number };
   assert.deepEqual([w.earned, w.available, w.reserved, w.paid], [1500, 0, 0, 1500]);
-  const entry = store.audit.find(a => a.resourceId === "payout-0001")!;
-  assert.deepEqual([entry.actorId, entry.from, entry.to], [finance.userId, "in_progress", "paid"]);
+  const entries = await h.store.listAudit({ resourceId: id, limit: 10, offset: 0 });
+  const paid = entries.find(e => e.to === "paid")!;
+  assert.deepEqual([paid.actorId, paid.from, paid.to], [finance.userId, "in_progress", "paid"]);
+  assert.ok((await h.sql("SELECT 1 FROM payout_status_history WHERE payout_id = $1 AND to_status = 'paid' AND tx_reference = 'PP-8841'", [id])).length, "status history keeps the evidence");
 });
 
-test("payouts: a failed transfer releases the reservation and is never counted as paid", async () => {
+test("payouts: a failed transfer releases the reservation and is never counted as paid; retry reserves again", async () => {
   const user = await login("sQ", "q@x.com");
   const finance = await login("sFin2", "fin2@x.com");
-  store.users.get(finance.userId)!.roles = ["finance_manager"];
-  await store.addLedger({ id: "3", userId: user.userId, type: "earn", amountCents: 1500, idempotencyKey: "e2" });
-  await store.addLedger({ id: "4", userId: user.userId, type: "reserve", amountCents: 1500, idempotencyKey: "r2" });
-  await store.savePayout({ id: "payout-0002", userId: user.userId, amountCents: 1500, status: "in_progress", maskedHint: "q••••@x.com" });
-  const url = "/api/admin/payouts/payout-0002/status";
+  await h.setRoles(finance.userId, ["finance_manager"]);
+  const id = await h.makePayout(user, 1500);
+  const url = `/api/admin/payouts/${id}/status`;
+  await post(finance, url, { to: "in_progress" });
   assert.equal((await post(finance, url, { to: "failed" })).status, 409, "a reason is required");
   assert.equal((await post(finance, url, { to: "failed", reason: "recipient account closed" })).status, 200);
-  const w = await (await fetch(`${base}/api/wallet`, { headers: { cookie: user.cookie } })).json() as { available: number; reserved: number; paid: number };
-  assert.deepEqual([w.available, w.reserved, w.paid], [1500, 0, 0]);
+  let w = await (await fetch(`${base}/api/wallet`, { headers: { cookie: user.cookie } })).json() as { available: number; reserved: number; paid: number; failedOrRejectedCents: number };
+  assert.deepEqual([w.available, w.reserved, w.paid, w.failedOrRejectedCents], [1500, 0, 0, 1500]);
+  // retry after review: the amount is reserved again, then paid exactly once
+  assert.equal((await post(finance, url, { to: "pending", reason: "user confirmed new details" })).status, 200);
+  w = await (await fetch(`${base}/api/wallet`, { headers: { cookie: user.cookie } })).json() as typeof w;
+  assert.deepEqual([w.available, w.reserved, w.paid], [0, 1500, 0]);
+  await post(finance, url, { to: "in_progress" });
+  assert.equal((await post(finance, url, { to: "paid", confirmPaid: true, txReference: "PP-RETRY-1" })).status, 200);
+  w = await (await fetch(`${base}/api/wallet`, { headers: { cookie: user.cookie } })).json() as typeof w;
+  assert.deepEqual([w.available, w.reserved, w.paid], [0, 0, 1500]);
 });
 
 test("rate limit: import is capped per user", async () => {

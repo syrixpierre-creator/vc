@@ -4,8 +4,8 @@ export type VcfVersion = "2.1" | "3.0" | "4.0";
 
 export interface VcfContact {
   name: string;
-  /** One phone number per contact, E.164 */
-  phone?: string;
+  /** E.164 numbers, first one is the primary (at most MAX_PHONES) */
+  phones: string[];
   emails: string[];
   organization?: string;
   title?: string;
@@ -16,12 +16,13 @@ export interface VcfParseError { index: number; reason: string }
 export interface VcfParseResult {
   contacts: VcfContact[];
   errors: VcfParseError[];
-  /** extra TEL lines beyond the first one are not imported (one number per contact) */
+  /** TEL lines beyond MAX_PHONES, or numbers that could not be read while the card had other valid ones */
   ignoredExtraPhones: number;
 }
 export interface VcfParseOptions { maxBytes?: number; maxContacts?: number; defaultDialCode?: string }
 
 const enc = new TextEncoder();
+export const MAX_PHONES = 10;
 
 /* ---------- generation ---------- */
 
@@ -94,9 +95,10 @@ export function generateVcf(contacts: readonly VcfContact[], version: VcfVersion
       out.push(fold(`N:${esc(family)};${esc(given)};;;`));
     }
     out.push(prop(version, "FN", c.name));
-    if (c.phone) {
-      out.push(version === "4.0" ? `TEL;VALUE=uri;TYPE=cell:tel:${c.phone}` : `TEL;TYPE=CELL:${c.phone}`);
-    }
+    c.phones.forEach((ph, i) => {
+      const type = i === 0 ? "CELL" : "VOICE";
+      out.push(version === "4.0" ? `TEL;VALUE=uri;TYPE=${type.toLowerCase()}${i === 0 ? ";PREF=1" : ""}:tel:${ph}` : `TEL;TYPE=${type}${i === 0 ? (version === "2.1" ? ";PREF" : ",PREF") : ""}:${ph}`);
+    });
     for (const e of c.emails) out.push(prop(version, "EMAIL", e, "TYPE=INTERNET"));
     if (c.organization) out.push(prop(version, "ORG", c.organization));
     if (c.title) out.push(prop(version, "TITLE", c.title));
@@ -179,15 +181,16 @@ export function parseVcf(text: string, opts: VcfParseOptions = {}): VcfParseResu
     inCard = false;
     const name = (c.fn ?? c.n ?? "").trim();
     if (!name) { res.errors.push({ index, reason: "missing name" }); return; }
-    let phone: string | undefined;
-    if (c.phones.length) {
-      const n = normalizeE164(c.phones[0] ?? "", opts.defaultDialCode);
-      if (!n) { res.errors.push({ index, reason: "invalid phone number" }); return; }
-      phone = n;
-      res.ignoredExtraPhones += c.phones.length - 1;
+    const phones: string[] = [];
+    let unreadable = 0;
+    for (const raw of c.phones) {
+      const n = normalizeE164(raw, opts.defaultDialCode);
+      if (!n) { unreadable++; continue; }
+      if (!phones.includes(n)) phones.push(n);
     }
-    const contact: VcfContact = { name, emails: c.emails.filter(e => /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(e)) };
-    if (phone) contact.phone = phone;
+    if (c.phones.length && !phones.length) { res.errors.push({ index, reason: "invalid phone number" }); return; }
+    res.ignoredExtraPhones += unreadable + Math.max(0, phones.length - MAX_PHONES);
+    const contact: VcfContact = { name, phones: phones.slice(0, MAX_PHONES), emails: [...new Set(c.emails.filter(e => /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(e)).map(e => e.toLowerCase()))].slice(0, 10) };
     if (c.org) contact.organization = c.org;
     if (c.title) contact.title = c.title;
     if (c.note) contact.note = c.note;
@@ -226,8 +229,8 @@ export function parseVcf(text: string, opts: VcfParseOptions = {}): VcfParseResu
         card.n = `${given} ${family}`.trim();
         break;
       }
-      case "TEL": card.phones.push(unescapeValue(value).replace(/^tel:/i, "").trim()); break;
-      case "EMAIL": card.emails.push(unescapeValue(value).trim()); break;
+      case "TEL": if (card.phones.length < 50) card.phones.push(unescapeValue(value).replace(/^tel:/i, "").trim()); else res.ignoredExtraPhones++; break;
+      case "EMAIL": if (card.emails.length < 50) card.emails.push(unescapeValue(value).trim()); break;
       case "ORG": card.org = unescapeValue(splitUnescaped(value)[0] ?? "").trim() || undefined; break;
       case "TITLE": card.title = unescapeValue(value).trim() || undefined; break;
       case "NOTE": card.note = unescapeValue(value); break;

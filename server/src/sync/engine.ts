@@ -12,7 +12,7 @@ export class PeopleApiError extends Error {
   constructor(kind: SyncErrorKind, message: string, retryAfterMs?: number) { super(message); this.kind = kind; this.retryAfterMs = retryAfterMs; }
 }
 
-export interface SyncContact { id: string; userId: string; fullName: string; phone?: string; emails: string[]; organization?: string; title?: string; notes?: string; googleResourceName?: string; googleEtag?: string; version: number }
+export interface SyncContact { id: string; userId: string; fullName: string; phones: string[]; emails: string[]; organization?: string; title?: string; notes?: string; googleResourceName?: string; googleEtag?: string; version: number }
 export interface PeopleApi {
   createContact(accessToken: string, c: SyncContact): Promise<{ resourceName: string; etag: string }>;
   updateContact(accessToken: string, resourceName: string, etag: string, c: SyncContact): Promise<{ etag: string }>;
@@ -40,7 +40,9 @@ export interface SyncPorts {
     accessToken(userId: string): Promise<string>; // refreshes when needed; throws PeopleApiError("auth_revoked") if impossible
   };
   people: PeopleApi;
-  log(userId: string, outcome: string, detail?: string): Promise<void>; // never contact contents or tokens
+  log(userId: string, outcome: string, contactId?: string): Promise<void>; // never contact contents or tokens
+  /** optional hook: a verified sync success (counts for challenges) */
+  onSynced?(userId: string, contactId: string, version: number): Promise<void>;
   now(): number;
   random?(): number;
 }
@@ -76,7 +78,7 @@ export async function processJob(p: SyncPorts, job: SyncJob): Promise<JobStatus>
   }
   if (conn.status !== "connected") {
     await p.contacts.setState(job.userId, job.contactId, "failed");
-    await p.log(job.userId, "not_connected");
+    await p.log(job.userId, "not_connected", job.contactId);
     return finish("failed", { lastError: `connection_${conn.status}` }); // no retries until the user reconnects
   }
   const contact = await p.contacts.get(job.userId, job.contactId);
@@ -92,11 +94,12 @@ export async function processJob(p: SyncPorts, job: SyncJob): Promise<JobStatus>
       const r = await p.people.createContact(token, contact); // resource name is stored at once: a retry updates instead of duplicating
       await p.contacts.markSynced(job.userId, contact.id, r);
     }
-    await p.log(job.userId, "synced");
+    await p.log(job.userId, "synced", contact.id);
+    if (p.onSynced) await p.onSynced(job.userId, contact.id, contact.version);
     return finish("succeeded", { lastError: undefined as never });
   } catch (e) {
     const err = e instanceof PeopleApiError ? e : new PeopleApiError("transient", "unexpected");
-    await p.log(job.userId, err.kind);
+    await p.log(job.userId, err.kind, job.contactId);
     if (err.kind === "auth_revoked") {
       await p.connection.markRevoked(job.userId);
       await p.contacts.setState(job.userId, job.contactId, "failed");
