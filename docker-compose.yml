@@ -1,0 +1,121 @@
+# SYRIX VCF — production stack. Only Caddy publishes ports (80/443).
+# PostgreSQL and Redis live on an internal network with no route to the outside and no published ports.
+name: syrix-vcf
+
+x-logging: &logging
+  driver: json-file
+  options: { max-size: "10m", max-file: "5" }
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: syrix
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?set POSTGRES_PASSWORD in .env}
+      POSTGRES_DB: syrix
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    networks: [private]
+    shm_size: 256mb
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U syrix -d syrix"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+    logging: *logging
+
+  redis:
+    image: redis:7-alpine
+    restart: unless-stopped
+    # queues need every job kept: append-only persistence and no eviction
+    command: ["sh", "-c", "exec redis-server --requirepass \"$$REDIS_PASSWORD\" --appendonly yes --maxmemory 256mb --maxmemory-policy noeviction"]
+    environment:
+      REDIS_PASSWORD: ${REDIS_PASSWORD:?set REDIS_PASSWORD in .env}
+    volumes:
+      - redisdata:/data
+    networks: [private]
+    healthcheck:
+      test: ["CMD-SHELL", "redis-cli -a \"$$REDIS_PASSWORD\" --no-auth-warning ping | grep -q PONG"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+    logging: *logging
+
+  app:
+    image: syrix-vcf:${APP_VERSION:-latest}
+    build: .
+    restart: unless-stopped
+    # migrations run first and are the only place that changes the schema; the app starts only if they succeed
+    command: ["sh", "-c", "node server/src/migrate.ts && exec node server/src/main.ts"]
+    env_file: .env
+    environment:
+      DATABASE_URL: postgres://syrix:${POSTGRES_PASSWORD}@postgres:5432/syrix
+      REDIS_URL: redis://:${REDIS_PASSWORD}@redis:6379
+      TRUST_PROXY: "true"
+    depends_on:
+      postgres: { condition: service_healthy }
+      redis: { condition: service_healthy }
+    networks: [private, edge]
+    init: true                 # PID 1 forwards signals: clean shutdown of HTTP and queue workers
+    read_only: true
+    tmpfs: [/tmp]
+    security_opt: [no-new-privileges:true]
+    cap_drop: [ALL]
+    healthcheck:
+      test: ["CMD", "node", "-e", "fetch('http://127.0.0.1:3000/readyz').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"]
+      interval: 15s
+      timeout: 5s
+      start_period: 30s
+      retries: 5
+    logging: *logging
+
+  worker:
+    image: syrix-vcf:${APP_VERSION:-latest}
+    restart: unless-stopped
+    command: ["node", "server/src/worker.ts"]
+    env_file: .env
+    environment:
+      DATABASE_URL: postgres://syrix:${POSTGRES_PASSWORD}@postgres:5432/syrix
+      REDIS_URL: redis://:${REDIS_PASSWORD}@redis:6379
+    depends_on:
+      app: { condition: service_healthy }   # waits for migrations
+    networks: [private, edge]               # edge: outbound HTTPS to Google and the e-mail provider
+    init: true
+    read_only: true
+    tmpfs: [/tmp]
+    security_opt: [no-new-privileges:true]
+    cap_drop: [ALL]
+    healthcheck:
+      disable: true                         # the worker writes heartbeats; the admin console shows them
+    logging: *logging
+
+  caddy:
+    image: caddy:2-alpine
+    restart: unless-stopped
+    environment:
+      DOMAIN: ${DOMAIN:?set DOMAIN in .env}
+      ACME_EMAIL: ${ACME_EMAIL:-${ADMIN_EMAIL}}
+    ports:
+      - "80:80"
+      - "443:443"
+      - "443:443/udp"
+    volumes:
+      - ./deploy/Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+      - caddy_config:/config
+    depends_on:
+      app: { condition: service_healthy }
+    networks: [edge]
+    logging: *logging
+
+networks:
+  private:
+    internal: true   # no internet access, no published ports
+  edge: {}
+
+volumes:
+  pgdata:
+  redisdata:
+  caddy_data:
+  caddy_config:

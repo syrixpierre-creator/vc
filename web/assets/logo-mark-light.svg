@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="SYRIX VCF"><defs>
+  <linearGradient id="slr" x1="8" y1="6" x2="58" y2="60" gradientUnits="userSpaceOnUse"><stop stop-color="#2F55E6"/><stop offset=".55" stop-color="#4F6BF5"/><stop offset="1" stop-color="#7C4DEB"/></linearGradient>
+  <linearGradient id="sln" x1="8" y1="58" x2="58" y2="6" gradientUnits="userSpaceOnUse"><stop stop-color="#1E3FC9"/><stop offset=".6" stop-color="#3D63E0"/><stop offset="1" stop-color="#6E8DFF"/></linearGradient>
+  <mask id="slm" maskUnits="userSpaceOnUse" x="0" y="0" width="64" height="64"><rect width="64" height="64" fill="#fff"/>
+    <polygon points="7,59 34.5,34.5 58,6 29.5,29.5" fill="#000" stroke="#000" stroke-width="5.5" stroke-linejoin="round"/></mask></defs>
+  <circle cx="32" cy="32" r="24" fill="none" stroke="url(#slr)" stroke-width="4.6" mask="url(#slm)"/>
+  <polygon points="7,59 34.5,34.5 58,6 29.5,29.5" fill="url(#sln)"/>
+  <g stroke="#5C74D6" stroke-width="1.7" stroke-linecap="round" opacity=".92"><path d="M20.5 21 26.5 15.5M20.5 21 17.5 29.5"/><path d="M43.5 43 48.5 36.5M43.5 43 36.5 48.5"/></g>
+  <g fill="#2F4BC4"><circle cx="20.5" cy="21" r="3.1"/><circle cx="26.5" cy="15.5" r="2.3"/><circle cx="17.5" cy="29.5" r="2.1"/><circle cx="43.5" cy="43" r="3.1"/><circle cx="48.5" cy="36.5" r="2.3"/><circle cx="36.5" cy="48.5" r="2.1"/></g></svg>

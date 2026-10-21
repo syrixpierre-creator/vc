@@ -1,0 +1,44 @@
+import type { Difficulty, Metric, RewardType } from "./challenges.ts";
+
+type T5 = Record<"en" | "fr" | "pt" | "es" | "ar", string>;
+export interface ChallengeTemplate { slug: string; difficulty: Difficulty; metric: Metric; threshold: number; rewardType: RewardType; rewardXp?: number; reviewRequired?: boolean; title: T5; description: T5 }
+
+/**
+ * The monthly set an administrator starts from. Every one is real, measurable work verified by the server;
+ * none is completed by logging in or clicking. Rewards default to XP/badges: cash or Telegram/WhatsApp rewards
+ * are only added by an administrator together with a budget.
+ */
+export const TEMPLATES: readonly ChallengeTemplate[] = [
+  { slug: "referral-strategist", difficulty: "advanced", metric: "qualified_referrals", threshold: 25, rewardType: "xp", rewardXp: 500,
+    title: { en: "Referral Strategist", fr: "Stratège du parrainage", pt: "Estrategista de indicações", es: "Estratega de referidos", ar: "خبير الإحالات" },
+    description: { en: "Obtain 25 qualified referrals during the challenge period.", fr: "Obtenez 25 parrainages qualifiés pendant la période du défi.", pt: "Obtenha 25 indicações qualificadas durante o período do desafio.", es: "Consigue 25 referidos calificados durante el período del desafío.", ar: "احصل على 25 إحالة مؤهلة خلال فترة التحدي." } },
+  { slug: "growth-architect", difficulty: "legendary", metric: "qualified_referrals", threshold: 75, rewardType: "badge", rewardXp: 0,
+    title: { en: "Growth Architect", fr: "Architecte de la croissance", pt: "Arquiteto do crescimento", es: "Arquitecto del crecimiento", ar: "مهندس النمو" },
+    description: { en: "Obtain 75 qualified referrals that pass the published eligibility and anti-fraud checks.", fr: "Obtenez 75 parrainages qualifiés qui passent les contrôles d'éligibilité et anti-fraude publiés.", pt: "Obtenha 75 indicações qualificadas que passem nas verificações de elegibilidade e antifraude publicadas.", es: "Consigue 75 referidos calificados que superen los controles de elegibilidad y antifraude publicados.", ar: "احصل على 75 إحالة مؤهلة تجتاز شروط الأهلية وفحوص مكافحة الاحتيال المنشورة." } },
+  { slug: "monthly-champion", difficulty: "legendary", metric: "challenges_completed", threshold: 6, rewardType: "badge",
+    title: { en: "Monthly Champion", fr: "Champion du mois", pt: "Campeão do mês", es: "Campeón del mes", ar: "بطل الشهر" },
+    description: { en: "Complete at least six designated challenges this month.", fr: "Terminez au moins six défis désignés ce mois-ci.", pt: "Conclua pelo menos seis desafios designados neste mês.", es: "Completa al menos seis desafíos designados este mes.", ar: "أكمل ستة تحديات محددة على الأقل هذا الشهر." } },
+  { slug: "synchronization-expert", difficulty: "expert", metric: "sync_successes", threshold: 200, rewardType: "xp", rewardXp: 300,
+    title: { en: "Synchronization Expert", fr: "Expert de la synchronisation", pt: "Especialista em sincronização", es: "Experto en sincronización", ar: "خبير المزامنة" },
+    description: { en: "Complete 200 verified Google Contacts synchronizations of your own contacts during the period.", fr: "Réalisez 200 synchronisations Google Contacts vérifiées de vos propres contacts pendant la période.", pt: "Conclua 200 sincronizações verificadas dos seus próprios contatos com o Google Contacts no período.", es: "Completa 200 sincronizaciones verificadas de tus propios contactos con Google Contacts en el período.", ar: "أكمل 200 عملية مزامنة موثقة لجهات اتصالك مع Google Contacts خلال الفترة." } },
+  { slug: "vcf-specialist", difficulty: "advanced", metric: "vcf_imports", threshold: 3, rewardType: "xp", rewardXp: 150,
+    title: { en: "VCF Specialist", fr: "Spécialiste VCF", pt: "Especialista em VCF", es: "Especialista en VCF", ar: "متخصص VCF" },
+    description: { en: "Import three valid VCF files after reviewing their validation preview.", fr: "Importez trois fichiers VCF valides après avoir vérifié leur aperçu de validation.", pt: "Importe três arquivos VCF válidos depois de revisar a pré-visualização de validação.", es: "Importa tres archivos VCF válidos después de revisar su vista previa de validación.", ar: "استورد ثلاثة ملفات VCF صالحة بعد مراجعة معاينة التحقق." } },
+  { slug: "elite-recruiter", difficulty: "elite", metric: "qualified_referrals", threshold: 150, rewardType: "badge",
+    title: { en: "Elite Recruiter", fr: "Recruteur d'élite", pt: "Recrutador de elite", es: "Reclutador de élite", ar: "مُجنِّد النخبة" },
+    description: { en: "Reach 150 qualified referrals within the challenge period.", fr: "Atteignez 150 parrainages qualifiés pendant la période du défi.", pt: "Alcance 150 indicações qualificadas dentro do período do desafio.", es: "Alcanza 150 referidos calificados dentro del período del desafío.", ar: "حقق 150 إحالة مؤهلة خلال فترة التحدي." } },
+  { slug: "security-champion", difficulty: "advanced", metric: "security_tasks", threshold: 4, rewardType: "xp", rewardXp: 120,
+    title: { en: "Security Champion", fr: "Champion de la sécurité", pt: "Campeão da segurança", es: "Campeón de la seguridad", ar: "بطل الأمان" },
+    description: { en: "Complete the four account-security tasks: review sessions, review connected access, set your privacy options and create a backup.", fr: "Accomplissez les quatre tâches de sécurité : vérifier vos sessions, vérifier l'accès connecté, régler la confidentialité et créer une sauvegarde.", pt: "Conclua as quatro tarefas de segurança: revisar sessões, revisar o acesso conectado, definir a privacidade e criar um backup.", es: "Completa las cuatro tareas de seguridad: revisar sesiones, revisar el acceso conectado, ajustar la privacidad y crear una copia de seguridad.", ar: "أكمل مهام الأمان الأربع: مراجعة الجلسات، مراجعة الوصول المتصل، ضبط الخصوصية وإنشاء نسخة احتياطية." } },
+  { slug: "consistency-master", difficulty: "expert", metric: "active_days", threshold: 20, rewardType: "xp", rewardXp: 250,
+    title: { en: "Consistency Master", fr: "Maître de la régularité", pt: "Mestre da constância", es: "Maestro de la constancia", ar: "سيد الانتظام" },
+    description: { en: "Complete verified activities on 20 separate days during the period.", fr: "Réalisez des activités vérifiées sur 20 jours différents pendant la période.", pt: "Realize atividades verificadas em 20 dias diferentes durante o período.", es: "Realiza actividades verificadas en 20 días distintos durante el período.", ar: "أنجز أنشطة موثقة في 20 يومًا مختلفًا خلال الفترة." } },
+  { slug: "contact-organizer", difficulty: "expert", metric: "contacts_labeled", threshold: 150, rewardType: "xp", rewardXp: 200,
+    title: { en: "Contact Organizer", fr: "Organisateur de contacts", pt: "Organizador de contatos", es: "Organizador de contactos", ar: "منظم جهات الاتصال" },
+    description: { en: "Organize 150 of your existing contacts with labels. No new personal data is required.", fr: "Organisez 150 de vos contacts existants avec des libellés. Aucune nouvelle donnée personnelle n'est demandée.", pt: "Organize 150 dos seus contatos existentes com etiquetas. Nenhum dado pessoal novo é necessário.", es: "Organiza 150 de tus contactos existentes con etiquetas. No se requieren datos personales nuevos.", ar: "نظّم 150 من جهات اتصالك الحالية باستخدام التصنيفات. لا حاجة لأي بيانات شخصية جديدة." } },
+  { slug: "community-champion", difficulty: "elite", metric: "admin_verified", threshold: 10, rewardType: "badge", reviewRequired: true,
+    title: { en: "Community Champion", fr: "Champion de la communauté", pt: "Campeão da comunidade", es: "Campeón de la comunidad", ar: "بطل المجتمع" },
+    description: { en: "Take part in ten designated community activities (bug reports confirmed by the team, accepted feature proposals). Each one is verified by a person; no spam, no fabricated engagement.", fr: "Participez à dix activités communautaires désignées (bugs confirmés par l'équipe, propositions acceptées). Chacune est vérifiée par une personne ; pas de spam, pas d'engagement artificiel.", pt: "Participe de dez atividades designadas da comunidade (bugs confirmados pela equipe, propostas aceitas). Cada uma é verificada por uma pessoa; sem spam, sem engajamento falso.", es: "Participa en diez actividades designadas de la comunidad (errores confirmados por el equipo, propuestas aceptadas). Cada una la verifica una persona; sin spam ni interacción falsa.", ar: "شارك في عشرة أنشطة مجتمعية محددة (أخطاء يؤكدها الفريق، مقترحات مقبولة). يتحقق شخص من كل نشاط؛ لا رسائل مزعجة ولا تفاعل مزيف." } },
+];
+
+export const DEFAULT_TERMS = "Progress is computed by the server from verified activity inside the challenge period. Replayed or duplicated events count once. Self-referrals, fake accounts and automated activity are excluded and may lead to review. Terms do not change after a participant qualifies; the end date can only be extended.";
