@@ -33,6 +33,13 @@ if ! grep -q '^ADMIN_PASSWORD=.\+' .env; then
   echo ">>> Panel password (ADMIN_PASSWORD) set to: ${PW}"
 fi
 
+# Enable the public pairing site (/pair) by default
+if grep -q '^PUBLIC_PAIRING=' .env; then
+  sed -i "s|^PUBLIC_PAIRING=.*|PUBLIC_PAIRING=true|" .env
+else
+  echo "PUBLIC_PAIRING=true" >> .env
+fi
+
 # 4) pm2 — run the multi-session manager, keep it alive across reboots
 if ! command -v pm2 >/dev/null 2>&1; then
   echo ">>> Installing pm2..."
@@ -46,5 +53,6 @@ PORT="$(grep -E '^PORT=' .env | cut -d= -f2 || true)"; PORT="${PORT:-5000}"
 echo ""
 echo ">>> QUEEN AKUMA is deployed."
 echo ">>> Panel:  http://<your-server-ip>:${PORT}/   (password = ADMIN_PASSWORD in .env)"
+echo ">>> Pairing site (public): http://<your-server-ip>:${PORT}/pair"
 echo ">>> Add a bot from the panel, or: node manager.js add <number>"
 echo ">>> Logs:   pm2 logs queen-akuma"
