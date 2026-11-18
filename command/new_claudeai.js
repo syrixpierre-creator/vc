@@ -1,0 +1,17 @@
+const { run } = require('../lib/compat');
+const META = {
+  file: "ai-claudeai.js",
+  family: "A",
+  command: "claudeai",
+  perms: { owner: false, group: false, admin: false, botAdmin: false, private: false }
+};
+module.exports = {
+  command: "claudeai",
+  aliases: [],
+  category: "misc",
+  description: "New plugin: claudeai",
+  usage: ".claudeai",
+  async handler(sock, message, args, context = {}) {
+    return run(META, sock, message, args, context);
+  }
+};

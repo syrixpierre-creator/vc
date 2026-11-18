@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>QUEEN AKUMA — Connecter mon bot</title>
+<style>
+  body { margin:0; min-height:100vh; display:grid; place-items:center; font:15px/1.5 system-ui,-apple-system,Segoe UI,Roboto,sans-serif; background:#0e0f13; color:#e8e9ee; }
+  .card { width:min(420px,92vw); background:#171920; border:1px solid #262a35; border-radius:14px; padding:22px; }
+  h1 { font-size:19px; margin:0 0 6px; }
+  p { color:#8b90a0; margin:0 0 16px; font-size:14px; }
+  input { width:100%; box-sizing:border-box; background:#0b0c10; border:1px solid #262a35; color:#e8e9ee; border-radius:8px; padding:11px; font-size:15px; margin-bottom:10px; }
+  button { width:100%; background:#e5484d; border:0; color:#fff; font-weight:600; border-radius:8px; padding:11px; font-size:15px; cursor:pointer; }
+  button:disabled { opacity:.6; }
+  .code { margin-top:16px; text-align:center; }
+  .code b { display:block; font-size:30px; letter-spacing:5px; margin:6px 0; font-variant-numeric:tabular-nums; }
+  .msg { margin-top:12px; font-size:14px; color:#f5a524; text-align:center; }
+  .ok { color:#30a46c; }
+</style>
+</head>
+<body>
+<div class="card">
+  <h1>Connecter mon bot</h1>
+  <p>Entre ton numéro WhatsApp avec l'indicatif pays, sans « + » ni espaces. Tu obtiendras ton propre bot, indépendant des autres.</p>
+  <form id="f">
+    <input id="n" placeholder="ex : 5511999999999" inputmode="numeric" required>
+    <button id="b">Obtenir mon code</button>
+  </form>
+  <div class="code" id="code"></div>
+  <div class="msg" id="msg"></div>
+</div>
+<script>
+let timer = null;
+const msg = (t, ok) => { const m = document.getElementById('msg'); m.textContent = t; m.className = 'msg' + (ok ? ' ok' : ''); };
+document.getElementById('f').onsubmit = async (e) => {
+  e.preventDefault();
+  const number = document.getElementById('n').value.replace(/\D/g, '');
+  const b = document.getElementById('b'); b.disabled = true;
+  document.getElementById('code').innerHTML = ''; msg('Démarrage de ton bot…');
+  try {
+    const r = await fetch('/pair', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ number }) });
+    const j = await r.json();
+    if (!j.ok) { msg(j.error || 'Erreur'); b.disabled = false; return; }
+    clearInterval(timer);
+    timer = setInterval(async () => {
+      const s = await fetch('/pair/status?number=' + number).then(r => r.json()).catch(() => ({}));
+      if (s.status === 'connected') { clearInterval(timer); document.getElementById('code').innerHTML = ''; msg('✅ Ton bot est connecté !', true); b.disabled = false; }
+      else if (s.code) {
+        document.getElementById('code').innerHTML = `Ton code :<b>${s.code}</b><span style="color:#8b90a0;font-size:13px">WhatsApp → Appareils connectés → Connecter un appareil → Connecter avec un numéro de téléphone</span>`;
+        msg('En attente de la saisie du code…');
+      }
+    }, 2500);
+  } catch (_) { msg('Erreur réseau'); b.disabled = false; }
+};
+</script>
+</body>
+</html>

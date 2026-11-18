@@ -1,0 +1,146 @@
+QUEEN AKUMA PRO Upgrade — 10 Nov 2026
+==================================
+Analysed: 18 zips (QUEEN AKUMA Full/lite/plugins, 1520+plugins, QUEEN-AKUMA/XMD, AURA, BENZO, KIM, LEGEND, k/repo, reaper, xjx, Levanter-Upgrade, inconnu-bug)
+Result: QUEEN AKUMA already had ~99% of the useful commands; only new, safe, self-contained ones were added.
+
+ADDED (command/inconnu_pack.js + command/_inconnu/*, lib/botname.js)
+  .country  .crypto  .cryptotop  .horoscope  .numfact
+  .recipe   .mealsearch  .riddle  .riddleanswr  .riddlecheck  .rps
+
+FIXED
+  - Removed corrupted command/fonts-cmds.js (syntax error, broken auto-generated stub)
+  - Verified syntax of all command/*.js, lib/*.js, index.js (0 failures)
+
+NOT ADDED (on purpose)
+  - inconnu-bug (SY/S7: CallCrash, StickerCrash, killsystem, crashfinity, etc.) —
+    WhatsApp crash/virtex attack payloads; they harm other users and can get the number banned.
+  - search-nekopoi (adult scraper), xjx-main handler/index (different framework, duplicates).
+  - Plugins needing foreign libs (autoconfig, sudo-store, keithapi) — QUEEN AKUMA has its own equivalents.
+
+SECURITY NOTES
+  - .eval (owner2.js) is owner-only; keep OWNER/sudo list private.
+  - Rotate default API keys; set DEMON_API_KEY, OSINT_API_KEY, GEMINI_API_KEY, OWNER_LID in env.
+  - ported plugins still show INCONNU channel branding in country.js (newsletterName) — edit if you want.
+
+UPDATE 2 — XJX pack (command/xjx_pack.js + command/_xjx/)
+=========================================================
+Source: xjx-main (436 commands, obfuscated). 170 not in QUEEN AKUMA; 124 ported (the rest need XJX's own
+database/handler, adult helpers, or are owner/admin commands that QUEEN AKUMA already covers).
+Ported groups: AI chat (claude, metaai, perplexity, o3), 30+ logo effects, ephoto360 effects, movies/tv search,
+sports/FIFA, reactions, holy books, spotify2, trim, togif, circlesticker, telegramsticker, write, ssdesktop, ssrecord,
+imgbb, shorturl, translate2, wame, getdevice, lid, inviteinfo, pinmsg/unpinmsg, videogen and more.
+ - Adapter gives XJX commands ctx.from / ctx.react / ctx.command / ctx.prefix / ctx.reply
+ - Clean shims written for config, tempManager, ffmpegPath, jidHelper (XJX's own utils NOT copied)
+ - 89 commands + 21 aliases that already exist in QUEEN AKUMA are skipped (no conflicts)
+ - Excluded on purpose: adult/NSFW anime (hneko, hwaifu, shota, husby, konachan), adult video helpers
+ - Sandbox test: all 124 register and execute without exceptions (network was stubbed; live API replies
+   depend on the third-party APIs being online)
+ - XJX command files are obfuscated; I verified in a sandbox they make no shell calls and only contact:
+   apiskeith2 (railway), giftedtech, waifu.pics, ephoto360, princetechn, shizo, nexray, translate APIs.
+ - New optional deps: ffmpeg-static, gifted-btns  -> run: npm install
+
+UPDATE 3 — Crash fix: "handleLinkDetection is not a function" (messageHandler.js:597)
+====================================================================================
+Cause: messageHandler imported 5 handlers that the command files never exported, so EVERY group message
+threw before any command ran (bot replied "Failed to process message!").
+Fixed (all verified by export check + real commandHandler load, 2771 commands):
+  - command/antilink.js  : added handleLinkDetection (safe; real link blocking runs in lib/groupAnti)
+  - command/antitag.js   : added handleTagDetection (deletes non-admin messages tagging 5+ members when antitag ON)
+  - command/promote.js   : added handlePromotionEvent (admin promotion announcement)
+  - command/demote.js    : added handleDemotionEvent
+  - command/welcome.js   : rewritten to real .welcome on/off/set + handleJoinEvent (was an in-memory stub)
+  - index.js             : removed bogus `fetch, await` destructure from ./lib/myfunc (they shadowed global fetch)
+Known/untouched: analyze.js, cipher.js, crun.js, dna.js, rle.js are half-converted ESM owner-only code runners
+  ("promisify is not defined"); the loader skips them safely and they do not affect other commands.
+
+UPDATE 4 — DM Anti-Delete fix
+=============================
+Problem: deleted DM messages were not showing in the bot number; recovery went back into the chat where it
+was deleted, and delete events delivered as messages.update were ignored.
+Fix (command/antidelete.js + index.js):
+  - DM deletes are now reported to the bot/owner's own chat ("Message yourself") in "DELETED MESSAGE DETECTED" format
+    (From / Deleted by / Chat / Sent / Deleted time / message text) + the deleted photo/video/sticker/audio/document
+  - Group deletes still report inside the group
+  - Added messages.update listener (REVOKE via update events) alongside the existing REVOKE-upsert path
+  - Owner's own deletes in DM are ignored (no noise)
+  - Needs: .selfantidelete on (messages are stored in memory, so a message must arrive AFTER enabling and
+    before bot restart to be recoverable)
+
+UPDATE 5 — antidelete / selfantidelete both with on/off/status
+==============================================================
+Problem: `.antidelete` was being overridden by an old wrapper (command/imp_antidelete.js -> legacy anti-delete.js)
+which crashed with "lite is not a function" and used a different store, so group anti-delete never worked.
+Fix: removed the conflicting wrappers imp_antidelete.js, imp_xantidelete.js and imp_selfantidelete.js.
+Now:
+  .antidelete on|off|status      -> groups  (recovered in the group)
+  .selfantidelete on|off|status  -> DM      (recovered in bot number / Message yourself)
+Both share data/antidelete.json and are independent of each other.
+
+UPDATE 6 — "Command ON hota hai par kaam nahi karta" audit & fixes
+=================================================================
+Method: probed every on/off toggle command (66), checked which store it writes and whether the
+message pipeline actually enforces it, and unit-tested all group anti features with simulated messages.
+
+ROOT CAUSE 1 — restored wrappers masked real commands (biggest bug)
+  - 974 imp_*.js wrappers pointed at files that are ALREADY native QUEEN AKUMA commands. The legacy emulator could not run
+    them and answered "Command available nahi hai ya API down hai". Because imp_ loads before s..z and after a..h,
+    commands like anticall, antibug, antifake, antigm, antipm, antibadword, autoread, autostatus, chatbot, dexbot,
+    goodbye, greet ... were overridden by these broken wrappers (they said "on" but did nothing).
+  - FIX lib/compat.js (+ lib/compat_native.json): wrappers now delegate to the native module.
+  - FIX lib/commandHandler.js: wrappers ("Restored:", "New plugin:", "Smart Engine:" stubs) can never override a
+    native command or alias, whatever the file load order.
+
+ROOT CAUSE 2 — toggles with no enforcement code (lib/groupAnti.js)
+  - antiword : now deletes blocked words. New: .antiword add/del/list/on/off
+  - antibot  : now deletes messages sent by other Baileys bots
+  - antimention (new native command) : deletes non-admin messages that mention anyone
+  - antitag  : only mass-tags (5+ mentions) — before, a single @mention was deleted
+  - antilink : now blocks ALL links (http/https/www, wa.me, t.me, chat.whatsapp.com, bare domains), not only group invites
+  - verified with simulated messages: antilink antisticker antiimage antivideo antiaudio antivoice antidoc antimedia
+    antiforward antivv antilocation antipoll anticontact antibug antispam antiword antibot antimention antitag (26/26 pass)
+
+ROOT CAUSE 3 — commands that were broken legacy files or placeholder stubs
+  - .greet   : was never wired. Now native; greets each new DM user once (.greet on/off/set/list/reset)
+  - .pdm     : native on/off; promote/demote announcements respect it
+  - .tog     : native; enable/disable any command at runtime
+  - .setbotname .setownername .setownernumber .setchannellink : real setters, saved in data/identity.json, applied instantly
+  - .warnings .resetwarn .warnlimit : real warning tools backed by groupAnti
+
+NOT changed / things to know
+  - osint* commands are intentionally access-gated; dexbot/mentionreply/menusetting are owner-only.
+  - Features that store settings in the database (antibadword, autotyping, stealth, autostatus, chatbot...) were verified to
+    respond and no longer be masked by wrappers, but I could not test them against live WhatsApp.
+  - Commands total is now 2694 (was 2771) because ~77 masked wrapper duplicates are no longer registered.
+
+UPDATE 7 — antidelete / selfantidelete "ON but nothing happens"
+==============================================================
+Cause: messages deleted from the bot's OWN number (the account the bot is linked to, e.g. when testing by deleting
+your own message) were silently ignored ("own" recovery was OFF by default) and the bot never said why.
+Fix (command/antidelete.js, command/selfantidelete.js):
+  - own-number deletes are now recovered by default (old saved configs are migrated automatically)
+  - .antidelete status / .selfantidelete status now show live diagnostics: ON/OFF, messages stored, deletes seen,
+    recovered count and the reason for the last skipped delete
+  - new: .antidelete dest me|chat  (group reports to "Message yourself" or to the same group)
+  - .antidelete own on|off still available
+Simulated: group delete by others / by you, DM delete by others / by you, dest=me, own OFF, never-stored message.
+
+UPDATE 8 — "config is not defined", .bot, .fb and API fixes
+===========================================================
+Screenshots: .tts/.hug -> "Error executing command: config is not defined", .bot -> "Did you mean .hot?", .fb -> "Try: .play ..."
+1) Undeclared variables (static scan of all 2000+ command files with a JS parser found 110 files)
+   - lib/globals.js (loaded from settings.js) now provides: config, fakeSender, fs, path, https, http, os, exec, promisify,
+     axios, wait/sleep, TEMP_DIR, downloadContentFromMessage, downloadMediaMessage.  -> fixes .tts .hug .kill .pat .slap
+     .wiki .time .calendar .binary .code ... (38 files used `config`, 31 used `fakeSender`, 31 `path`, 29 `fs`, 20 `exec`)
+   - restored commented-out imports: clearchat, disappear, listinsctive, u-aupload
+   - new real helpers: lib/uploaders.js (catbox, litterbox, tmpfiles, uguu, x0.at, pomf2, qu.ax, pixhost, freeimage -> all u-*.js
+     upload commands work), lib/smartAI.js ask() (.code, .copilot), lib/canvasRender.js (.calendar image), addreply <-> autoreply store
+2) 504 placeholder files ("QUEEN AKUMA working handler") answered every command with a fake "Try ..." text and overrode the real
+   command (that is why .fb said "Try: .play"). They are now fallback-only (lib/commandHandler.js).
+   lib/priority.json = explicit owner file per command name.
+3) New command/bot.js (.bot .botinfo .botstatus .alive)
+4) Downloader engine lib/mediaDownloader.js + command/dl_social.js
+   .fb .ig .tiktok .twitter .pindl .dl  — detects platform from the link, asks up to 4 APIs in parallel, takes the first valid
+   answer, prefers HD, remembers dead APIs (data/api-health.json), accepts a link in the replied message.
+   Owner tools: .apicheck (tests every API from YOUR server), .addapi <platform> <url with {url}>, .delapi, .apilist
+   (custom APIs stored in data/providers.json — no code change needed)
+Not fixed: vnum/vnumget/vnumotp (missing backend), analyze/cipher/crun/dna/rle (C++ runners).

@@ -1,0 +1,20 @@
+QUEEN AKUMA Upgrade — 27 Oct 2026
+================================
+FIXES:
+- .menu2 fixed (removed broken new_menu2 → legacy/amon path)
+- .setautoreact → maps to .autoreact (working)
+- amon.js shim added
+- black_hat/* shims added (gmdCmds, database, connection)
+- download APIs: dead discardapi removed → qasimdev multi-fallback
+- Core DL: .play .tiktok .fb .video .ytmp3 updated
+- Flower rain + button grid on .menu2
+- Comprehensive shims for missing legacy modules (command, lite, malvin,
+  lib/functions, lib/prefix, lib/uploaders, lib/database, _shim, etc.)
+- compat.js hardened against missing legacy files
+
+USE:
+  .menu2
+  .autoreact on | .setautoreact on
+  .autostatus on | .autostatus react on | .autostatus emoji 💚
+  .play <song>
+  .tiktok <link> | .fb <link> | .ytmp3 <link>

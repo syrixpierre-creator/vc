@@ -1,0 +1,64 @@
+{
+  "name": "QUEEN AKUMA",
+  "description": "QUEEN AKUMA — advanced multi-device WhatsApp bot",
+  "keywords": [
+    "whatsapp-bot",
+    "baileys",
+    "queen-akuma"
+  ],
+  "website": "https://github.com/INCONNU-BOY-SENSEI/QUEEN-AKUMA",
+  "repository": "https://github.com/INCONNU-BOY-SENSEI/QUEEN-AKUMA",
+  "success_url": "/",
+  "env": {
+    "SESSION_ID": {
+      "description": "Paste QUEEN-AKUMA~... / INCONNU-BOY-SENSEI~... session string (or leave empty for pairing code)",
+      "required": false
+    },
+    "PAIRING_NUMBER": {
+      "description": "WhatsApp number with country code, no + (e.g. 554488138425)",
+      "value": "554488138425"
+    },
+    "PORT": {
+      "description": "Port for the status web server",
+      "value": "5000"
+    },
+    "TIMEZONE": {
+      "description": "Bot timezone",
+      "value": "Asia/Kolkata"
+    },
+    "MAX_RAM_MB": {
+      "description": "RAM limit before auto-restart",
+      "value": "700"
+    },
+    "GEMINI_API_KEY": {
+      "description": "Optional: Google Gemini API key for AI commands",
+      "required": false
+    },
+    "OWNER_LID": {
+      "description": "Optional: owner LID",
+      "required": false
+    },
+    "TELEGRAM_BOT_TOKEN": {
+      "description": "Optional: Telegram bot token from @BotFather (for /pair on Telegram)",
+      "required": false
+    },
+    "TELEGRAM_OWNER_ID": {
+      "description": "Optional: your Telegram numeric ID from @userinfobot",
+      "required": false
+    }
+  },
+  "formation": {
+    "web": {
+      "quantity": 1,
+      "size": "basic"
+    }
+  },
+  "buildpacks": [
+    {
+      "url": "https://github.com/jonathanong/heroku-buildpack-ffmpeg-latest"
+    },
+    {
+      "url": "heroku/nodejs"
+    }
+  ]
+}

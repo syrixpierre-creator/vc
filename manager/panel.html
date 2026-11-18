@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>QUEEN AKUMA — Multi-session</title>
+<style>
+  :root { --bg:#0e0f13; --card:#171920; --line:#262a35; --txt:#e8e9ee; --mut:#8b90a0; --acc:#e5484d; --ok:#30a46c; --warn:#f5a524; }
+  * { box-sizing:border-box; }
+  body { margin:0; font:15px/1.45 system-ui,-apple-system,Segoe UI,Roboto,sans-serif; background:var(--bg); color:var(--txt); }
+  header { padding:18px 20px; border-bottom:1px solid var(--line); display:flex; align-items:center; gap:12px; flex-wrap:wrap; }
+  header h1 { font-size:18px; margin:0; letter-spacing:.3px; }
+  header .sub { color:var(--mut); font-size:13px; }
+  main { max-width:1000px; margin:0 auto; padding:20px; }
+  form.add { display:flex; gap:8px; flex-wrap:wrap; background:var(--card); border:1px solid var(--line); border-radius:12px; padding:14px; margin-bottom:18px; }
+  input { background:#0b0c10; border:1px solid var(--line); color:var(--txt); border-radius:8px; padding:9px 11px; font-size:14px; min-width:0; flex:1 1 160px; }
+  button { background:#232733; color:var(--txt); border:1px solid var(--line); border-radius:8px; padding:8px 12px; font-size:13px; cursor:pointer; }
+  button:hover { border-color:#3a3f4d; }
+  button.pri { background:var(--acc); border-color:var(--acc); color:#fff; font-weight:600; }
+  button.dan { color:#ff8a8d; }
+  .bot { background:var(--card); border:1px solid var(--line); border-radius:12px; padding:14px; margin-bottom:12px; }
+  .row { display:flex; align-items:center; gap:10px; flex-wrap:wrap; }
+  .num { font-weight:600; font-size:16px; font-variant-numeric:tabular-nums; }
+  .pill { font-size:12px; padding:2px 8px; border-radius:99px; border:1px solid var(--line); color:var(--mut); }
+  .pill.connected { color:var(--ok); border-color:#1f4d36; }
+  .pill.pairing, .pill.connecting, .pill.starting, .pill.reconnecting, .pill.restarting { color:var(--warn); border-color:#5a4214; }
+  .pill.logged-out, .pill.error { color:#ff8a8d; border-color:#5a2125; }
+  .meta { color:var(--mut); font-size:13px; margin-top:6px; }
+  .code { margin-top:10px; background:#0b0c10; border:1px dashed var(--warn); border-radius:10px; padding:12px; }
+  .code b { font-size:26px; letter-spacing:4px; font-variant-numeric:tabular-nums; }
+  .actions { margin-top:10px; display:flex; gap:6px; flex-wrap:wrap; }
+  pre { background:#0b0c10; border:1px solid var(--line); border-radius:8px; padding:10px; max-height:320px; overflow:auto; font-size:12px; white-space:pre-wrap; word-break:break-all; margin:10px 0 0; }
+  .empty { color:var(--mut); text-align:center; padding:30px; }
+  .err { color:#ff8a8d; font-size:13px; width:100%; }
+</style>
+</head>
+<body>
+<header>
+  <h1>QUEEN AKUMA · Multi-session</h1>
+  <span class="sub" id="summary"></span>
+</header>
+<main>
+  <form class="add" id="addForm">
+    <input id="num" placeholder="Numéro du bot (ex : 5511999999999)" inputmode="numeric" required>
+    <input id="owner" placeholder="Propriétaire (vide = le bot lui-même)" inputmode="numeric">
+    <input id="label" placeholder="Nom (facultatif)">
+    <button class="pri" type="submit">Ajouter un bot</button>
+    <div class="err" id="addErr"></div>
+  </form>
+  <div id="list"></div>
+</main>
+<script>
+const openLogs = new Set();
+const $ = (s) => document.querySelector(s);
+const esc = (s) => String(s ?? '').replace(/[&<>"]/g, (c) => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const LABEL = { connected:'connecté', pairing:'en attente d\'appairage', connecting:'connexion…', starting:'démarrage…',
+  reconnecting:'reconnexion…', restarting:'redémarrage…', stopped:'arrêté', 'logged-out':'déconnecté (refaire l\'appairage)', error:'erreur' };
+
+function dur(ms) { const s = Math.floor(ms/1000); if (s < 60) return s+'s'; const m = Math.floor(s/60); if (m < 60) return m+'min'; const h = Math.floor(m/60); return h+'h'+String(m%60).padStart(2,'0'); }
+
+async function api(path, opts = {}) {
+  const r = await fetch(path, { headers: { 'Content-Type':'application/json' }, ...opts });
+  const j = await r.json().catch(() => ({}));
+  if (!r.ok) throw new Error(j.error || ('HTTP ' + r.status));
+  return j;
+}
+
+async function refresh() {
+  let data;
+  try { data = await api('/api/bots'); } catch (e) { return; }
+  const bots = data.bots;
+  const on = bots.filter(b => b.status === 'connected').length;
+  const ram = bots.reduce((a, b) => a + (b.ramMb || 0), 0);
+  $('#summary').textContent = `${bots.length} bot(s) · ${on} connecté(s) · ${ram} Mo RAM` + (data.maxBots ? ` · max ${data.maxBots}` : '') + (data.publicPairing ? ' · appairage public : /pair' : '');
+  if (!bots.length) { $('#list').innerHTML = '<div class="empty">Aucun bot. Ajoute un numéro ci-dessus.</div>'; return; }
+  const html = bots.map((b) => `
+    <div class="bot" data-n="${b.number}">
+      <div class="row">
+        <span class="num">+${esc(b.number)}</span>
+        ${b.label ? `<span class="pill">${esc(b.label)}</span>` : ''}
+        <span class="pill ${esc(b.status)}">${esc(LABEL[b.status] || b.status)}</span>
+      </div>
+      <div class="meta">Propriétaire : +${esc(b.owner)} · ${b.pid ? `pid ${b.pid} · ${b.ramMb ?? '?'} Mo · en ligne depuis ${dur(b.uptime)}` : 'process arrêté'} · redémarrages : ${b.restarts}</div>
+      ${b.code ? `<div class="code">Code d'appairage : <b>${esc(b.code)}</b><div class="meta">WhatsApp → Appareils connectés → Connecter un appareil → Connecter avec un numéro de téléphone.</div></div>` : ''}
+      <div class="actions">
+        ${b.enabled ? `<button data-a="restart">Redémarrer</button><button data-a="stop">Arrêter</button>` : `<button class="pri" data-a="start">Démarrer</button>`}
+        <button data-a="repair">Refaire l'appairage</button>
+        <button data-a="owner">Changer le propriétaire</button>
+        <button data-a="logs">${openLogs.has(b.number) ? 'Masquer' : 'Voir'} les logs</button>
+        <button class="dan" data-a="delete">Supprimer</button>
+      </div>
+      ${openLogs.has(b.number) ? `<pre id="log-${b.number}">…</pre>` : ''}
+    </div>`).join('');
+  $('#list').innerHTML = html;
+  for (const n of openLogs) {
+    try { const j = await api(`/api/bots/${n}/logs`); const el = document.getElementById('log-' + n); if (el) { el.textContent = j.logs.join('\n'); el.scrollTop = el.scrollHeight; } } catch (_) {}
+  }
+}
+
+$('#list').addEventListener('click', async (e) => {
+  const btn = e.target.closest('button[data-a]'); if (!btn) return;
+  const n = btn.closest('.bot').dataset.n, a = btn.dataset.a;
+  try {
+    if (a === 'logs') { openLogs.has(n) ? openLogs.delete(n) : openLogs.add(n); }
+    else if (a === 'delete') {
+      if (!confirm(`Supprimer le bot +${n} ?`)) return;
+      const purge = confirm('Supprimer aussi sa session et toutes ses données ? (OK = oui, Annuler = garder le dossier)');
+      await api(`/api/bots/${n}${purge ? '?purge=1' : ''}`, { method:'DELETE' });
+    }
+    else if (a === 'repair') { if (!confirm('La session actuelle sera effacée et un nouveau code généré. Continuer ?')) return; await api(`/api/bots/${n}/repair`, { method:'POST' }); }
+    else if (a === 'owner') { const o = prompt('Nouveau numéro propriétaire :'); if (!o) return; await api(`/api/bots/${n}/owner`, { method:'POST', body: JSON.stringify({ owner:o }) }); }
+    else await api(`/api/bots/${n}/${a}`, { method:'POST' });
+  } catch (err) { alert(err.message); }
+  refresh();
+});
+
+$('#addForm').addEventListener('submit', async (e) => {
+  e.preventDefault(); $('#addErr').textContent = '';
+  try {
+    await api('/api/bots', { method:'POST', body: JSON.stringify({ number: $('#num').value, owner: $('#owner').value, label: $('#label').value }) });
+    $('#num').value = $('#owner').value = $('#label').value = '';
+  } catch (err) { $('#addErr').textContent = err.message; }
+  refresh();
+});
+
+refresh(); setInterval(refresh, 3000);
+</script>
+</body>
+</html>

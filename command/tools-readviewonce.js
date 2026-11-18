@@ -1,0 +1,18 @@
+/* QUEEN AKUMA legacy plugin (family A) — converted automatically */
+let handler = async (m) => {
+	if (!m.quoted) return m.reply('Reply image/video that ingin You lihat');
+	if (m.quoted.mediaMessage[m.quoted?.mediaType]?.viewOnce) {
+		let msg = await m.getQuotedObj()?.message;
+		let type = Object.keys(msg)[0];
+		let media = (await m.quoted?.download()) || (await m.getQuotedObj().download());
+		if (!media) return m.reply('Media failed di Eksekusi!');
+
+		await conn.sendFile(m.chat, media, 'error.mp4', msg[type]?.caption || '', m);
+	} else m.reply('Ini bukan pesan view-once.');
+};
+
+handler.help = ['rvo'];
+handler.tags = ['tools'];
+handler.command = /^rvo|read/i;
+handler.register = false;
+module.exports = handler;

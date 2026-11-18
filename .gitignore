@@ -1,0 +1,9 @@
+node_modules/
+session/
+.env
+temp/*
+tmp/*
+*.log
+instances/
+bots.json
+bots.json.tmp

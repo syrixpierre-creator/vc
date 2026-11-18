@@ -1,0 +1,14 @@
+services:
+  queen-akuma:
+    build: .
+    container_name: queen-akuma
+    restart: unless-stopped
+    ports:
+      - "5000:5000"
+    env_file:
+      - .env
+    environment:
+      - NODE_ENV=production
+    volumes:
+      - ./instances:/app/instances   # sessions + data per bot (multi-session)
+      - ./bots.json:/app/bots.json    # the bot list

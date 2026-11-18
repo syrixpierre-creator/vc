@@ -1,0 +1,670 @@
+{
+  "password": "demon@dex",
+  "templates": {
+    "download": {
+      "purpose": "Generic media download",
+      "file": "lib/downloadApis.js",
+      "category": "1-Download",
+      "method": "GET",
+      "url": "https://api.qasimdev.dpdns.org/api/loaderto/download?apiKey={key}&url={url}",
+      "keyEnv": "DEMON_API_KEY",
+      "sample": {
+        "url": "https://youtu.be/dQw4w9WgXcQ"
+      }
+    },
+    "youtube": {
+      "purpose": "YouTube MP4",
+      "file": "lib/downloadApis.js",
+      "category": "1-Download",
+      "method": "GET",
+      "url": "https://api.qasimdev.dpdns.org/api/youtube/mp4?apiKey={key}&url={url}",
+      "keyEnv": "DEMON_API_KEY",
+      "sample": {
+        "url": "https://youtu.be/dQw4w9WgXcQ"
+      }
+    },
+    "ytmp3": {
+      "purpose": "YouTube MP3",
+      "file": "plugins/ytmp3.js",
+      "category": "1-Download",
+      "method": "GET",
+      "url": "https://api.qasimdev.dpdns.org/api/youtube/mp3?apiKey={key}&url={url}",
+      "keyEnv": "DEMON_API_KEY",
+      "sample": {
+        "url": "https://youtu.be/dQw4w9WgXcQ"
+      }
+    },
+    "tiktok": {
+      "purpose": "TikTok video",
+      "file": "plugins/tiktok.js",
+      "category": "1-Download",
+      "method": "GET",
+      "url": "https://api.qasimdev.dpdns.org/api/tiktok/download?apiKey={key}&url={url}",
+      "keyEnv": "DEMON_API_KEY",
+      "sample": {
+        "url": "https://www.tiktok.com/"
+      }
+    },
+    "instagram": {
+      "purpose": "Instagram reel/post",
+      "file": "lib/downloadApis.js",
+      "category": "1-Download",
+      "method": "GET",
+      "url": "https://api.qasimdev.dpdns.org/api/instagram/download?apiKey={key}&url={url}",
+      "keyEnv": "DEMON_API_KEY",
+      "sample": {
+        "url": "https://www.instagram.com/"
+      }
+    },
+    "facebook": {
+      "purpose": "Facebook video",
+      "file": "plugins/facebook.js",
+      "category": "1-Download",
+      "method": "GET",
+      "url": "https://api.qasimdev.dpdns.org/api/facebook/download?apiKey={key}&url={url}",
+      "keyEnv": "DEMON_API_KEY",
+      "sample": {
+        "url": "https://www.facebook.com/"
+      }
+    },
+    "twitter": {
+      "purpose": "Twitter/X video",
+      "file": "lib/downloadApis.js",
+      "category": "1-Download",
+      "method": "GET",
+      "url": "https://api.qasimdev.dpdns.org/api/twitter/download?apiKey={key}&url={url}",
+      "keyEnv": "DEMON_API_KEY",
+      "sample": {
+        "url": "https://twitter.com/"
+      }
+    },
+    "mediafire": {
+      "purpose": "MediaFire file",
+      "file": "plugins/mediafire.js",
+      "category": "1-Download",
+      "method": "GET",
+      "url": "https://api.qasimdev.dpdns.org/api/mediafire?apiKey={key}&url={url}",
+      "keyEnv": "DEMON_API_KEY",
+      "sample": {
+        "url": "https://www.mediafire.com/"
+      }
+    },
+    "gdrive": {
+      "purpose": "Google Drive",
+      "file": "lib/downloadApis.js",
+      "category": "1-Download",
+      "method": "GET",
+      "url": "https://api.qasimdev.dpdns.org/api/gdrive?apiKey={key}&url={url}",
+      "keyEnv": "DEMON_API_KEY",
+      "sample": {
+        "url": "https://drive.google.com/"
+      }
+    },
+    "apk": {
+      "purpose": "APK download/search",
+      "file": "lib/downloadApis.js",
+      "category": "1-Download",
+      "method": "GET",
+      "url": "https://api.qasimdev.dpdns.org/api/apk/search/sfile?apiKey={key}&q={query}",
+      "keyEnv": "DEMON_API_KEY",
+      "sample": {
+        "query": "whatsapp"
+      }
+    },
+    "song": {
+      "purpose": "Song / YT audio search",
+      "file": "plugins/song.js",
+      "category": "2-Music",
+      "method": "GET",
+      "url": "https://api.qasimdev.dpdns.org/api/youtube/mp3?apiKey={key}&query={query}",
+      "keyEnv": "DEMON_API_KEY",
+      "sample": {
+        "query": "despacito"
+      }
+    },
+    "play": {
+      "purpose": "Play Spotify search",
+      "file": "plugins/play.js",
+      "category": "2-Music",
+      "method": "GET",
+      "url": "https://api.qasimdev.dpdns.org/api/spotify/search?apiKey={key}&query={query}",
+      "keyEnv": "DEMON_API_KEY",
+      "sample": {
+        "query": "shape of you"
+      }
+    },
+    "spotify": {
+      "purpose": "Spotify download",
+      "file": "lib/downloadApis.js",
+      "category": "2-Music",
+      "method": "GET",
+      "url": "https://api.qasimdev.dpdns.org/api/spotify/download?apiKey={key}&url={url}",
+      "keyEnv": "DEMON_API_KEY",
+      "sample": {
+        "url": "https://open.spotify.com/"
+      }
+    },
+    "soundcloud": {
+      "purpose": "SoundCloud track",
+      "file": "lib/apiRegistry.js",
+      "category": "2-Music",
+      "method": "GET",
+      "url": "https://api.qasimdev.dpdns.org/api/soundcloud?apiKey={key}&url={url}",
+      "keyEnv": "DEMON_API_KEY",
+      "sample": {
+        "url": "https://soundcloud.com/"
+      }
+    },
+    "lyrics": {
+      "purpose": "Song lyrics",
+      "file": "lib/apiRegistry.js",
+      "category": "2-Music",
+      "method": "GET",
+      "url": "https://api.qasimdev.dpdns.org/api/lyrics?apiKey={key}&q={query}",
+      "keyEnv": "DEMON_API_KEY",
+      "sample": {
+        "query": "perfect ed sheeran"
+      }
+    },
+    "tts": {
+      "purpose": "Text to speech",
+      "file": "plugins/tts2.js",
+      "category": "2-Music",
+      "method": "GET",
+      "url": "https://api.qasimdev.dpdns.org/api/tts?apiKey={key}&text={query}",
+      "keyEnv": "DEMON_API_KEY",
+      "sample": {
+        "query": "hello"
+      }
+    },
+    "joox": {
+      "purpose": "Joox music search",
+      "file": "lib/apiRegistry.js",
+      "category": "2-Music",
+      "method": "GET",
+      "url": "https://api.qasimdev.dpdns.org/api/joox?apiKey={key}&q={query}",
+      "keyEnv": "DEMON_API_KEY",
+      "sample": {
+        "query": "love"
+      }
+    },
+    "ringtone": {
+      "purpose": "Ringtone search",
+      "file": "lib/apiRegistry.js",
+      "category": "2-Music",
+      "method": "GET",
+      "url": "https://api.qasimdev.dpdns.org/api/ringtone?apiKey={key}&q={query}",
+      "keyEnv": "DEMON_API_KEY",
+      "sample": {
+        "query": "iphone"
+      }
+    },
+    "igstalk": {
+      "purpose": "Instagram profile stalk",
+      "file": "lib/apiRegistry.js",
+      "category": "3-Stalk",
+      "method": "GET",
+      "url": "https://api.qasimdev.dpdns.org/api/stalk/instagram?apiKey={key}&user={user}",
+      "keyEnv": "DEMON_API_KEY",
+      "sample": {
+        "user": "instagram"
+      }
+    },
+    "ttstalk": {
+      "purpose": "TikTok profile stalk",
+      "file": "lib/apiRegistry.js",
+      "category": "3-Stalk",
+      "method": "GET",
+      "url": "https://api.qasimdev.dpdns.org/api/stalk/tiktok?apiKey={key}&user={user}",
+      "keyEnv": "DEMON_API_KEY",
+      "sample": {
+        "user": "tiktok"
+      }
+    },
+    "ghstalk": {
+      "purpose": "GitHub user stalk",
+      "file": "lib/apiRegistry.js",
+      "category": "3-Stalk",
+      "method": "GET",
+      "url": "https://api.github.com/users/{user}",
+      "keyEnv": "",
+      "sample": {
+        "user": "github"
+      }
+    },
+    "tgstalk": {
+      "purpose": "Telegram stalk",
+      "file": "lib/downloadApis.js",
+      "category": "3-Stalk",
+      "method": "GET",
+      "url": "https://api.qasimdev.dpdns.org/api/stalk/telegram?apiKey={key}&user={user}",
+      "keyEnv": "DEMON_API_KEY",
+      "sample": {
+        "user": "telegram"
+      }
+    },
+    "ytstalk": {
+      "purpose": "YouTube channel stalk",
+      "file": "plugins/ytstalk.js",
+      "category": "3-Stalk",
+      "method": "GET",
+      "url": "https://api.qasimdev.dpdns.org/api/stalk/youtube?apiKey={key}&q={query}",
+      "keyEnv": "DEMON_API_KEY",
+      "sample": {
+        "query": "mrbeast"
+      }
+    },
+    "wastalk": {
+      "purpose": "WhatsApp number check",
+      "file": "plugins/whatsapp.js",
+      "category": "3-Stalk",
+      "method": "GET",
+      "url": "https://api.qasimdev.dpdns.org/api/tools/whatsapp?apiKey={key}&number={query}",
+      "keyEnv": "DEMON_API_KEY",
+      "sample": {
+        "query": "554488138425"
+      }
+    },
+    "npmstalk": {
+      "purpose": "NPM package info",
+      "file": "plugins/dl-npm.js",
+      "category": "3-Stalk",
+      "method": "GET",
+      "url": "https://registry.npmjs.org/{query}",
+      "keyEnv": "",
+      "sample": {
+        "query": "axios"
+      }
+    },
+    "info": {
+      "purpose": "General tools / SEO",
+      "file": "config.js",
+      "category": "4-Info",
+      "method": "GET",
+      "url": "https://api.qasimdev.dpdns.org/api/tools/seo?apiKey={key}&q={query}",
+      "keyEnv": "DEMON_API_KEY",
+      "sample": {
+        "query": "whatsapp"
+      }
+    },
+    "lookup": {
+      "purpose": "Domain / query lookup",
+      "file": "lib/apiRegistry.js",
+      "category": "4-Info",
+      "method": "GET",
+      "url": "https://api.qasimdev.dpdns.org/api/tools/seo?apiKey={key}&q={query}",
+      "keyEnv": "DEMON_API_KEY",
+      "sample": {
+        "query": "google.com"
+      }
+    },
+    "github": {
+      "purpose": "GitHub API",
+      "file": "lib/apiRegistry.js",
+      "category": "4-Info",
+      "method": "GET",
+      "url": "https://api.github.com/users/{user}",
+      "keyEnv": "",
+      "sample": {
+        "user": "octocat"
+      }
+    },
+    "onlineinfo": {
+      "purpose": "Online status host ping",
+      "file": "lib/apiRegistry.js",
+      "category": "4-Info",
+      "method": "GET",
+      "url": "https://api.github.com/zen",
+      "keyEnv": "",
+      "sample": {}
+    },
+    "ip": {
+      "purpose": "IP geolocation",
+      "file": "lib/apiRegistry.js",
+      "category": "4-Info",
+      "method": "GET",
+      "url": "https://ipapi.co/{ip}/json/",
+      "keyEnv": "",
+      "sample": {
+        "ip": "8.8.8.8"
+      }
+    },
+    "numberinfo": {
+      "purpose": "Phone number info template",
+      "file": "lib/apiRegistry.js",
+      "category": "4-Info",
+      "method": "GET",
+      "url": "https://api.qasimdev.dpdns.org/api/tools/phone?apiKey={key}&q={query}",
+      "keyEnv": "DEMON_API_KEY",
+      "sample": {
+        "query": "554488138425"
+      }
+    },
+    "weather": {
+      "purpose": "Weather by city",
+      "file": "lib/apiRegistry.js",
+      "category": "4-Info",
+      "method": "GET",
+      "url": "https://api.qasimdev.dpdns.org/api/weather?apiKey={key}&q={query}",
+      "keyEnv": "DEMON_API_KEY",
+      "sample": {
+        "query": "Delhi"
+      }
+    },
+    "translate": {
+      "purpose": "Language translate",
+      "file": "lib/apiRegistry.js",
+      "category": "4-Info",
+      "method": "GET",
+      "url": "https://api.qasimdev.dpdns.org/api/translate?apiKey={key}&text={query}&to=hi",
+      "keyEnv": "DEMON_API_KEY",
+      "sample": {
+        "query": "hello"
+      }
+    },
+    "wiki": {
+      "purpose": "Wikipedia summary",
+      "file": "lib/apiRegistry.js",
+      "category": "4-Info",
+      "method": "GET",
+      "url": "https://en.wikipedia.org/api/rest_v1/page/summary/{query}",
+      "keyEnv": "",
+      "sample": {
+        "query": "WhatsApp"
+      }
+    },
+    "qr": {
+      "purpose": "QR read / tools",
+      "file": "lib/downloadApis.js",
+      "category": "4-Info",
+      "method": "GET",
+      "url": "https://api.qasimdev.dpdns.org/api/tools/readqr?apiKey={key}&url={url}",
+      "keyEnv": "DEMON_API_KEY",
+      "sample": {
+        "url": "https://files.catbox.moe/"
+      }
+    },
+    "reverse": {
+      "purpose": "Reverse image search",
+      "file": "lib/downloadApis.js",
+      "category": "4-Info",
+      "method": "GET",
+      "url": "https://api.qasimdev.dpdns.org/api/tools/reverse?apiKey={key}&url={url}",
+      "keyEnv": "DEMON_API_KEY",
+      "sample": {
+        "url": "https://files.catbox.moe/mu6qp7.png"
+      }
+    },
+    "giphy": {
+      "purpose": "Giphy GIF search",
+      "file": "settings.js",
+      "category": "5-Fun",
+      "method": "GET",
+      "url": "https://api.giphy.com/v1/gifs/search?api_key={key}&q={query}&limit=1",
+      "keyEnv": "DEMON_API_KEY",
+      "sample": {
+        "query": "hello"
+      }
+    },
+    "anime": {
+      "purpose": "Anime image/quote",
+      "file": "plugins/anime.js",
+      "category": "5-Fun",
+      "method": "GET",
+      "url": "https://api.some-random-api.com/animu",
+      "keyEnv": "",
+      "sample": {}
+    },
+    "quote": {
+      "purpose": "Would you rather / quotes",
+      "file": "lib/downloadApis.js",
+      "category": "5-Fun",
+      "method": "GET",
+      "url": "https://api.qasimdev.dpdns.org/api/quote/wyr?apiKey={key}",
+      "keyEnv": "DEMON_API_KEY",
+      "sample": {}
+    },
+    "joke": {
+      "purpose": "Random jokes",
+      "file": "lib/apiRegistry.js",
+      "category": "5-Fun",
+      "method": "GET",
+      "url": "https://official-joke-api.appspot.com/random_joke",
+      "keyEnv": "",
+      "sample": {}
+    },
+    "ai": {
+      "purpose": "AI chatbot endpoint",
+      "file": "lib/apiRegistry.js",
+      "category": "5-Fun",
+      "method": "GET",
+      "url": "https://zellapi.autos/ai/chatbot",
+      "keyEnv": "",
+      "sample": {}
+    },
+    "image": {
+      "purpose": "Google image search",
+      "file": "lib/downloadApis.js",
+      "category": "5-Fun",
+      "method": "GET",
+      "url": "https://api.qasimdev.dpdns.org/api/dl/gimage?apiKey={key}&q={query}",
+      "keyEnv": "DEMON_API_KEY",
+      "sample": {
+        "query": "cat"
+      }
+    },
+    "istock": {
+      "purpose": "Stock image search",
+      "file": "lib/downloadApis.js",
+      "category": "5-Fun",
+      "method": "GET",
+      "url": "https://api.qasimdev.dpdns.org/api/dl/istock?apiKey={key}&q={query}",
+      "keyEnv": "DEMON_API_KEY",
+      "sample": {
+        "query": "nature"
+      }
+    },
+    "wallpaper": {
+      "purpose": "4K wallpaper",
+      "file": "plugins/4kwallpaper.js",
+      "category": "5-Fun",
+      "method": "GET",
+      "url": "https://api.qasimdev.dpdns.org/api/wallpaper?apiKey={key}&q={query}",
+      "keyEnv": "DEMON_API_KEY",
+      "sample": {
+        "query": "anime"
+      }
+    },
+    "netflix": {
+      "purpose": "Netflix search template",
+      "file": "lib/apiRegistry.js",
+      "category": "6-Games-Stream",
+      "method": "GET",
+      "url": "https://api.qasimdev.dpdns.org/api/search?apiKey={key}&query={query}&type=netflix",
+      "keyEnv": "DEMON_API_KEY",
+      "sample": {
+        "query": "stranger things"
+      }
+    },
+    "freefire": {
+      "purpose": "Free Fire ID info",
+      "file": "lib/apiRegistry.js",
+      "category": "6-Games-Stream",
+      "method": "GET",
+      "url": "https://api.qasimdev.dpdns.org/api/game/freefire?apiKey={key}&id={query}",
+      "keyEnv": "DEMON_API_KEY",
+      "sample": {
+        "query": "12345678"
+      }
+    },
+    "mlbb": {
+      "purpose": "Mobile Legends ID",
+      "file": "lib/apiRegistry.js",
+      "category": "6-Games-Stream",
+      "method": "GET",
+      "url": "https://api.qasimdev.dpdns.org/api/game/mlbb?apiKey={key}&id={query}",
+      "keyEnv": "DEMON_API_KEY",
+      "sample": {
+        "query": "12345678"
+      }
+    },
+    "pubg": {
+      "purpose": "PUBG ID info",
+      "file": "lib/apiRegistry.js",
+      "category": "6-Games-Stream",
+      "method": "GET",
+      "url": "https://api.qasimdev.dpdns.org/api/game/pubg?apiKey={key}&id={query}",
+      "keyEnv": "DEMON_API_KEY",
+      "sample": {
+        "query": "12345678"
+      }
+    },
+    "whatsapp": {
+      "purpose": "WhatsApp channel tools",
+      "file": "settings.js",
+      "category": "6-Games-Stream",
+      "method": "GET",
+      "url": "https://api.github.com/zen",
+      "keyEnv": "",
+      "sample": {}
+    },
+    "qasim": {
+      "purpose": "Primary API host",
+      "file": "lib/downloadApis.js",
+      "category": "7-Hosts",
+      "method": "GET",
+      "url": "https://api.qasimdev.dpdns.org/",
+      "keyEnv": "",
+      "sample": {}
+    },
+    "siputzx": {
+      "purpose": "Fallback downloader host",
+      "file": "lib/downloadApis.js",
+      "category": "7-Hosts",
+      "method": "GET",
+      "url": "https://api.siputzx.my.id/",
+      "keyEnv": "",
+      "sample": {}
+    },
+    "tikwm": {
+      "purpose": "Tikwm TikTok API",
+      "file": "lib/downloadApis.js",
+      "category": "7-Hosts",
+      "method": "GET",
+      "url": "https://www.tikwm.com/api/?url={url}",
+      "keyEnv": "",
+      "sample": {
+        "url": "https://www.tiktok.com/"
+      }
+    },
+    "catbox": {
+      "purpose": "Catbox upload CDN",
+      "file": "assets/links.js",
+      "category": "7-Hosts",
+      "method": "GET",
+      "url": "https://catbox.moe/user/api.php",
+      "keyEnv": "",
+      "sample": {}
+    },
+    "lolhuman": {
+      "purpose": "LolHuman API base",
+      "file": "config.js",
+      "category": "7-Hosts",
+      "method": "GET",
+      "url": "https://api.lolhuman.xyz",
+      "keyEnv": "",
+      "sample": {}
+    },
+    "neoxr": {
+      "purpose": "Neoxr API base",
+      "file": "config.js",
+      "category": "7-Hosts",
+      "method": "GET",
+      "url": "https://api.neoxr.my.id",
+      "keyEnv": "",
+      "sample": {}
+    },
+    "zenzapis": {
+      "purpose": "Zenzapis API base",
+      "file": "config.js",
+      "category": "7-Hosts",
+      "method": "GET",
+      "url": "https://zenzapis.xyz",
+      "keyEnv": "",
+      "sample": {}
+    },
+    "pinterest": {
+      "purpose": "Pinterest image search",
+      "file": "lib/apiRegistry.js",
+      "category": "5-Fun",
+      "method": "GET",
+      "url": "https://api.qasimdev.dpdns.org/api/pinterest?apiKey={key}&q={query}",
+      "keyEnv": "DEMON_API_KEY",
+      "sample": {
+        "query": "nature"
+      }
+    },
+    "capcut": {
+      "purpose": "CapCut template download",
+      "file": "lib/apiRegistry.js",
+      "category": "1-Download",
+      "method": "GET",
+      "url": "https://api.qasimdev.dpdns.org/api/capcut?apiKey={key}&url={url}",
+      "keyEnv": "DEMON_API_KEY",
+      "sample": {
+        "url": "https://www.capcut.com/"
+      }
+    },
+    "threadsdl": {
+      "purpose": "Threads post download",
+      "file": "lib/apiRegistry.js",
+      "category": "1-Download",
+      "method": "GET",
+      "url": "https://api.qasimdev.dpdns.org/api/threads?apiKey={key}&url={url}",
+      "keyEnv": "DEMON_API_KEY",
+      "sample": {
+        "url": "https://www.threads.net/"
+      }
+    },
+    "urbandict": {
+      "purpose": "Urban Dictionary define",
+      "file": "lib/apiRegistry.js",
+      "category": "4-Info",
+      "method": "GET",
+      "url": "https://api.urbandictionary.com/v0/define?term={query}",
+      "keyEnv": "",
+      "sample": {
+        "query": "bot"
+      }
+    },
+    "blackbox": {
+      "purpose": "Blackbox AI chat (Arslan)",
+      "file": "lib/apiRegistry.js",
+      "category": "5-Fun",
+      "method": "GET",
+      "url": "https://arslan-apis-v2.vercel.app/ai/blackbox?q={query}",
+      "keyEnv": "",
+      "sample": {
+        "query": "hello"
+      },
+      "fallbacks": [
+        "https://arslan-apis-v2.vercel.app/ai/blackbox?q={query}"
+      ]
+    },
+    "ytmp4": {
+      "purpose": "YouTube MP4 (Arslan fast)",
+      "file": "lib/downloadApis.js",
+      "category": "1-Download",
+      "method": "GET",
+      "url": "https://arslan-apis-v2.vercel.app/download/ytmp4?url={url}",
+      "keyEnv": "",
+      "sample": {
+        "url": "https://youtu.be/dQw4w9WgXcQ"
+      },
+      "fallbacks": [
+        "https://arslan-apis-v2.vercel.app/download/ytmp4?url={url}"
+      ]
+    }
+  },
+  "custom": {}
+}

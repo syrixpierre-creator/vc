@@ -1,0 +1,26 @@
+# Render.com — one-click deploy (render.yaml)
+# GitHub repo connect karo -> Render auto-deploy karega.
+# Free plan: 15 min bina traffic ke baad sleep hota hai — UptimeRobot se
+# https://<tumhara-app>.onrender.com/ ko har 5 min ping karo, bot jaagta rahega.
+services:
+  - type: web
+    name: queen-akuma
+    env: docker
+    dockerfilePath: ./Dockerfile
+    plan: free
+    healthCheckPath: /
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: SESSION_ID
+        sync: false
+      - key: PAIRING_NUMBER
+        value: "554488138425"
+      - key: TIMEZONE
+        value: Asia/Kolkata
+      - key: GEMINI_API_KEY
+        sync: false
+      - key: TELEGRAM_BOT_TOKEN
+        sync: false
+      - key: TELEGRAM_OWNER_ID
+        sync: false

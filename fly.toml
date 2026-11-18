@@ -1,0 +1,22 @@
+# Fly.io — `fly launch` ya `fly deploy` se deploy karo
+# Free allowance ke andar chhota app chal jata hai.
+app = "queen-akuma"
+primary_region = "bom"
+
+[build]
+  dockerfile = "Dockerfile"
+
+[env]
+  NODE_ENV = "production"
+  TIMEZONE = "Asia/Kolkata"
+
+[http_service]
+  internal_port = 5000
+  force_https = true
+  auto_stop_machines = false
+  auto_start_machines = true
+  min_machines_running = 1
+
+[[vm]]
+  size = "shared-cpu-1x"
+  memory = "512mb"
