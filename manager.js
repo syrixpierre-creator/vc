@@ -370,6 +370,11 @@ async function handle(req, res) {
     startBot(r.bot);
     return send(res, 200, { ok: true, number: n });
   }
+  if (PUBLIC_PAIRING && p === '/pair/stats') {
+    const bots = loadBots();
+    const active = bots.filter((b) => rt(b.number).status === 'connected').length;
+    return send(res, 200, { ok: true, active, total: bots.length });
+  }
   if (PUBLIC_PAIRING && p === '/pair/status') {
     const n = inst.cleanNumber(url.searchParams.get('number'));
     const b = n && loadBots().find((x) => x.number === n);
