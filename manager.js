@@ -333,13 +333,23 @@ function readBody(req) {
 }
 
 // anti-abus pour l'appairage public : 3 demandes / 10 min / IP
+// Anti-abuse for NEW bot creation only. Each bot is an independent process;
+// re-requesting a code for a bot that already exists is always free, so a
+// failing/testing bot never blocks another number. 0 = unlimited.
+const PAIR_RATE_MAX = parseInt(process.env.PAIR_RATE_MAX || '20', 10);
+const PAIR_RATE_WINDOW = parseInt(process.env.PAIR_RATE_WINDOW_MS || '600000', 10);
 const pairHits = new Map();
-function rateLimited(ip) {
+function newBotLimited(ip) {
+  if (PAIR_RATE_MAX <= 0) return false;
   const now = Date.now();
-  const arr = (pairHits.get(ip) || []).filter((t) => now - t < 600000);
-  arr.push(now);
+  const arr = (pairHits.get(ip) || []).filter((t) => now - t < PAIR_RATE_WINDOW);
   pairHits.set(ip, arr);
-  return arr.length > 3;
+  return arr.length >= PAIR_RATE_MAX;
+}
+function recordNewBot(ip) {
+  const arr = pairHits.get(ip) || [];
+  arr.push(Date.now());
+  pairHits.set(ip, arr);
 }
 
 const PANEL_HTML = path.join(__dirname, 'manager', 'panel.html');
@@ -354,19 +364,23 @@ async function handle(req, res) {
   if (PUBLIC_PAIRING && p === '/pair' && req.method === 'GET') return send(res, 200, fs.readFileSync(PAIR_HTML, 'utf8'), 'text/html');
   if (PUBLIC_PAIRING && p === '/pair' && req.method === 'POST') {
     const ip = (req.headers['x-forwarded-for'] || req.socket.remoteAddress || '').split(',')[0].trim();
-    if (rateLimited(ip)) return send(res, 429, { ok: false, error: 'Trop de demandes, réessaie dans 10 minutes.' });
     const { number } = await readBody(req);
     const n = inst.cleanNumber(number);
-    if (!n) return send(res, 400, { ok: false, error: 'Numéro invalide.' });
+    if (!n) return send(res, 400, { ok: false, error: 'Invalid number.' });
+    // Existing bot: re-requesting its code is always free (never rate-limited),
+    // so each bot stays independent — one bot never blocks another.
     const existing = loadBots().find((b) => b.number === n);
     if (existing) {
-      if (inst.hasSession(n) && rt(n).status === 'connected') return send(res, 409, { ok: false, error: 'Ce numéro a déjà un bot connecté.' });
+      if (inst.hasSession(n) && rt(n).status === 'connected') return send(res, 409, { ok: false, error: 'This number already has a connected bot.' });
       if (!existing.enabled) updateBotConfig(n, { enabled: true });
       if (!rt(n).child) startBot(loadBots().find((b) => b.number === n));
       return send(res, 200, { ok: true, number: n });
     }
+    // New bot: the only rate-limited path (anti-abuse). Counts only on success.
+    if (newBotLimited(ip)) return send(res, 429, { ok: false, error: 'Too many new bots from your network. Try again in a few minutes.' });
     const r = addBotConfig(n, n, { source: 'public' });
     if (!r.ok) return send(res, 400, r);
+    recordNewBot(ip);
     startBot(r.bot);
     return send(res, 200, { ok: true, number: n });
   }
