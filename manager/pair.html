@@ -211,6 +211,8 @@
             if(s.status==='connected'){stop();$('reveal').classList.remove('show');setStep(2);setMsg('Your bot is connected.','ok');btn.textContent='Connect another number';refreshActive();return;}
             if(s.code){gotCode=true;showCode(s.code);setMsg('Waiting for you to enter the code in WhatsApp…');btn.disabled=false;btn.textContent='Regenerate';return;}
             if(!gotCode){
+              if(s.status==='invalid-number'){stop();setMsg('Invalid number. Use country code, no “+”, and include the mobile 9 for Brazil (e.g. 55 44 9 8812-2687).','err');btn.textContent='Try again';return;}
+              if(s.status==='crashed'){stop();setMsg('This bot keeps crashing on the server. Check the logs: pm2 logs queen-akuma','err');btn.textContent='Try again';return;}
               if(s.status==='logged-out'){stop();setMsg('This number was logged out. Try again.','err');btn.textContent='Try again';return;}
               // if the bot keeps restarting, it is crashing on the server
               if(s.status==='restarting'||s.status==='reconnecting'){fails++;}

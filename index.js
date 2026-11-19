@@ -515,9 +515,13 @@ async function startDemonBot() {
             const pn = require('awesome-phonenumber');
             if (!pn('+' + phoneNumberInput).isValid()) {
                 printLog('error', 'Invalid phone number format');
-                
-                if (rl && !rl.closed) {
-                    rl.close();
+                if (rl && !rl.closed) rl.close();
+                // Managed (multi-session): don't crash-loop on a bad number.
+                // Report it so the manager stops this bot and the site shows why.
+                if (IS_MANAGED) {
+                    notifyManager({ type: 'status', status: 'invalid-number' });
+                    await new Promise((r) => setTimeout(r, 300));
+                    process.exit(0);
                 }
                 process.exit(1);
             }

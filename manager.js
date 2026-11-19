@@ -201,6 +201,10 @@ function childEnv(bot) {
 function startBot(bot) {
   const r = rt(bot.number);
   r.wantRunning = true;
+  // Fresh attempt: clear any previous permanent/crash state so a retry works.
+  r.permanentError = null;
+  r.fastCrashes = 0;
+  r.backoff = r.backoff || 5000;
   if (r.child) return;
   clearTimeout(r.timer);
   try { inst.ensureInstance(bot); } catch (e) {
@@ -237,16 +241,33 @@ function startBot(bot) {
         console.log(`✅ [${bot.number}] connecté`);
       }
       if (msg.status === 'logged-out') console.log(`⚠️ [${bot.number}] déconnecté de WhatsApp — refaire l'appairage depuis le panel.`);
+      if (msg.status === 'invalid-number') {
+        // Permanent failure: stop this bot, don't crash-loop it.
+        r.permanentError = 'invalid-number';
+        r.wantRunning = false;
+        console.log(`⛔ [${bot.number}] numéro invalide — bot arrêté (pas de redémarrage).`);
+      }
     }
   });
 
   child.on('exit', (code, signal) => {
     r.child = null;
     pushLog(bot.number, `[manager] process terminé (code ${code}, signal ${signal || '-'})`);
+    if (r.permanentError) { r.status = r.permanentError; r.wantRunning = false; return; }
     if (!r.wantRunning) { r.status = 'stopped'; return; }
-    // crash / dépassement RAM : on relance avec un délai croissant
     const ranFor = Date.now() - (r.startedAt || 0);
-    if (ranFor > 120000) r.backoff = 5000;
+    // Crash-loop guard: if the bot keeps dying within a few seconds of starting,
+    // it's broken (bad session, missing dep, OOM). Stop after N fast crashes and
+    // surface it instead of restarting forever.
+    if (ranFor < 12000) r.fastCrashes = (r.fastCrashes || 0) + 1;
+    else { r.fastCrashes = 0; r.backoff = 5000; }
+    if (r.fastCrashes >= 5) {
+      r.status = 'crashed';
+      r.wantRunning = false;
+      pushLog(bot.number, `[manager] trop de crashs rapides — bot arrêté. Voir le log ci-dessus pour la cause.`);
+      console.log(`⛔ [${bot.number}] crash en boucle — arrêté. Vérifie son log (panel ou instances/${bot.number}/bot.log).`);
+      return;
+    }
     r.restarts++;
     r.status = 'restarting';
     const wait = r.backoff;
