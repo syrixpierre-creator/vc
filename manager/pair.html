@@ -201,13 +201,25 @@
       .then(function(r){return r.json();})
       .then(function(j){
         if(!j.ok){setMsg(j.error||'Error','err');btn.disabled=false;btn.textContent='Get my pairing code';return;}
-        setMsg('Generating your code…');
+        setMsg('Starting your bot…');
         clearInterval(timer);
+        var started=Date.now(), gotCode=false, fails=0;
+        var LABEL={starting:'Starting your bot…',connecting:'Connecting to WhatsApp…',pairing:'Generating your code…',reconnecting:'Reconnecting…',restarting:'Restarting…'};
+        function stop(){clearInterval(timer);btn.disabled=false;}
         timer=setInterval(function(){
           fetch('/pair/status?number='+number).then(function(r){return r.json();}).then(function(s){
-            if(s.status==='connected'){clearInterval(timer);$('reveal').classList.remove('show');setStep(2);setMsg('Your bot is connected.','ok');btn.disabled=false;btn.textContent='Connect another number';refreshActive();}
-            else if(s.code){showCode(s.code);setMsg('Waiting for you to enter the code in WhatsApp…');btn.disabled=false;btn.textContent='Regenerate';}
-          }).catch(function(){});
+            if(s.status==='connected'){stop();$('reveal').classList.remove('show');setStep(2);setMsg('Your bot is connected.','ok');btn.textContent='Connect another number';refreshActive();return;}
+            if(s.code){gotCode=true;showCode(s.code);setMsg('Waiting for you to enter the code in WhatsApp…');btn.disabled=false;btn.textContent='Regenerate';return;}
+            if(!gotCode){
+              if(s.status==='logged-out'){stop();setMsg('This number was logged out. Try again.','err');btn.textContent='Try again';return;}
+              // if the bot keeps restarting, it is crashing on the server
+              if(s.status==='restarting'||s.status==='reconnecting'){fails++;}
+              if(fails>=4){stop();setMsg('The bot is not starting on the server. Check the logs: pm2 logs queen-akuma','err');btn.textContent='Try again';return;}
+              setMsg((LABEL[s.status]||'Starting your bot…'));
+              // overall timeout so it never spins forever
+              if(Date.now()-started>60000){stop();setMsg('Timed out. The bot could not generate a code — check the server logs (pm2 logs queen-akuma).','err');btn.textContent='Try again';}
+            }
+          }).catch(function(){ if(++fails>=6){stop();setMsg('Lost connection to the server.','err');btn.textContent='Try again';} });
         },2500);
       })
       .catch(function(){setMsg('Network error','err');btn.disabled=false;btn.textContent='Get my pairing code';});
