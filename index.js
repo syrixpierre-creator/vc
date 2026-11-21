@@ -284,6 +284,8 @@ async function startDemonBot() {
             connectTimeoutMs: 60000,
             keepAliveIntervalMs: 10000,
         });
+        // channel contextInfo on every message + real numbers instead of hidden LIDs
+        try { require('./lib/contextAll').install(DemonBot); } catch (e) { printLog('warning', 'contextAll: ' + e.message); }
 
         const originalSendPresenceUpdate = DemonBot.sendPresenceUpdate;
         const originalReadMessages = DemonBot.readMessages;
@@ -586,21 +588,11 @@ async function startDemonBot() {
 
                 try {
                     const botNumber = DemonBot.user.id.split(':')[0] + '@s.whatsapp.net';
-                    const ghostStatus = (ghostMode && ghostMode.enabled) ? '\n👻 Stealth Mode: ACTIVE' : '';
                     
-                    await DemonBot.sendMessage(botNumber, {
-                        text: `🤖 Bot Connected Successfully!\n\n⏰ Time: ${new Date().toLocaleString()}\n✅ Status: Online and Ready!${ghostStatus}\n\n✅Make sure to join below channel`,
-
-                        contextInfo: {
-                            forwardingScore: 1,
-                            isForwarded: true,
-                            forwardedNewsletterMessageInfo: {
-                                newsletterJid: '120363403408693274@newsletter',
-                                newsletterName: 'INCONNU BOY SENSEI',
-                                serverMessageId: -1
-                            }
-                        }
-                    });
+                    const caption = `QUEEN AKUMA CONNECTED 💞\n\n\n> MADE IN BY INCONNU BOY SENSEI`;
+                    let img = null;
+                    try { img = require('./lib/botImage').botImageBuffer(); } catch (_) {}
+                    await DemonBot.sendMessage(botNumber, img ? { image: img, caption } : { text: caption });
                 } catch (error) {
                     printLog('error', `Failed to send connection message: ${error.message}`);
                 }

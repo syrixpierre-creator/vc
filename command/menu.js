@@ -86,7 +86,7 @@ module.exports = {
 
     const caption = buildMenu(prefix, senderNum, total);
     const contextInfo = {
-      mentions: [sender],
+      mentionedJid: [sender],
       forwardingScore: 1,
       isForwarded: true,
       forwardedNewsletterMessageInfo: {
