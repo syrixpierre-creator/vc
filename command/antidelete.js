@@ -93,15 +93,7 @@ function clearStore() {
 
 function statusText() {
   const c = getConfig();
-  return `*🛡️ ANTI-DELETE STATUS*\n\n` +
-    `• Group (.antidelete): ${c.group ? '✅ ON' : '❌ OFF'}\n` +
-    `• DM (.selfantidelete): ${c.self ? '✅ ON' : '❌ OFF'}\n` +
-    `• Own-number deletes: ${c.own ? '✅ recovered' : '❌ ignored'}  (.antidelete own on/off)\n` +
-    `• Group report goes to: ${c.groupDest === 'me' ? 'bot chat (Message yourself)' : 'the same group'}  (.antidelete dest me/chat)\n\n` +
-    `📦 Messages stored: ${messageStore.size}\n` +
-    `🗑️ Deletes seen: ${stats.seen} | ♻️ Recovered: ${stats.recovered}\n` +
-    `ℹ️ Last: ${stats.last}\n\n` +
-    `_Messages received AFTER turning ON are stored (restart-proof) and recovered when deleted._`;
+  return `✅ *Anti delete: ${c.group ? 'ON' : 'OFF'}*\n\nAvailable options:\n- on\n- off`;
 }
 
 function trimStore() {
@@ -467,15 +459,15 @@ module.exports = {
       // v3.6.0 OWNER/ADMIN LOCK (status dekhna public rehta hai)
       if (!(await require('../lib/ownerAdmin').canToggle(sock, message, context))) return sock.sendMessage(chatId, { text: '❌ *Only group admins or the bot owner can use this command.*' }, { quoted: message });
       saveConfig({ ...cfg, group: true });
-      return sock.sendMessage(chatId, { text: '✅ *Group Anti-Delete ON*' }, { quoted: message });
+      return sock.sendMessage(chatId, { text: '✅ *Your anti delete ENABLED*' }, { quoted: message });
     }
     if (action === 'off') {
       // v3.6.0 OWNER/ADMIN LOCK
       if (!(await require('../lib/ownerAdmin').canToggle(sock, message, context))) return sock.sendMessage(chatId, { text: '❌ *Only group admins or the bot owner can use this command.*' }, { quoted: message });
       saveConfig({ ...cfg, group: false });
-      return sock.sendMessage(chatId, { text: '❌ *Group Anti-Delete OFF*' }, { quoted: message });
+      return sock.sendMessage(chatId, { text: '✅ *Your anti delete DISABLED*' }, { quoted: message });
     }
-    return sock.sendMessage(chatId, { text: 'Usage: `.antidelete on` or `.antidelete off`' }, { quoted: message });
+    return sock.sendMessage(chatId, { text: '❌ *Invalid option!*\n\nAvailable options:\n- on\n- off' }, { quoted: message });
   },
 
   handleMessageRevocation,

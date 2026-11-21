@@ -32,7 +32,7 @@ module.exports = {
     try {
       if (v7.length === 0) {
         await v5.sendMessage(v8, {
-          'text': "💎 *CRYSTAL LOGO*\n\n*crystallogo*\ncrystallogo <text>\n\n*Example:*\ncrystallogo CRYSTAL\ncrystallogo GEM\ncrystallogo DIAMOND\n\n" + ("> Powered by " + (config.botName || "JuneX-Ultra"))
+          'text': "💎 *CRYSTAL LOGO*\n\n*crystal*\ncrystal <text>\n\n*Example:*\ncrystal CRYSTAL\ncrystal GEM\ncrystal DIAMOND\n\n" + ("> Powered by " + (config.botName || "JuneX-Ultra"))
         }, {
           'quoted': v6
         });

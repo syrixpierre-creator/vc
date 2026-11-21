@@ -17,11 +17,11 @@ module.exports = {
         const n = String(args[0]).replace(/\D/g, '');
         if (n) target = n + '@s.whatsapp.net';
       }
-      if (!target) return reply('❌ `.kick @user` ya reply karke');
+      if (!target) return reply('📌 *Usage:* .kick @user or reply to a message with .kick');
       await sock.groupParticipantsUpdate(chatId, [target], 'remove');
-      return reply('✅ Removed');
+      return reply('✅ *Member removed*');
     } catch (e) {
-      return reply('❌ Kick failed: ' + (e.message || e) + '\nBot admin hona chahiye.');
+      return reply('❌ *Failed to kick member*\nError: ' + (e.message || e));
     }
   }
 };

@@ -11,9 +11,9 @@ module.exports = {
     if (!String(chatId).endsWith('@g.us')) return reply('❌ *This command can only be used in groups!*');
     try {
       await sock.groupSettingUpdate(chatId, 'announcement');
-      return reply('🔇 Group muted — only admins can chat');
+      return reply('🔒 *Group closed*');
     } catch (e) {
-      return reply('❌ Mute failed: ' + (e.message || e) + '\nBot admin hona chahiye.');
+      return reply('❌ *Failed to close group*\nError: ' + (e.message || e));
     }
   }
 };

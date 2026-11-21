@@ -52,45 +52,17 @@ module.exports = {
     const sub = args.join(' ').trim().toLowerCase();
 
     if (!sub || !['on', 'off', 'status'].includes(sub)) {
-      return await sock.sendMessage(
-        chatId,
-        {
-          text: '*ANTICALL SETTINGS*\n\n' +
-                '📵 Auto-block incoming calls\n\n' +
-                '*Usage:*\n' +
-                '• `.anticall on` - Enable\n' +
-                '• `.anticall off` - Disable\n' +
-                '• `.anticall status` - Current status\n\n' +
-                `*Current Status:* ${state.enabled ? '✅ ENABLED' : '❌ DISABLED'}\n` +
-                `*Storage:* ${HAS_DB ? 'Database' : 'File System'}`
-        },
-        { quoted: message }
-      );
+      return await sock.sendMessage(chatId, {
+        text: `❌ *Invalid option!*\n\nAvailable options:\n- on\n- off\n\nCurrent: ${state.enabled ? 'ON' : 'OFF'}`
+      }, { quoted: message });
     }
     if (sub === 'status') {
-      return await sock.sendMessage(
-        chatId,
-        {
-          text: `📵 *Anticall Status*\n\n` +
-                `Current: ${state.enabled ? '✅ *ENABLED*' : '❌ *DISABLED*'}\n` +
-                `Storage: ${HAS_DB ? 'Database' : 'File System'}\n\n` +
-                `${state.enabled ? 'All incoming calls will be rejected and blocked.' : 'Incoming calls are allowed.'}`
-        },
-        { quoted: message }
-      );
+      return await sock.sendMessage(chatId, { text: `✅ *Auto call reject: ${state.enabled ? 'ON' : 'OFF'}*` }, { quoted: message });
     }
 
     const enable = sub === 'on';
     await writeState(enable);
-
-    await sock.sendMessage(
-      chatId,
-      {
-        text: `📵 *Anticall ${enable ? 'ENABLED' : 'DISABLED'}*\n\n` +
-              `${enable ? '✅ Incoming calls will now be rejected and blocked automatically.' : '❌ Incoming calls are now allowed.'}`
-      },
-      { quoted: message }
-    );
+    await sock.sendMessage(chatId, { text: `✅ *Your auto call reject ${enable ? 'ENABLED' : 'DISABLED'}*` }, { quoted: message });
   },
 
   readState,

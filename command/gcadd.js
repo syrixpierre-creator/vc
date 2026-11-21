@@ -58,14 +58,7 @@ module.exports = {
 
         if (!targetNumber) {
             return await sock.sendMessage(chatId, {
-                text: `❌ *Please provide a number to add!*
-
-*Usage:*
-• \`.add 91XXXXXXXXXX\`
-• \`.add +91XXXXXXXXXX\`
-• \`.add 92 305 1234567\`
-• Reply to a vcard with \`.add\`
-• Reply to a message with \`.add\``,
+                text: '📌 *Usage:* .add 5544xxxxxxxxx',
                 ...channelInfo
             }, { quoted: message });
         }
@@ -74,7 +67,7 @@ module.exports = {
             !targetNumber.startsWith('4') && !targetNumber.startsWith('5') && !targetNumber.startsWith('6') &&
             !targetNumber.startsWith('7') && !targetNumber.startsWith('8') && !targetNumber.startsWith('9')) {
             return await sock.sendMessage(chatId, {
-                text: '❌ *Invalid number format!*\n\nPlease include the country code.\nExample: 91XXXXXXXXXX',
+                text: '❌ *Invalid number!*',
                 ...channelInfo
             }, { quoted: message });
         }
@@ -87,7 +80,7 @@ module.exports = {
 
             if (participants.includes(targetJid)) {
                 return await sock.sendMessage(chatId, {
-                    text: `⚠️ *User is already in the group!*\n\n${targetNumber}`,
+                    text: '❌ *User is already in the group!*',
                     ...channelInfo
                 }, { quoted: message });
             }
@@ -100,23 +93,23 @@ module.exports = {
 
             if (result[0].status === '200') {
                 await sock.sendMessage(chatId, {
-                    text: `✅ *Successfully added!*\n\n@${targetNumber}`,
+                    text: `✅ *Member added:* @${targetNumber}`,
                     mentions: [targetJid],
                     ...channelInfo
                 }, { quoted: message });
             } else if (result[0].status === '403') {
                 await sock.sendMessage(chatId, {
-                    text: `❌ *Failed to add user!*\n\n*Reason:* User has privacy settings that prevent being added to groups.\n\n*Solution:* Send them the group invite link.`,
+                    text: '❌ *Failed to add member* (privacy settings)',
                     ...channelInfo
                 }, { quoted: message });
             } else if (result[0].status === '408') {
                 await sock.sendMessage(chatId, {
-                    text: `⚠️ *Invite sent!*\n\nUser needs to accept the invitation to join.`,
+                    text: '✅ *Invite sent*',
                     ...channelInfo
                 }, { quoted: message });
             } else {
                 await sock.sendMessage(chatId, {
-                    text: `❌ *Failed to add user!*\n\n*Status:* ${result[0].status}\n\nThe user may have blocked the bot or changed their privacy settings.`,
+                    text: '❌ *Failed to add member*',
                     ...channelInfo
                 }, { quoted: message });
             }
@@ -124,7 +117,7 @@ module.exports = {
         } catch (error) {
             console.error('Add command error:', error);
             await sock.sendMessage(chatId, {
-                text: `❌ *Error adding user!*\n\n${error.message}`,
+                text: `❌ *Failed to add member*\nError: ${error.message}`,
                 ...channelInfo
             }, { quoted: message });
         }

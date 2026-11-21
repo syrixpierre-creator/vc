@@ -32,7 +32,7 @@ module.exports = {
     try {
       if (v7.length === 0) {
         await v5.sendMessage(v8, {
-          'text': "🌊 *AQUA LOGO*\n\n*aqualogo*\naqualogo <text>\n\n*Example:*\naqualogo OCEAN\naqualogo WATER\naqualogo MARINE\n\n" + ("> Powered by " + (config.botName || "JuneX-Ultra"))
+          'text': "🌊 *AQUA LOGO*\n\n*aqua*\naqua <text>\n\n*Example:*\naqua OCEAN\naqua WATER\naqua MARINE\n\n" + ("> Powered by " + (config.botName || "JuneX-Ultra"))
         }, {
           'quoted': v6
         });

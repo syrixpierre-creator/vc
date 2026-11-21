@@ -87,14 +87,11 @@ async function gstatusHandler(sock, m, args = []) {
 
   // MUST be inside a group — usi group ka status
   if (!from.endsWith('@g.us')) {
-    return reply(
-      '❌ `.gstatus` *sirf group* me use karo.\n' +
-        'Ye *usi group* ke members ke liye status ring pe post karta hai — personal story nahi.'
-    );
+    return reply('❌ *This command only works in groups.*');
   }
 
   if (!(await isAllowed(sock, m, from))) {
-    return reply('❌ Sirf *group admin* ya *bot owner* `.gstatus` use kar sakta hai.');
+    return reply('🚫 *Only group admins can post to group status.*');
   }
 
   const quoted = quotedMessage(m);
@@ -128,11 +125,7 @@ async function gstatusHandler(sock, m, args = []) {
     } else if (text) {
       content = { text };
     } else {
-      return reply(
-        '❌ Image/video/audio/document pe *reply* karke `.gstatus` bhejo\n' +
-          'ya text: `.gstatus Hello group`\n\n' +
-          '_Sirf is group ke members ko status dikhega._'
-      );
+      return reply('📌 *Usage:* .gstatus <text> or reply to an image/video/audio');
     }
 
     const metadata = await sock.groupMetadata(from);
@@ -140,7 +133,7 @@ async function gstatusHandler(sock, m, args = []) {
     const audience = buildAudience(metadata);
 
     if (!audience.length) {
-      return reply('❌ Group participants nahi mile — status post cancel.');
+      return reply('❌ *No group members found.*');
     }
 
     // Mark as GROUP status linked to THIS group only
@@ -159,19 +152,10 @@ async function gstatusHandler(sock, m, args = []) {
       // some WA builds honor backgroundColor etc — optional
     });
 
-    return reply(
-      `✅ *Group status* post ho gaya\n\n` +
-        `👥 Group: *${groupName}*\n` +
-        `📣 Audience: *${audience.length}* members (sirf yahi group)\n` +
-        `🔒 Personal story / dusre contacts pe nahi\n` +
-        `💬 Group chat me media spam nahi`
-    );
+    return reply('✅ *Group status posted*');
   } catch (error) {
     console.error('[GSTATUS ERROR]', error);
-    return reply(
-      `❌ Group status failed: ${error.message}\n\n` +
-        `_Bot number pe latest WhatsApp + group me bot admin try karo._`
-    );
+    return reply(`❌ *Failed to post group status*\nError: ${error.message}`);
   }
 }
 

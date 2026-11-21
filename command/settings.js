@@ -18,7 +18,7 @@ module.exports = {
 
             if (!isMe && !isOwner) {
                 return await sock.sendMessage(chatId, {
-                    text: '❌ *Access Denied:* Only Owner/Sudo can view settings.'
+                    text: '🚫 *You are not authorized to use this command!*'
                 }, { quoted: message });
             }
 

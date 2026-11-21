@@ -61,7 +61,7 @@ module.exports = {
 
         if (!userToBan) {
             await sock.sendMessage(chatId, {
-                text: '❌ *Please mention a user or reply to their message*\n\nUsage: `.ban @user` or reply with `.ban`',
+                text: '❌ *Please provide a number to ban!*\nUsage: .ban <number>',
                 ...channelInfo
             }, { quoted: message });
             return;
@@ -86,14 +86,13 @@ module.exports = {
                 await saveBannedUsers(bannedUsers);
 
                 await sock.sendMessage(chatId, {
-                    text: `🚫 *User Banned Successfully!*\n\n@${userToBan.split('@')[0]} has been banned from using the bot.\n\n` +
-                          `*Storage:* ${HAS_DB ? 'Database' : 'File System'}`,
+                    text: `✅ *User @${userToBan.split('@')[0]} has been banned from using the bot*`,
                     mentions: [userToBan],
                     ...channelInfo
                 }, { quoted: message });
             } else {
                 await sock.sendMessage(chatId, {
-                    text: `⚠️ *Already Banned*\n\n@${userToBan.split('@')[0]} is already banned!`,
+                    text: `❌ *User @${userToBan.split('@')[0]} is already banned*`,
                     mentions: [userToBan],
                     ...channelInfo
                 }, { quoted: message });
@@ -101,7 +100,7 @@ module.exports = {
         } catch (error) {
             console.error('Error in ban command:', error);
             await sock.sendMessage(chatId, {
-                text: '❌ *Failed to ban user!*\n\nPlease try again.',
+                text: '*❌ Error banning user!*',
                 ...channelInfo
             }, { quoted: message });
         }

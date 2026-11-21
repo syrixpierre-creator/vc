@@ -13,11 +13,11 @@ module.exports = {
     try {
       const ctx = message.message?.extendedTextMessage?.contextInfo || {};
       let target = (ctx.mentionedJid && ctx.mentionedJid[0]) || ctx.participant;
-      if (!target) return reply('❌ `.promote @user`');
+      if (!target) return reply('📌 *Usage:* .promote @user or reply to a message with .promote');
       await sock.groupParticipantsUpdate(chatId, [target], 'promote');
-      return reply('✅ Promoted');
+      return reply('✅ *Member promoted*');
     } catch (e) {
-      return reply('❌ ' + (e.message || e));
+      return reply('❌ *Failed to promote member*\nError: ' + (e.message || e));
     }
   },
   async handlePromotionEvent(sock, id, participants, author) {

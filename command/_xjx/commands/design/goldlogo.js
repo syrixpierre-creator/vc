@@ -32,7 +32,7 @@ module.exports = {
     try {
       if (v7.length === 0) {
         await v5.sendMessage(v8, {
-          'text': "💰 *GOLD LOGO*\n\n*goldlogo*\n" + config.prefix + "goldlogo <text>\n\n*Example:*\n" + config.prefix + "goldlogo WOLF\n" + config.prefix + "goldlogo ROYAL\n" + config.prefix + "goldlogo LUXURY\n\n" + ("> Powered by " + (config.botName || "JuneX-Ultra"))
+          'text': "💰 *GOLD LOGO*\n\n*golden*\n" + config.prefix + "golden <text>\n\n*Example:*\n" + config.prefix + "golden WOLF\n" + config.prefix + "golden ROYAL\n" + config.prefix + "golden LUXURY\n\n" + ("> Powered by " + (config.botName || "JuneX-Ultra"))
         }, {
           'quoted': v6
         });

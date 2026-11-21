@@ -50,7 +50,7 @@ module.exports = {
 
             // Super Admins (Owners)
             if (superAdmins.length > 0) {
-                list += ` *👑 GROUP OWNERS*\n`;
+                list += `*Owner*\n`;
                 superAdmins.forEach((a, i) => {
                     const jid = superAdminJids[i];
                     const num = jid.split('@')[0].split(':')[0];
@@ -61,7 +61,7 @@ module.exports = {
 
             // Normal Admins
             if (normalAdmins.length > 0) {
-                list += ` *⭐ GROUP ADMINS*\n`;
+                list += `*Admins*\n`;
                 const normalJids = normalAdmins.map(realJid);
                 normalAdmins.forEach((a, i) => {
                     const jid = normalJids[i];
@@ -87,25 +87,7 @@ module.exports = {
             const botIsAdmin = admins.some(a => realJid(a) === botJid);
             const botIsSuperAdmin = superAdmins.some(a => realJid(a) === botJid);
 
-            const text = ` ⟮ 👑 ${botName} ⟯⊷
- *ADMIN LIST*
-
- 📊 Group Stats: [${adminBar}]
- 👥 Total Members: *${total}*
- 👑 Admins: *${adminCount}* (${Math.round((adminCount/total)*100)}%)
-     Super Admins: ${superAdminCount}
-     Normal Admins: ${normalAdminCount}
- 👤 Regular Members: *${regularCount}*
-
-
-${list}
-
- ${botIsAdmin ? `🤖 *Bot Status:* ${botIsSuperAdmin ? '👑 Super Admin' : '⭐ Admin'}` : '🤖 *Bot Status:* ❌ Not an admin'}
-
- 👑 = Group Owner  ⭐ = Admin
-⊷
-
-_⚡ Powered by ${botName}_`;
+            const text = `👑 *Group admins (${adminCount})*\n\n${list}`.trim();
 
             // All admin JIDs for mentions
             const allAdminJids = [...superAdminJids, ...normalAdmins.map(realJid)];
@@ -123,7 +105,7 @@ _⚡ Powered by ${botName}_`;
         } catch (error) {
             console.error('[listadmins]', error.message);
             await sock.sendMessage(chatId, {
-                text: `❌ Failed to fetch admin list.\n\nError: ${error.message || 'Unknown error'}`
+                text: '❌ *Failed to get admin list!*'
             }, { quoted: fakeSender });
         }
     }

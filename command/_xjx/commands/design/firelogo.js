@@ -32,7 +32,7 @@ module.exports = {
     try {
       if (!v7.length) {
         await v5.sendMessage(v8, {
-          'text': "🔥 *Fire Logo*\nUsage: " + config.prefix + "firelogo <text>\nExample:\n" + config.prefix + "firelogo WOLF"
+          'text': "🔥 *Fire Logo*\nUsage: " + config.prefix + "fire <text>\nExample:\n" + config.prefix + "fire WOLF"
         }, {
           'quoted': v6
         });

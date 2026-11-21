@@ -31,16 +31,16 @@ module.exports = {
     if (!mode || mode === 'status') {
       const cur = load();
       const active = cur.mode !== 'off' ? (cur.mode === 'typing' ? '⌨️ Typing' : '🎙️ Recording') : '❌ None';
-      return reply(`⌨️ *Presence Indicator*\n\nActive: ${active}\nScope: ${cur.scope || 'all'}\n\nUsage:\n• \`.presence typing\` — typing, all chats\n• \`.presence typing group\` — typing, groups only\n• \`.presence recording dm\` — recording, DMs only\n• \`.presence off\` — disable all`);
+      return reply(`✅ *Current presence: ${cur.mode || 'off'}*\n\nAvailable options:\n- typing\n- recording\n- off`);
     }
     if (mode === 'off') {
       save({ mode: 'off', scope: 'all' });
-      return reply('⌨️ *Presence*\n\n❌ All indicators OFF');
+      return reply('✅ *Your presence updated to: off*');
     }
     if (mode === 'typing' || mode === 'recording') {
       save({ mode, scope });
-      return reply(`⌨️ *Presence*\n\n${mode === 'typing' ? '⌨️ Typing ON' : '🎙️ Recording ON'} (${scopeLabel})\n${mode === 'typing' ? '🎙️ Recording OFF' : '⌨️ Typing OFF'}`);
+      return reply(`✅ *Your presence updated to: ${mode}*`);
     }
-    return reply('⌨️ Usage: `.presence typing|recording [all|group|dm]` ya `.presence off`');
+    return reply('❌ *Invalid option!*\n\nAvailable options:\n- typing\n- recording\n- off');
   },
 };

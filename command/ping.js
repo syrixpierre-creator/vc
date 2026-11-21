@@ -17,17 +17,15 @@ module.exports = {
     const start = Date.now();
     const sent = await sock.sendMessage(chatId, { text: '🏓 Pinging...' }, { quoted: message });
     const ms = Date.now() - start;
-    const pongText = `🏓 *Pong!*\nLatency: *${ms}ms*`;
+    const pongText = `🏓 *Pong!*\n\n⚡ *Speed:* ${ms}ms`;
     try {
       await sock.sendMessage(chatId, {
         text: pongText,
-        contextInfo: { externalAdReply: demonAdReply() },
         edit: sent.key
       });
     } catch {
       await sock.sendMessage(chatId, {
-        text: pongText,
-        contextInfo: { externalAdReply: demonAdReply() }
+        text: pongText
       }, { quoted: message });
     }
   }

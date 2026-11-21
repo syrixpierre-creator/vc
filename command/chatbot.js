@@ -361,20 +361,7 @@ module.exports = {
         if (!match) {
             await showTyping(sock, chatId);
             return sock.sendMessage(chatId, {
-                text: `*🤖 CHATBOT SETUP*\n\n` +
-                      `*Storage:* ${HAS_DB ? 'Database' : 'File System'}\n` +
-                      `*APIs:* ${API_ENDPOINTS.length} endpoints with fallback\n\n` +
-                      `*Commands:*\n` +
-                      `• \`.chatbot on\` - Enable chatbot\n` +
-                      `• \`.chatbot off\` - Disable chatbot\n\n` +
-                      `*How it works:*\n` +
-                      `When enabled, bot responds when mentioned or replied to.\n\n` +
-                      `*Features:*\n` +
-                      `• Natural conversations\n` +
-                      `• Remembers context\n` +
-                      `• Hinglish support\n` +
-                      `• Personality-based replies\n` +
-                      `• Auto fallback if API fails`,
+                text: '❌ *Invalid option!*\n\nAvailable options:\n- on\n- off',
                 quoted: message
             });
         }
@@ -385,7 +372,7 @@ module.exports = {
             await showTyping(sock, chatId);
             if (data.chatbot[chatId]) {
                 return sock.sendMessage(chatId, {
-                    text: '⚠️ *Chatbot is already enabled for this group*',
+                    text: '✅ *Chatbot is already ON*',
                     quoted: message
                 });
             }
@@ -393,7 +380,7 @@ module.exports = {
             await saveUserGroupData(data);
             console.log(`Chatbot enabled for group ${chatId}`);
             return sock.sendMessage(chatId, {
-                text: '✅ *Chatbot enabled!*\n\nMention me or reply to my messages to chat.',
+                text: '✅ *Chatbot enabled*',
                 quoted: message
             });
         }
@@ -402,7 +389,7 @@ module.exports = {
             await showTyping(sock, chatId);
             if (!data.chatbot[chatId]) {
                 return sock.sendMessage(chatId, {
-                    text: '⚠️ *Chatbot is already disabled for this group*',
+                    text: '✅ *Chatbot is already OFF*',
                     quoted: message
                 });
             }
@@ -410,14 +397,14 @@ module.exports = {
             await saveUserGroupData(data);
             console.log(`Chatbot disabled for group ${chatId}`);
             return sock.sendMessage(chatId, {
-                text: '❌ *Chatbot disabled!*\n\nI will no longer respond to mentions.',
+                text: '✅ *Chatbot disabled*',
                 quoted: message
             });
         }
 
         await showTyping(sock, chatId);
         return sock.sendMessage(chatId, {
-            text: '❌ *Invalid command*\n\nUse: `.chatbot on/off`',
+            text: '❌ *Invalid option!*\n\nAvailable options:\n- on\n- off',
             quoted: message
         });
     },

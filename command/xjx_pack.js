@@ -27,9 +27,18 @@ for (const rel of manifest.files) {
   for (const m of mod) {
     if (!m || !m.name || typeof m.execute !== 'function' || skipNames.has(m.name)) continue;
     const dropAl = new Set((manifest.skipAliases || {})[m.name] || []);
+    // Design commands: no "logo" suffix in the name (aqualogo -> aqua). The old
+    // name stays as a hidden alias. "gold" already exists (economy) -> "golden".
+    let cmdName = String(m.name).toLowerCase();
+    const extraAliases = [];
+    if ((m.category || '') === 'design' && /logo$/.test(cmdName) && cmdName.length > 4) {
+      extraAliases.push(cmdName);
+      cmdName = cmdName.slice(0, -4);
+      if (cmdName === 'gold') cmdName = 'golden';
+    }
     commands.push({
-      command: String(m.name).toLowerCase(),
-      aliases: (m.aliases || []).filter(a => !dropAl.has(a)),
+      command: cmdName,
+      aliases: [...(m.aliases || []).filter(a => !dropAl.has(a)), ...extraAliases],
       category: m.category || 'tools',
       description: m.description || '',
       async handler(sock, message, args, ctx = {}) {

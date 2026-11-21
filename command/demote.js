@@ -13,11 +13,11 @@ module.exports = {
     try {
       const ctx = message.message?.extendedTextMessage?.contextInfo || {};
       let target = (ctx.mentionedJid && ctx.mentionedJid[0]) || ctx.participant;
-      if (!target) return reply('❌ `.demote @user`');
+      if (!target) return reply('📌 *Usage:* .demote @user or reply to a message with .demote');
       await sock.groupParticipantsUpdate(chatId, [target], 'demote');
-      return reply('✅ Demoted');
+      return reply('✅ *Admin demoted*');
     } catch (e) {
-      return reply('❌ ' + (e.message || e));
+      return reply('❌ *Failed to demote admin*\nError: ' + (e.message || e));
     }
   },
   async handleDemotionEvent(sock, id, participants, author) {

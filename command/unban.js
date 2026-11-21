@@ -48,14 +48,14 @@ module.exports = {
     if (isGroup) {
       if (!isBotAdmin) {
         await sock.sendMessage(chatId, {
-          text: 'Please make the bot an admin to use .unban',
+          text: '❌ *Please make the bot an admin first.*',
           ...channelInfo
         }, { quoted: message });
         return;
       }
       if (!isSenderAdmin && !message.key.fromMe && !senderIsOwnerOrSudo) {
         await sock.sendMessage(chatId, {
-          text: 'Only group admins can use .unban',
+          text: '🚫 *You are not authorized to use this command!*',
           ...channelInfo
         }, { quoted: message });
         return;
@@ -63,7 +63,7 @@ module.exports = {
     } else {
       if (!message.key.fromMe && !senderIsOwnerOrSudo) {
         await sock.sendMessage(chatId, {
-          text: 'Only owner/sudo can use .unban in private chat',
+          text: '🚫 *You are not authorized to use this command!*',
           ...channelInfo
         }, { quoted: message });
         return;
@@ -81,7 +81,7 @@ module.exports = {
 
     if (!userToUnban) {
       await sock.sendMessage(chatId, {
-        text: 'Please mention the user or reply to their message to unban!',
+        text: '❌ *Please provide a number to unban!*\nUsage: .unban <number>',
         ...channelInfo
       }, { quoted: message });
       return;
@@ -96,13 +96,13 @@ module.exports = {
         await saveBannedUsers(bannedUsers);
 
         await sock.sendMessage(chatId, {
-          text: `✅ Successfully unbanned @${userToUnban.split('@')[0]}!\n\nStorage: ${HAS_DB ? 'Database' : 'File System'}`,
+          text: `✅ *User @${userToUnban.split('@')[0]} has been unbanned*`,
           mentions: [userToUnban],
           ...channelInfo
         }, { quoted: message });
       } else {
         await sock.sendMessage(chatId, {
-          text: `@${userToUnban.split('@')[0]} is not banned!`,
+          text: `❌ *User @${userToUnban.split('@')[0]} is not banned*`,
           mentions: [userToUnban],
           ...channelInfo
         }, { quoted: message });
@@ -110,7 +110,7 @@ module.exports = {
     } catch (error) {
       console.error('Error in unban command:', error);
       await sock.sendMessage(chatId, {
-        text: 'Failed to unban user!',
+        text: '*❌ Error unbanning user!*',
         ...channelInfo
       }, { quoted: message });
     }

@@ -47,7 +47,9 @@ function buildMenu(prefix, senderNum, total) {
 Ξ Select a category below:
 `;
 
-  for (const cat of Object.keys(cats).sort()) {
+  // Categories in ascending order: fewest commands first (ties A→Z).
+  const order = Object.keys(cats).sort((a, b) => (cats[a].length - cats[b].length) || a.localeCompare(b));
+  for (const cat of order) {
     const list = cats[cat].sort();
     txt += `\n╭───『 ${tiny('akuma ' + cat)} 』\n`;
     for (const c of list) txt += `│ ▢ ${c}\n`;

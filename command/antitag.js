@@ -15,14 +15,14 @@ module.exports = {
     if ((sub === 'on' || sub === '1' || sub === 'true' || sub === 'off' || sub === '0' || sub === 'false') && !(await require('../lib/ownerAdmin').canToggle(sock, message, context))) return reply('❌ *Only group admins or the bot owner can use this command.*');
     if (sub === 'on' || sub === '1' || sub === 'true') {
       groupAnti.setOn(chatId, 'antitag', true);
-      return reply('✅ *antitag* ON for this group');
+      return reply('✅ *Antitag ENABLED*');
     }
     if (sub === 'off' || sub === '0' || sub === 'false') {
       groupAnti.setOn(chatId, 'antitag', false);
-      return reply('❌ *antitag* OFF for this group');
+      return reply('✅ *Antitag DISABLED*');
     }
     const on = groupAnti.isOn(groupAnti.load(), chatId, 'antitag');
-    return reply('🛡️ *antitag*: ' + (on ? '✅ ON' : '❌ OFF') + '\nUsage: `.antitag on` / `.antitag off`');
+    return reply('❌ *Invalid option!*\n\nAvailable options:\n- on\n- off\n\nCurrent: ' + (on ? 'ON' : 'OFF'));
   },
   async handleTagDetection(sock, chatId, message, senderId) {
     try {

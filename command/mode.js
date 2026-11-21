@@ -17,63 +17,23 @@ async function modeCommand(sock, message, args, context) {
 
     if (!isOwnerOrSudoCheck) {
         return await sock.sendMessage(chatId, {
-            text: '❌ Only the owner or sudo users can change bot mode!',
-            ...channelInfo
+            text: '🚫 *You are not authorized to use this command!*'
         }, { quoted: message })
     }
 
     const subCommand = args[0]?.toLowerCase()
     const currentMode = await store.getBotMode() || 'public'
+    const validModes = ['public', 'private', 'groups', 'inbox', 'self']
 
     if (!subCommand || subCommand === 'status' || subCommand === 'check') {
-        const modeEmojis = {
-            public: '🌍',
-            private: '🔒',
-            groups: '👥',
-            inbox: '💬',
-            self: '👤'
-        }
-
-        const modeDescriptions = {
-            public: 'Everyone can use bot (groups + private chats)',
-            private: 'Only owner and sudo users can use bot',
-            groups: 'Only works in group chats (everyone in groups)',
-            inbox: 'Only works in private chats (everyone in DMs)',
-            self: 'Owner and sudo only (same as private)'
-        }
-
-        let statusText = `📊 *BOT MODE STATUS*\n\n`
-        statusText += `Current Mode: ${modeEmojis[currentMode]} *${currentMode.toUpperCase()}*\n`
-        statusText += `Description: ${modeDescriptions[currentMode]}\n\n`
-        statusText += `\n\n`
-        statusText += `*Available Modes:*\n\n`
-
-        Object.entries(modeDescriptions).forEach(([mode, desc]) => {
-            const current = mode === currentMode ? '✓ ' : ''
-            statusText += `${current}${modeEmojis[mode]} \`${mode}\`\n${desc}\n\n`
-        })
-
-        statusText += `*Usage:*\n`
-        statusText += `• \`.mode <mode>\` - Change mode\n`
-        statusText += `• \`.mode status\` - Show current mode\n\n`
-        statusText += `*Examples:*\n`
-        statusText += `• \`.mode public\` - Enable for everyone\n`
-        statusText += `• \`.mode groups\` - Groups only\n`
-        statusText += `• \`.mode inbox\` - Private chats only\n`
-        statusText += `• \`.mode private\` - Owner/sudo only`
-
         return await sock.sendMessage(chatId, {
-            text: statusText,
-            ...channelInfo
+            text: `✅ *Current mode: ${currentMode}*\n\nAvailable options:\n- public\n- private\n- groups\n- inbox`
         }, { quoted: message })
     }
 
-    const validModes = ['public', 'private', 'groups', 'inbox', 'self']
-
     if (!validModes.includes(subCommand)) {
         return await sock.sendMessage(chatId, {
-            text: `❌ Invalid mode: *${subCommand}*\n\nValid modes: ${validModes.join(', ')}\n\nUse \`.mode\` to see all available modes.`,
-            ...channelInfo
+            text: '❌ *Invalid option!*\n\nAvailable options:\n- public\n- private\n- groups\n- inbox'
         }, { quoted: message })
     }
 
@@ -84,25 +44,8 @@ async function modeCommand(sock, message, args, context) {
         if (mh && typeof mh.clearBotModeCache === 'function') mh.clearBotModeCache();
     } catch (_) {}
 
-    const modeEmojis = {
-        public: '🌍',
-        private: '🔒',
-        groups: '👥',
-        inbox: '💬',
-        self: '👤'
-    }
-
-    const modeMessages = {
-        public: 'Bot is now accessible to *everyone* in groups and private chats.',
-        private: 'Bot is now restricted to *owner and sudo users only*.',
-        groups: 'Bot now works *only in group chats* (all group members can use it).',
-        inbox: 'Bot now works *only in private chats* (all users can DM the bot).',
-        self: 'Bot is now restricted to *owner and sudo users only*.'
-    }
-
     await sock.sendMessage(chatId, {
-        text: `${modeEmojis[subCommand]} *Mode Changed to ${subCommand.toUpperCase()}*\n\n${modeMessages[subCommand]}\n\n_Use \`.mode status\` to check current mode._`,
-        ...channelInfo
+        text: `✅ *Your work type updated to: ${subCommand}*`
     }, { quoted: message })
 }
 

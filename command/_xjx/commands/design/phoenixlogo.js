@@ -32,7 +32,7 @@ module.exports = {
     try {
       if (v7.length === 0) {
         await v5.sendMessage(v8, {
-          'text': "🔥 *PHOENIX LOGO*\n\n*phoenixlogo*\nphoenixlogo <text>\n\n*Example:*\nphoenixlogo PHOENIX\nphoenixlogo REBIRTH\nphoenixlogo FIREBIRD\n\n" + ("> Powered by " + (config.botName || "JuneX-Ultra"))
+          'text': "🔥 *PHOENIX LOGO*\n\n*phoenix*\nphoenix <text>\n\n*Example:*\nphoenix PHOENIX\nphoenix REBIRTH\nphoenix FIREBIRD\n\n" + ("> Powered by " + (config.botName || "JuneX-Ultra"))
         }, {
           'quoted': v6
         });

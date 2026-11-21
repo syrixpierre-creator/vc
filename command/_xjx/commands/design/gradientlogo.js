@@ -32,7 +32,7 @@ module.exports = {
     try {
       if (v7.length === 0) {
         await v5.sendMessage(v8, {
-          'text': "🌈 *GRADIENT LOGO*\n\n*gradientlogo*\ngradientlogo <text>\n\n*Example:*\ngradientlogo WOLF\ngradientlogo GRADIENT\ngradientlogo COLORFUL\n\n" + ("> Powered by " + (config.botName || 'JuneX-Ultra'))
+          'text': "🌈 *GRADIENT LOGO*\n\n*gradient*\ngradient <text>\n\n*Example:*\ngradient WOLF\ngradient GRADIENT\ngradient COLORFUL\n\n" + ("> Powered by " + (config.botName || 'JuneX-Ultra'))
         }, {
           'quoted': v6
         });

@@ -15,14 +15,14 @@ module.exports = {
     if ((sub === 'on' || sub === '1' || sub === 'true' || sub === 'off' || sub === '0' || sub === 'false') && !(await require('../lib/ownerAdmin').canToggle(sock, message, context))) return reply('❌ *Only group admins or the bot owner can use this command.*');
     if (sub === 'on' || sub === '1' || sub === 'true') {
       groupAnti.setOn(chatId, 'antilink', true);
-      return reply('✅ *antilink* ON for this group');
+      return reply('✅ *Antilink ENABLED*');
     }
     if (sub === 'off' || sub === '0' || sub === 'false') {
       groupAnti.setOn(chatId, 'antilink', false);
-      return reply('❌ *antilink* OFF for this group');
+      return reply('✅ *Antilink DISABLED*');
     }
     const on = groupAnti.isOn(groupAnti.load(), chatId, 'antilink');
-    return reply('🛡️ *antilink*: ' + (on ? '✅ ON' : '❌ OFF') + '\nUsage: `.antilink on` / `.antilink off`');
+    return reply('❌ *Invalid option!*\n\nAvailable options:\n- on\n- off\n\nCurrent: ' + (on ? 'ON' : 'OFF'));
   },
   // Link enforcement is done by lib/groupAnti.processMessage (called from messageHandler).
   // This export exists so the early hook in messageHandler never throws.

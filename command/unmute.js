@@ -11,9 +11,9 @@ module.exports = {
     if (!String(chatId).endsWith('@g.us')) return reply('❌ *This command can only be used in groups!*');
     try {
       await sock.groupSettingUpdate(chatId, 'not_announcement');
-      return reply('🔊 Group unmuted — everyone can chat');
+      return reply('🔓 *Group opened*');
     } catch (e) {
-      return reply('❌ Unmute failed: ' + (e.message || e));
+      return reply('❌ *Failed to open group*\nError: ' + (e.message || e));
     }
   }
 };

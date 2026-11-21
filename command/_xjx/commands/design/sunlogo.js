@@ -32,7 +32,7 @@ module.exports = {
     try {
       if (v7.length === 0) {
         await v5.sendMessage(v8, {
-          'text': "☀️ *SUN LOGO*\n\n*sunlogo*\nsunlogo <text>\n\n*Example:*\nsunlogo SUN\nsunlogo LIGHT\nsunlogo SOLAR\n\n" + ("> Powered by " + (config.botName || 'JuneX-Ultra'))
+          'text': "☀️ *SUN LOGO*\n\n*sun*\nsun <text>\n\n*Example:*\nsun SUN\nsun LIGHT\nsun SOLAR\n\n" + ("> Powered by " + (config.botName || 'JuneX-Ultra'))
         }, {
           'quoted': v6
         });

@@ -21,11 +21,11 @@ module.exports = {
       return sock.sendMessage(chatId, { text: '❌ *Only group admins or the bot owner can use this command.*' }, { quoted: message });
     }
     if (!st.isBotAdmin) {
-      return sock.sendMessage(chatId, { text: '❌ Pehle bot ko *admin* banao.' }, { quoted: message });
+      return sock.sendMessage(chatId, { text: '❌ *Please make the bot an admin first.*' }, { quoted: message });
     }
     if (String(args[0] || '').toLowerCase() !== 'confirm') {
       return sock.sendMessage(chatId, {
-        text: '⚠️ *DANGER*\nSaare non-admin members remove ho jayenge.\n\nConfirm: `.kickall confirm`'
+        text: '⚠️ *All non-admin members will be removed.*\nConfirm: .kickall confirm'
       }, { quoted: message });
     }
     try {
@@ -36,7 +36,7 @@ module.exports = {
         .map((p) => p.id)
         .filter((id) => id && !String(id).includes(botId));
       if (!targets.length) {
-        return sock.sendMessage(chatId, { text: '✅ Koi non-admin member nahi mila.' }, { quoted: message });
+        return sock.sendMessage(chatId, { text: '❌ *No members to remove (all are admins or bot).*' }, { quoted: message });
       }
       let ok = 0;
       for (const jid of targets) {
@@ -45,9 +45,9 @@ module.exports = {
           ok++;
         } catch (_) {}
       }
-      return sock.sendMessage(chatId, { text: `✅ Kickall done. Removed: *${ok}*` }, { quoted: message });
+      return sock.sendMessage(chatId, { text: `✅ *Successfully removed ${ok} members*` }, { quoted: message });
     } catch (e) {
-      return sock.sendMessage(chatId, { text: '❌ Kickall failed: ' + e.message }, { quoted: message });
+      return sock.sendMessage(chatId, { text: '❌ *Failed to remove members*\nError: ' + e.message }, { quoted: message });
     }
   }
 };
