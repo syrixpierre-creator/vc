@@ -102,6 +102,9 @@
   .msg{margin-top:14px;font-size:13px;text-align:center;min-height:18px;color:#c9bdf0}
   .msg.ok{color:var(--ok)}.msg.err{color:var(--err)}
 
+  .ad{grid-column:1/-1;text-align:center;min-height:40px}
+  .sponsor{display:inline-block;margin:4px 0 12px;font-size:12px;letter-spacing:1px;color:var(--ink-3);text-decoration:none;border:1px solid rgba(255,255,255,.14);border-radius:999px;padding:7px 16px}
+  .sponsor:hover{color:inherit}
   .foot{grid-column:1/-1;text-align:center;font-size:11px;letter-spacing:1.5px;color:var(--ink-3);padding-top:8px}
 
   @keyframes rise{from{opacity:0;transform:translateY(22px)}to{opacity:1;transform:none}}
@@ -166,7 +169,13 @@
       <div class="msg" id="msg"></div>
     </section>
 
-    <div class="foot">QUEEN AKUMA · POWERED BY INCONNU BOY SENSEI</div>
+    <div class="ad">
+      <a class="sponsor" href="https://araplhn.org/4/36423ea658138ba8b359715ea67f8b24" target="_blank" rel="noopener sponsored">Sponsored · Discover more</a>
+      <script async="async" data-cfasync="false" src="https://bauval.org/21/a32533b2111327dc5c1a820787c84d06"></script>
+      <div id="container-a32533b2111327dc5c1a820787c84d06"></div>
+    </div>
+
+    <div class="foot">QUEEN AKUMA · POWERED BY INCONNU BOY SENSEI · akuma.zone.id</div>
   </main>
 
 <script>
@@ -226,5 +235,6 @@
       .catch(function(){setMsg('Network error','err');btn.disabled=false;btn.textContent='Get my pairing code';});
   });
 </script>
+<script data-cfasync="false" src="https://bauval.org/14/72829c126d9d7dad0e84fb2ed69fe295"></script>
 </body>
 </html>
