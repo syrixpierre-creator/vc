@@ -465,6 +465,8 @@ async function handle(req, res) {
 
   // ── routes publiques ──
   if (p === '/health') return send(res, 200, { ok: true, bots: loadBots().length });
+  // Public site: the home page of the domain (akuma.zone.id) is the pairing page.
+  if (PUBLIC_PAIRING && p === '/' && req.method === 'GET') return send(res, 200, fs.readFileSync(PAIR_HTML, 'utf8'), 'text/html');
   if (PUBLIC_PAIRING && p === '/pair' && req.method === 'GET') return send(res, 200, fs.readFileSync(PAIR_HTML, 'utf8'), 'text/html');
   if (PUBLIC_PAIRING && p === '/pair' && req.method === 'POST') {
     const ip = (req.headers['x-forwarded-for'] || req.socket.remoteAddress || '').split(',')[0].trim();
@@ -490,7 +492,7 @@ async function handle(req, res) {
     res.writeHead(401, { 'WWW-Authenticate': 'Basic realm="QUEEN AKUMA manager"' });
     return res.end('Authentification requise');
   }
-  if (p === '/' || p === '/panel') return send(res, 200, fs.readFileSync(PANEL_HTML, 'utf8'), 'text/html');
+  if (p === '/' || p === '/panel') return send(res, 200, fs.readFileSync(PANEL_HTML, 'utf8'), 'text/html'); // '/' only when public pairing is off
   if (p === '/api/bots' && req.method === 'GET') return send(res, 200, { bots: loadBots().map(botView), publicPairing: PUBLIC_PAIRING, maxBots: MAX_BOTS });
   if (p === '/api/bots' && req.method === 'POST') {
     const body = await readBody(req);
