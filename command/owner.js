@@ -1,4 +1,5 @@
 const settings = require('../settings');
+const { withButtons } = require('../lib/buttons');
 module.exports = {
   command: 'owner',
   aliases: ['creator', 'developer'],
@@ -23,6 +24,6 @@ module.exports = {
         }, { quoted: message });
       }
     } catch (_) {}
-    await sock.sendMessage(chatId, { text }, { quoted: message });
+    await sock.sendMessage(chatId, withButtons({ text }, [['menu', '🗂️ Menu'], ['alive', '💓 Alive'], ['channel', '📢 Channel']]), { quoted: message });
   }
 };

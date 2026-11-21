@@ -71,7 +71,7 @@ function menuButtons(prefix) {
 
 module.exports = {
   command: 'menu',
-  aliases: ['allmenu', 'listcmd', 'help'],
+  aliases: [],
   category: 'general',
   description: 'Show the command menu',
   usage: '.menu',
@@ -80,7 +80,7 @@ module.exports = {
     const sender = message.key.participant || message.key.remoteJid || '';
     const senderNum = String(sender).split('@')[0].split(':')[0];
     const prefix = (settings.prefixes && settings.prefixes[0]) || '.';
-    const total = (commandHandler.commands && commandHandler.commands.size) || 0;
+    const total = [...((commandHandler.commands && commandHandler.commands.values()) || [])].filter((c) => c && !c.__wrapper && !c.__stub).length;
 
     try { await sock.sendMessage(chatId, { react: { text: '📜', key: message.key } }); } catch (_) {}
 

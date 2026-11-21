@@ -4,7 +4,7 @@
  * + link preview "QUEEN AKUMA / MADE BY INCONNU BOY SENSEI / whatsapp.com", then
  * "🏓 Pong!" + "Latency: Xms".
  */
-const { demonAdReply } = require('../lib/fakevCard');
+const { withButtons } = require('../lib/buttons');
 
 module.exports = {
   command: 'ping',
@@ -15,18 +15,8 @@ module.exports = {
   async handler(sock, message, args, context = {}) {
     const chatId = context.chatId || message.key.remoteJid;
     const start = Date.now();
-    const sent = await sock.sendMessage(chatId, { text: '🏓 Pinging...' }, { quoted: message });
+    try { await sock.sendMessage(chatId, { react: { text: '🏓', key: message.key } }); } catch (_) {}
     const ms = Date.now() - start;
-    const pongText = `🏓 *Pong!*\n\n⚡ *Speed:* ${ms}ms`;
-    try {
-      await sock.sendMessage(chatId, {
-        text: pongText,
-        edit: sent.key
-      });
-    } catch {
-      await sock.sendMessage(chatId, {
-        text: pongText
-      }, { quoted: message });
-    }
+    await sock.sendMessage(chatId, withButtons({ text: `🏓 *Pong!*\n\n⚡ *Speed:* ${ms}ms` }, [['menu', '🗂️ Menu'], ['alive', '💓 Alive']]), { quoted: message });
   }
 };

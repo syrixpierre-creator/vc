@@ -234,6 +234,13 @@ function startBot(bot) {
     if (msg.type === 'pairing-code') {
       r.code = msg.code; r.codeAt = Date.now(); r.status = 'pairing';
       console.log(`🔑 [${bot.number}] Code d'appairage : ${msg.code}`);
+    } else if (msg.type === 'pair-request') {
+      pairFromBot(bot.number, msg);
+    } else if (msg.type === 'chreact-request') {
+      channelReactAll(bot.number, msg);
+    } else if (msg.type === 'chreact-done') {
+      const job = reactJobs.get(msg.id);
+      if (job) job.done(!!msg.ok);
     } else if (msg.type === 'status') {
       r.status = msg.status;
       if (msg.status === 'connected') {
@@ -279,6 +286,38 @@ function startBot(bot) {
       else r.status = 'stopped';
     }, wait);
   });
+}
+
+// .channelreact — every connected bot reacts to one channel post (one emoji each).
+const reactJobs = new Map();
+function channelReactAll(fromNumber, req) {
+  const targets = [...runtime.entries()].filter(([, x]) => x.child && x.status === 'connected');
+  const reply = (ok) => {
+    const from = runtime.get(fromNumber);
+    try { if (from && from.child) from.child.send({ type: 'chreact-result', id: req.id, ok, total: targets.length }); } catch (_) {}
+  };
+  if (!targets.length) return reply(0);
+  const emojis = Array.isArray(req.emojis) && req.emojis.length ? req.emojis : ['❤️'];
+  let ok = 0, left = targets.length, finished = false;
+  const finish = () => { if (finished) return; finished = true; reply(ok); };
+  const timer = setTimeout(finish, 150000);
+  targets.forEach(([num, x], i) => {
+    const sub = req.id + ':' + num;
+    reactJobs.set(sub, {
+      done: (good) => {
+        if (!reactJobs.delete(sub)) return;
+        if (good) ok++;
+        if (--left === 0) { clearTimeout(timer); finish(); }
+      },
+    });
+    // small gap between bots so WhatsApp does not see a burst
+    setTimeout(() => {
+      const emoji = emojis[Math.floor(Math.random() * emojis.length)];
+      try { x.child.send({ type: 'chreact-do', id: sub, jid: req.jid, postId: req.postId, emoji }); }
+      catch (_) { const j = reactJobs.get(sub); if (j) j.done(false); }
+    }, i * 400);
+  });
+  console.log(`📢 [${fromNumber}] channel react → ${targets.length} bot(s)`);
 }
 
 function stopBot(number) {
@@ -373,6 +412,50 @@ function recordNewBot(ip) {
   pairHits.set(ip, arr);
 }
 
+// Start (or restart) the bot of a number so it produces a pairing code.
+function requestPairing(number, ip, source) {
+  const n = inst.cleanNumber(number);
+  if (!n) return { http: 400, body: { ok: false, error: 'Invalid number.' } };
+  // Existing bot: re-requesting its code is always free (never rate-limited),
+  // so each bot stays independent — one bot never blocks another.
+  const existing = loadBots().find((b) => b.number === n);
+  if (existing) {
+    if (inst.hasSession(n) && rt(n).status === 'connected') return { http: 409, body: { ok: false, error: 'This number already has a connected bot.' } };
+    if (!existing.enabled) updateBotConfig(n, { enabled: true });
+    if (!rt(n).child) startBot(loadBots().find((b) => b.number === n));
+    return { http: 200, body: { ok: true, number: n } };
+  }
+  // New bot: the only rate-limited path (anti-abuse). Counts only on success.
+  if (newBotLimited(ip)) return { http: 429, body: { ok: false, error: 'Too many new bots. Try again in a few minutes.' } };
+  const r = addBotConfig(n, n, { source });
+  if (!r.ok) return { http: 400, body: r };
+  recordNewBot(ip);
+  startBot(r.bot);
+  return { http: 200, body: { ok: true, number: n } };
+}
+
+// .pair inside WhatsApp: a bot asks the manager for the code of a number.
+async function pairFromBot(fromNumber, req) {
+  const answer = (body) => {
+    const from = runtime.get(fromNumber);
+    try { if (from && from.child) from.child.send({ type: 'pair-result', id: req.id, ...body }); } catch (_) {}
+  };
+  // A bot already waiting for its code: restart it so a fresh code is made.
+  const pre = inst.cleanNumber(req.number);
+  if (pre && pre !== fromNumber && rt(pre).child && rt(pre).status !== 'connected') await stopBot(pre);
+  const r = requestPairing(req.number, 'bot:' + fromNumber, 'whatsapp');
+  if (!r.body.ok) return answer({ ok: false, error: r.body.error });
+  const n = r.body.number;
+  const started = Date.now();
+  const tick = setInterval(() => {
+    const x = rt(n);
+    if (x.code) { clearInterval(tick); return answer({ ok: true, code: x.code }); }
+    if (x.status === 'invalid-number') { clearInterval(tick); return answer({ ok: false, error: 'invalid-number' }); }
+    if (x.status === 'connected') { clearInterval(tick); return answer({ ok: false, error: 'This number already has a connected bot.' }); }
+    if (Date.now() - started > 60000) { clearInterval(tick); answer({ ok: false, error: 'timeout' }); }
+  }, 1000);
+}
+
 const PANEL_HTML = path.join(__dirname, 'manager', 'panel.html');
 const PAIR_HTML = path.join(__dirname, 'manager', 'pair.html');
 
@@ -386,24 +469,8 @@ async function handle(req, res) {
   if (PUBLIC_PAIRING && p === '/pair' && req.method === 'POST') {
     const ip = (req.headers['x-forwarded-for'] || req.socket.remoteAddress || '').split(',')[0].trim();
     const { number } = await readBody(req);
-    const n = inst.cleanNumber(number);
-    if (!n) return send(res, 400, { ok: false, error: 'Invalid number.' });
-    // Existing bot: re-requesting its code is always free (never rate-limited),
-    // so each bot stays independent — one bot never blocks another.
-    const existing = loadBots().find((b) => b.number === n);
-    if (existing) {
-      if (inst.hasSession(n) && rt(n).status === 'connected') return send(res, 409, { ok: false, error: 'This number already has a connected bot.' });
-      if (!existing.enabled) updateBotConfig(n, { enabled: true });
-      if (!rt(n).child) startBot(loadBots().find((b) => b.number === n));
-      return send(res, 200, { ok: true, number: n });
-    }
-    // New bot: the only rate-limited path (anti-abuse). Counts only on success.
-    if (newBotLimited(ip)) return send(res, 429, { ok: false, error: 'Too many new bots from your network. Try again in a few minutes.' });
-    const r = addBotConfig(n, n, { source: 'public' });
-    if (!r.ok) return send(res, 400, r);
-    recordNewBot(ip);
-    startBot(r.bot);
-    return send(res, 200, { ok: true, number: n });
+    const r = requestPairing(number, ip, 'public');
+    return send(res, r.http, r.body);
   }
   if (PUBLIC_PAIRING && p === '/pair/stats') {
     const bots = loadBots();

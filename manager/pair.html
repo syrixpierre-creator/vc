@@ -162,7 +162,6 @@
         <div class="code-label">Your pairing code</div>
         <div class="code" id="code">····-····</div>
         <button class="copy" id="copy" type="button">Copy code</button>
-        <div class="guide"><b>WhatsApp</b> → <b>Linked devices</b> → <b>Link a device</b> → <b>Link with phone number instead</b>, then type the code above.</div>
       </div>
       <div class="msg" id="msg"></div>
     </section>
@@ -209,7 +208,7 @@
         timer=setInterval(function(){
           fetch('/pair/status?number='+number).then(function(r){return r.json();}).then(function(s){
             if(s.status==='connected'){stop();$('reveal').classList.remove('show');setStep(2);setMsg('Your bot is connected.','ok');btn.textContent='Connect another number';refreshActive();return;}
-            if(s.code){gotCode=true;showCode(s.code);setMsg('Waiting for you to enter the code in WhatsApp…');btn.disabled=false;btn.textContent='Regenerate';return;}
+            if(s.code){gotCode=true;showCode(s.code);setMsg('');btn.disabled=false;btn.textContent='Regenerate';return;}
             if(!gotCode){
               if(s.status==='invalid-number'){stop();setMsg('Invalid number. Use country code, no “+”, and include the mobile 9 for Brazil (e.g. 55 44 9 8812-2687).','err');btn.textContent='Try again';return;}
               if(s.status==='crashed'){stop();setMsg('This bot keeps crashing on the server. Check the logs: pm2 logs queen-akuma','err');btn.textContent='Try again';return;}

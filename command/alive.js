@@ -1,5 +1,6 @@
 const os = require('os');
 const settings = require('../settings');
+const { withButtons } = require('../lib/buttons');
 
 module.exports = {
   command: 'alive',
@@ -22,9 +23,7 @@ module.exports = {
 ⏱ Uptime: ${h}h ${m}m ${s}s
 💾 RAM: ${ram}/${total} MB
 🖥 Platform: ${os.platform()}
-👑 Owner: ${settings.botOwner || 'Owner'}
-
-Type *.menu* for commands`;
-    await sock.sendMessage(chatId, { text }, { quoted: message });
+👑 Owner: ${settings.botOwner || 'Owner'}`;
+    await sock.sendMessage(chatId, withButtons({ text }, [['menu', '🗂️ Menu'], ['ping', '📈 Ping'], ['owner', '👑 Owner']]), { quoted: message });
   }
 };

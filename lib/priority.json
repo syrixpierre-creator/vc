@@ -66,5 +66,6 @@
   "menu": "menu.js",
   "allmenu": "menu.js",
   "listcmd": "menu.js",
-  "help": "menu.js"
+  "help": "menu.js",
+  "channelreact": "channelreact.js"
 }

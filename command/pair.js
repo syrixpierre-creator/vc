@@ -1,82 +1,48 @@
-const axios = require('axios');
-const settings = require('../settings');
+'use strict';
+/**
+ * QUEEN AKUMA — .pair <number>
+ * Gets the pairing code from this server and sends ONLY the code (easy to copy),
+ * with a copy button.
+ */
+const { requestPairCode } = require('../lib/botNetwork');
+
+async function sendCode(sock, chatId, code, quoted) {
+  try {
+    const { sendButtons } = require('gifted-btns');
+    await sendButtons(sock, chatId, {
+      text: code,
+      buttons: [{ name: 'cta_copy', buttonParamsJson: JSON.stringify({ display_text: '📋 Copy code', copy_code: code }) }],
+    });
+    return;
+  } catch (_) {}
+  await sock.sendMessage(chatId, { text: code }, { quoted });
+}
+
 module.exports = {
-    command: 'pair',
-    aliases: ['paircode', 'session', 'getsession', 'sessionid'],
-    category: 'general',
-    description: 'Get pairing code for QUEEN AKUMA',
-    usage: '.pair 2547XXXXXXXX',
-    async handler(sock, message, args, context) {
-        const { chatId } = context;
-        const forwardInfo = {
-            forwardingScore: 1,
-            isForwarded: true,
-            forwardedNewsletterMessageInfo: {
-                newsletterJid: settings.channelId || '120363403408693274@newsletter',
-                newsletterName: settings.channelName || 'INCONNU BOY SENSEI',
-                serverMessageId: -1
-            }
-        };
-        const query = args.join('').trim();
-        if (!query) {
-            return await sock.sendMessage(chatId, {
-                text: "❌ *Missing Number*\nExample: .pair 2547XXXXXXXX",
-                contextInfo: forwardInfo
-            }, { quoted: message });
-        }
-        const number = query.replace(/[^0-9]/g, '');
-        if (number.length < 10 || number.length > 15) {
-            return await sock.sendMessage(chatId, {
-                text: "❌ *Invalid Format*\nPlease provide the number with country code but without + or spaces.",
-                contextInfo: forwardInfo
-            }, { quoted: message });
-        }
-        await sock.sendMessage(chatId, {
-            text: "⚡ *Requesting code from server...*",
-            contextInfo: forwardInfo
-        }, { quoted: message });
-        try {
-            const response = await axios.get(`https://mega-pairing.onrender.com/pair?number=${number}`, {
-                timeout: 60000
-            });
-            if (response.data && response.data.code) {
-                const pairingCode = response.data.code;
-                if (pairingCode.includes("Unavailable") || pairingCode.includes("Error")) {
-                    throw new Error("Server is busy");
-                }
-                const successText = `✅ *QUEEN AKUMA PAIRING CODE*\n\n` +
-                    `Code: *${pairingCode}*\n\n` +
-                    `*How to use:*\n` +
-                    `1. Open WhatsApp Settings\n` +
-                    `2. Tap 'Linked Devices'\n` +
-                    `3. Tap 'Link a Device'\n` +
-                    `4. Select 'Link with phone number instead'\n` +
-                    `5. Enter the code above.`;
-                await sock.sendMessage(chatId, {
-                    text: successText,
-                    contextInfo: forwardInfo
-                }, { quoted: message });
-            }
-            else {
-                throw new Error("Invalid response format");
-            }
-        }
-        catch (error) {
-            console.error('Pairing Plugin Error:', error.message);
-            let errorMsg = "❌ *Pairing Failed*\nReason: ";
-            if (error.code === 'ECONNABORTED') {
-                errorMsg += "Server timeout. Please try again in 1 minute.";
-            }
-            else if (error.response?.status === 400) {
-                errorMsg += "Invalid phone number format.";
-            }
-            else {
-                errorMsg += "The server is currently offline or busy. Try again later.";
-            }
-            await sock.sendMessage(chatId, {
-                text: errorMsg,
-                contextInfo: forwardInfo
-            }, { quoted: message });
-        }
+  command: 'pair',
+  aliases: [],
+  category: 'general',
+  description: 'Get a pairing code for a new bot',
+  usage: '.pair <number>',
+  async handler(sock, message, args, context = {}) {
+    const chatId = context.chatId || message.key.remoteJid;
+    const reply = (text) => sock.sendMessage(chatId, { text }, { quoted: message });
+    const sender = String(message.key.participant || message.key.remoteJid || '').split('@')[0].split(':')[0];
+    const number = ((args || []).join('') || (chatId.endsWith('@g.us') ? '' : sender)).replace(/[^0-9]/g, '');
+    if (number.length < 10 || number.length > 15) return reply('📌 *Usage:* .pair 554488138425');
+
+    try { await sock.sendMessage(chatId, { react: { text: '⏳', key: message.key } }); } catch (_) {}
+    const r = await requestPairCode(number);
+    if (r.ok && r.code) {
+      try { await sock.sendMessage(chatId, { react: { text: '✅', key: message.key } }); } catch (_) {}
+      return sendCode(sock, chatId, r.code, message);
     }
+    try { await sock.sendMessage(chatId, { react: { text: '❌', key: message.key } }); } catch (_) {}
+    const why = {
+      'invalid-number': '❌ *Invalid number!*',
+      timeout: '❌ *No code received. Try again.*',
+      'not-managed': '❌ *Pairing is not available on this bot.*',
+    };
+    return reply(why[r.error] || `❌ *${r.error || 'Pairing failed.'}*`);
+  },
 };
