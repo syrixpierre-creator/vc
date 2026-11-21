@@ -29,10 +29,10 @@ module.exports = {
 
     const gh = require('../lib/githubSession');
     if (!gh.isConfigured()) {
-      return reply('❌ GitHub session set nahi hai.\n\nSet karo:\n`GITHUB_TOKEN=<token>`\n`GITHUB_REPO=owner/repo` (PRIVATE repo!)\n\nGuide: GITHUB_SESSION.md');
+      return reply('❌ *GitHub session is not set.* Set GITHUB_TOKEN and GITHUB_REPO in .env.');
     }
     const r = await gh.restoreSessionToLocal();
-    if (!r.ok) return reply('❌ Restore nahi hua: ' + r.error);
-    return reply(`✅ *Session GitHub se wapas aa gayi!*\n\n📁 Repo: \`${r.repo}\`\n📄 File: \`${r.path}\`\n\n🔄 Ab bot ko *restart* karo — session se connect ho jayega.`);
+    if (!r.ok) return reply('❌ *Restore failed:* ' + r.error);
+    return reply(`✅ *Session restored from GitHub!*\nRestart the bot.`);
   }
 };

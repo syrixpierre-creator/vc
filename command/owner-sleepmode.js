@@ -28,22 +28,22 @@ module.exports = {
       const st = sleepMode.getState();
       if (st.enabled) {
         const when = st.since ? new Date(st.since).toLocaleString('en-IN', { timeZone: 'Asia/Kolkata', hour12: true }) : '-';
-        return reply(`😴 *Sleep Mode: ON*\nBot so raha hai — sirf owner ke commands chalenge.\nSince: ${when}${st.by ? `\nBy: ${st.by}` : ''}\n\nJagane ke liye: \`.sleepmode off\``);
+        return reply(`✅ *Sleep mode: ON*\nSince: ${when}${st.by ? `\nBy: ${st.by}` : ''}`);
       }
-      return reply('😊 *Sleep Mode: OFF*\nBot awake hai — saare commands chalenge.');
+      return reply('✅ *Sleep mode: OFF*');
     }
 
     if (sub === 'on' || sub === '1' || sub === 'true') {
       if (!(await canToggle(sock, message, context))) return reply('❌ *Only group admins or the bot owner can use this command.*');
       const by = context.senderId || message.key.participant || message.key.remoteJid;
       sleepMode.setState(true, by);
-      return reply('😴 *Sleep Mode ON*\nBot ab so raha hai. Sirf owner ke commands chalenge; baaki sab ignore honge.\nJagane ke liye: `.sleepmode off`');
+      return reply('✅ *Sleep mode ENABLED*');
     }
 
     if (sub === 'off' || sub === '0' || sub === 'false') {
       if (!(await canToggle(sock, message, context))) return reply('❌ *Only group admins or the bot owner can use this command.*');
       sleepMode.setState(false);
-      return reply('☀️ *Sleep Mode OFF*\nBot jaag gaya — saare commands phir se chalenge.');
+      return reply('✅ *Sleep mode DISABLED*');
     }
 
     return reply('Usage: `.sleepmode on` / `.sleepmode off` / `.sleepmode status`');

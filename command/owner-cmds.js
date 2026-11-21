@@ -622,7 +622,7 @@ async function ownerReact(conn, from, sender, key) {
                         saveConfig();
                         saveDual(true);
                         await ownerReact(conn, from, m.sender, mek.key);
-                        await reply(`✅ *CUSTOM REACT ON*\nAb custom emoji se react hoga.`);
+                        await reply(`✅ *Custom react ENABLED*`);
                     }
                     else if (status === "off") {
                         config.CUSTOM_REACT = "false";

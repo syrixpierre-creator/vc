@@ -50,13 +50,13 @@ klik wa.me/${conn.user.jid.split`@`[0]}`, m, { mentions: [room.p, room.p2] })
       room.pilih = reg.exec(m.text.toLowerCase())[0]
       room.text = m.text
       m.reply(`Kamu telah memilih ${m.text} ${!room.pilih2 ? `\n\nMenunggu lawan memilih` : ''}`)
-      if (!room.pilih2) this.reply(room.p2, '_Lawan sudah memilih_\nSekarang giliran kamu', null)
+      if (!room.pilih2) this.reply(room.p2, '_Your opponent has chosen_\nNow it is your turn', null)
     }
     if (jwb2 && reg.test(m.text) && !room.pilih2 && !m.isGroup) {
       room.pilih2 = reg.exec(m.text.toLowerCase())[0]
       room.text2 = m.text
       m.reply(`Kamu telah memilih ${m.text} ${!room.pilih ? `\n\nMenunggu lawan memilih` : ''}`)
-      if (!room.pilih) this.reply(room.p, '_Lawan sudah memilih_\nSekarang giliran kamu', null)
+      if (!room.pilih) this.reply(room.p, '_Your opponent has chosen_\nNow it is your turn', null)
     }
     let stage = room.pilih
     let stage2 = room.pilih2

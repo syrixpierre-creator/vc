@@ -70,7 +70,7 @@ const ytiz = {
 let handler = async (m, { conn, args }) => {
   if (!args[0]) return m.reply('Enter URL YouTube-nya');
 
-  m.reply("Cihuyy tunggu ya, download mp3-nya...");
+  m.reply("⏳ Downloading mp3...");
 
   try {
     const url = args[0];

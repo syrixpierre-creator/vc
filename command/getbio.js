@@ -22,10 +22,10 @@ module.exports = {
       const res = await sock.fetchStatus(who);
       const bio = (res && res.status) || '';
       const when = res && res.setAt ? new Date(res.setAt).toLocaleString('en-IN') : '';
-      if (!bio) return reply(`📝 @${who.split('@')[0]} ki bio khaali hai.`, [who]);
+      if (!bio) return reply(`❌ *@${who.split('@')[0]} has no bio.*`, [who]);
       return reply(`📝 *Bio — @${who.split('@')[0]}*\n\n${bio}${when ? `\n\n_Set: ${when}_` : ''}`, [who]);
     } catch (e) {
-      return reply(`❌ Bio nahi mil payi — @${who.split('@')[0]} ki bio private ho sakti hai.`, [who]);
+      return reply(`❌ *Bio not found.* It may be private.`, [who]);
     }
   },
 };

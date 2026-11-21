@@ -73,14 +73,14 @@ module.exports = {
         data.group[chatId] = data.group[chatId].filter(f => f.pattern.toLowerCase() !== match.toLowerCase());
         save(data);
         return reply(data.group[chatId].length < before
-          ? `✅ Filter *${match}* delete ho gaya.`
-          : `❌ Filter *${match}* nahi mila.`);
+          ? `✅ *Filter ${match} deleted.*`
+          : `❌ *Filter ${match} not found.*`);
       }
 
       // filter list
       if (match.toLowerCase() === 'list') {
         const list = data.group[chatId] || [];
-        if (!list.length) return reply('📭 Is group me koi filter set nahi hai.\n\nAdd: reply karke `.filter keyword`');
+        if (!list.length) return reply('📭 *No filters in this group.*\n📌 *Usage:* reply to a message with .filter <keyword>');
         let msg = `📋 *Group Filters* (${list.length})\n\n`;
         list.forEach((f, i) => msg += `${i + 1}. *${f.pattern}*\n`);
         return reply(msg);
@@ -107,14 +107,14 @@ module.exports = {
         );
       }
 
-      if (!quotedText) return reply('❌ Pehle kisi message pe reply karo, phir `.filter keyword` likho.');
+      if (!quotedText) return reply('📌 *Usage:* reply to a message with .filter <keyword>');
 
       if (!data.group[chatId]) data.group[chatId] = [];
       // replace if exists
       data.group[chatId] = data.group[chatId].filter(f => f.pattern.toLowerCase() !== match.toLowerCase());
       data.group[chatId].push({ pattern: match, text: quotedText });
       save(data);
-      return reply(`✅ Group filter add ho gaya!\nKeyword: *${match}*\nReply: ${quotedText.slice(0, 80)}${quotedText.length > 80 ? '...' : ''}`);
+      return reply(`✅ *Filter added:* ${match}`);
     }
 
     // ========== GLOBAL GROUP FILTER (.gfilter / .gstop) ==========
@@ -126,11 +126,11 @@ module.exports = {
         save(data);
         return reply(data.gfilter.length < before
           ? `✅ Global filter *${match}* delete.`
-          : `❌ Global filter *${match}* nahi mila.`);
+          : `❌ *Global filter ${match} not found.*`);
       }
 
       if (match.toLowerCase() === 'list') {
-        if (!data.gfilter.length) return reply('📭 Koi global filter nahi hai.');
+        if (!data.gfilter.length) return reply('📭 *No global filters.*');
         let msg = `🌐 *Global Group Filters* (${data.gfilter.length})\n\n`;
         data.gfilter.forEach((f, i) => msg += `${i + 1}. *${f.pattern}*\n`);
         return reply(msg);
@@ -154,11 +154,11 @@ module.exports = {
         save(data);
         return reply(data.pfilter.length < before
           ? `✅ Personal filter *${match}* delete.`
-          : `❌ Personal filter *${match}* nahi mila.`);
+          : `❌ *Personal filter ${match} not found.*`);
       }
 
       if (match.toLowerCase() === 'list') {
-        if (!data.pfilter.length) return reply('📭 Koi personal filter nahi hai.');
+        if (!data.pfilter.length) return reply('📭 *No personal filters.*');
         let msg = `👤 *Personal Filters* (${data.pfilter.length})\n\n`;
         data.pfilter.forEach((f, i) => msg += `${i + 1}. *${f.pattern}*\n`);
         return reply(msg);

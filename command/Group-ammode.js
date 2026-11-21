@@ -18,11 +18,7 @@ let handler = async (m, { args, isAdmin, isOwner }) => {
 
   if (!args[0]) {
     return m.reply(
-`Gunakan:
-.ammode on / off
-
-Catatan:
-Mengaktifkan mode Alight Motion Premium gratis untuk seluruh member grup.`
+`📌 *Usage:* .ammode on / off`
     )
   }
 

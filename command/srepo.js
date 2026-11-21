@@ -36,9 +36,9 @@ module.exports = {
         '🔗 ' + (d.html_url || ('https://github.com/' + repo)));
     } catch (e) {
       const status = e.response && e.response.status;
-      if (status === 404) await reply('❌ Repo nahi mila: *' + repo + '* (private ya galat naam ho sakta hai)');
-      else if (status === 403) await reply('❌ GitHub rate limit lag gayi (bina key ke 60 req/hour). Thodi der baad try karo.');
-      else await reply('❌ Repo info nahi mili: ' + String(e.message || e).slice(0, 120));
+      if (status === 404) await reply('❌ *Repo not found:* *' + repo + '* (private or wrong name)');
+      else if (status === 403) await reply('❌ *GitHub rate limit reached. Try again later.*');
+      else await reply('❌ *Repo info not found:* ' + String(e.message || e).slice(0, 120));
     }
   }
 };

@@ -53,7 +53,7 @@ module.exports = {
             try {
                 const board = xpLib.leaderboard(10);
                 if (!board.length) {
-                    await sock.sendMessage(chatId, { text: '🏆 *XP Leaderboard*\n\nAbhi kisi ke paas XP nahi hai. Message bhejo aur XP kamao!' }, { quoted: message });
+                    await sock.sendMessage(chatId, { text: '🏆 *Leaderboard is empty.*' }, { quoted: message });
                     return;
                 }
                 const medals = ['🥇', '🥈', '🥉'];

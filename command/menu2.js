@@ -85,7 +85,7 @@ async function sendCategory(sock, chatId, message, catId) {
     `╚═══════════════╝\n\n`;
 
   if (!names.length) {
-    text += '_Is category me commands nahi mili._';
+    text += '_No commands in this category._';
   } else {
     // 2 per line
     for (let i = 0; i < names.length; i += 2) {

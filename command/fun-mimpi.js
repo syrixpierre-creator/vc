@@ -53,10 +53,7 @@ let handler = async (m, { text, conn, usedPrefix, command }) => {
 
     } catch (error) {
         console.error('Error in dreamworld command:', error);
-        return m.reply(`
- ❌ *Terjadi Kesalahan*
- Mohon coba beberapa saat lagi
-`);
+        return m.reply(`❌ *An error occurred. Try again later.*`);
     }
 };
 

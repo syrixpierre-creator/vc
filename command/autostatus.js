@@ -333,7 +333,7 @@ module.exports = {
               text:
                 `✅ *Status React ON*\n` +
                 `Emoji pool: ${pickEmoji(config)}\n` +
-                `_View bhi ON kiya (status events ke liye)_`
+                `_View also enabled._`
             },
             { quoted: message }
           );

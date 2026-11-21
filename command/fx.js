@@ -20,13 +20,13 @@ module.exports = {
     }
     const quoted = message.message?.extendedTextMessage?.contextInfo?.quotedMessage;
     const imgMsg = quoted?.imageMessage || message.message?.imageMessage;
-    if (!imgMsg) return reply('❌ Pehle ek photo bhejo ya photo par reply karke likho: `.fx ' + effect + '`');
-    await sock.sendMessage(chatId, { text: `🎨 *${effect}* effect lag raha hai...` }, { quoted: message });
+    if (!imgMsg) return reply('📌 *Usage:* reply to a photo with .fx ' + effect + '`');
+    await sock.sendMessage(chatId, { text: `🎨 Applying *${effect}* effect...` }, { quoted: message });
     try {
       const { downloadMediaMessage } = require('@whiskeysockets/baileys');
       const key = quoted ? { remoteJid: chatId, id: message.message.extendedTextMessage.contextInfo.stanzaId, participant: message.message.extendedTextMessage.contextInfo.participant } : message.key;
       const buf = await downloadMediaMessage({ key, message: { imageMessage: imgMsg } }, 'buffer', {}, { logger: { level: 'silent' } });
-      if (buf.length > 5 * 1024 * 1024) return reply('❌ Photo 5MB se badi hai.');
+      if (buf.length > 5 * 1024 * 1024) return reply('❌ *Photo is bigger than 5MB.*');
       const res = await applyEffect(Buffer.from(buf), effect);
       if (!res.ok) return reply('❌ ' + res.error);
       return sock.sendMessage(chatId, { image: res.buffer, caption: `🎨 *Effect:* ${effect}` }, { quoted: message });

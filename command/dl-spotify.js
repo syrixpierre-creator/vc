@@ -87,7 +87,7 @@ async (conn, mek, m, { from, args, reply, userConfig }) => {
         const q = args.join(" ");
 
         if (!q) {
-            return reply("❌ Song name ya Spotify link do\n\nExample:\n.spotify Tu Hai Kahan");
+            return reply("📌 *Usage:* .spotify <song name or link>");
         }
 
         await conn.sendMessage(from, { react: { text: "⏳", key: mek.key } });
@@ -99,7 +99,7 @@ async (conn, mek, m, { from, args, reply, userConfig }) => {
             searchData = await spotifySearch(q);
             if (!searchData) {
                 await conn.sendMessage(from, { react: { text: "❌", key: mek.key } });
-                return reply("❌ Song search nahi ho saka.");
+                return reply("❌ *Song search failed.*");
             }
             trackUrl = searchData.url;
         } else {

@@ -24,11 +24,11 @@ module.exports = {
         if (!name) { await reply('❌ Usage: *.getcase <command>*\nExample: .getcase ping'); return; }
         const loaded = loadEntry(name);
         if (!loaded || !loaded.found) {
-          await reply('❌ Command nahi mila: *' + name + '*');
+          await reply('❌ *Command not found:* *' + name + '*');
           return;
         }
         if (loaded.error) {
-          await reply('❌ File load nahi hui (' + loaded.found.file + '): ' + String(loaded.error).slice(0, 150));
+          await reply('❌ *File not loaded* (' + loaded.found.file + '): ' + String(loaded.error).slice(0, 150));
           return;
         }
         const src = fs.readFileSync(path.join(CMD_DIR, loaded.found.file), 'utf8');
@@ -52,7 +52,7 @@ module.exports = {
         if (!isOwner) { await reply('🚫 *You are not authorized to use this command!*'); return; }
         const qm = message.message && message.message.extendedTextMessage && message.message.extendedTextMessage.contextInfo && message.message.extendedTextMessage.contextInfo.quotedMessage;
         if (!qm) {
-          await reply('❌ Pehle kisi message pe reply karo, phir *.ambilq* chalao.');
+          await reply('📌 *Usage:* reply to a message with .ambilq');
           return;
         }
         const json = JSON.stringify(qm, null, 2);

@@ -12,7 +12,7 @@ module.exports = {
   command: "ttmusic",
   aliases: ["ttmp3"],
   category: "downloader",
-  description: "TikTok video ka music (mp3) download karo (tikwm, free).",
+  description: "Download the music (mp3) of a TikTok video.",
   usage: ".ttmp3 <tiktok link>",
   handler: async (sock, message, args, ctx) => {
     const chatId = message.key.remoteJid;
@@ -29,13 +29,13 @@ module.exports = {
       });
       const data = res.data || {};
       if (data.code !== 0 || !data.data) {
-        await reply('❌ TikTok music nahi mila: ' + String(data.msg || 'video private/deleted ho sakta hai.').slice(0, 150));
+        await reply('❌ *TikTok music not found:* ' + String(data.msg || 'the video may be private or deleted.').slice(0, 150));
         return;
       }
       const d = data.data;
       const musicUrl = d.music || (d.music_info && d.music_info.play);
       if (!musicUrl) {
-        await reply('❌ Is video ka music nahi mila (music band ho sakta hai).');
+        await reply('❌ *No music found in this video.*');
         return;
       }
       const title = (d.music_info && d.music_info.title) || d.title || 'TikTok Music';
@@ -45,7 +45,7 @@ module.exports = {
       }, { quoted: message });
       await reply('🎵 *TikTok Music*\n\n🎧 ' + String(title).slice(0, 120) + (author ? '\n👤 ' + String(author).slice(0, 80) : ''));
     } catch (e) {
-      await reply('❌ TikTok music download nahi ho paya: ' + String(e.message || e).slice(0, 120));
+      await reply('❌ *TikTok music download failed:* ' + String(e.message || e).slice(0, 120));
     }
   }
 };

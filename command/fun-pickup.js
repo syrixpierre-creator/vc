@@ -12,29 +12,29 @@ cmd({
         const botConfig = userConfig;
 
         const lines = [
-            "🥰 Tumhari ek muskurahat pe to mai apna pura din qurban kar dun 💖\nTum hasti ho to lagta hai jese subah ho gayi ho ✨🌸",
+            "🥰 For one smile of yours I would give my whole day 💖\nWhen you laugh, it feels like the morning ✨🌸",
 
-            "😍 Hayee tumhari aankhein 👀💘\nDekh ke to dil kehta hai bas tumhe dekhta hi rahun, duniya bhul jaun 🌍❤️",
+            "😍 Oh, your eyes 👀💘\nMy heart says I could look at you forever and forget the world 🌍❤️",
 
-            "🌹 Tum itni pyari ho ke chand bhi tumhe dekh ke sharma jaye 🌙🙈\nSach me tum jesi koi nahi is puri duniya me 💞",
+            "🌹 You are so lovely that even the moon gets shy 🌙🙈\nThere is nobody like you in the whole world 💞",
 
-            "💌 Tum paas hoti ho to waqt ruk sa jata hai ⏰💖\nDil kehta hai kaash ye lamha yahin tham jaye 🥺👩‍❤️‍👨",
+            "💌 When you are near, time stops ⏰💖\nI wish this moment would last forever 🥺👩‍❤️‍👨",
 
-            "😜 Oye suno naa 🫣\nTumhari hansi ka network to Jazz se bhi tez hai 📶😂💓\nSeedha dil me connect ho jati hai!",
+            "😜 Hey listen 🫣\nYour smile has a faster network than 5G 📶😂💓\nIt connects straight to the heart!",
 
-            "✨ Tumhe dekh ke lagta hai jaise koi khwab haqiqat ban gaya ho 💭❤️\nTum meri zindagi ki sab se haseen khwahish ho 🥰🌸",
+            "✨ Seeing you feels like a dream came true 💭❤️\nYou are the most beautiful wish of my life 🥰🌸",
 
-            "🔥 Uff tumhari adaayein 😏💘\nEk nazar dekha to dil ne kaha bas tum hi to ho jise mai dhoondh raha tha 🫶",
+            "🔥 Oh, your style 😏💘\nOne look and my heart said: you are the one I was looking for 🫶",
 
-            "💖 Tumhare bina group suna lagta hai 🥺\nJab tum aati ho to ronak aa jati hai 🎉😍✨",
+            "💖 The group feels empty without you 🥺\nWhen you come, everything lights up 🎉😍✨",
 
-            "🌈 Tumhari baaton me jadu hai ✨🪄\nSun ke to pura din acha guzar jata hai, tum best ho yaar 💝😘",
+            "🌈 Your words are magic ✨🪄\nHearing you makes the whole day good, you are the best 💝😘",
 
             "🫣 Hayee itni cuteness kahan se laati ho? 🥰🍫\nTum to chocolate se bhi zyada meethi ho 😋💕",
 
-            "💞 Dil ne aaj phir tumhe yaad kiya hai 💌\nPata nahi kyu tumhare khayal se hi chehre pe muskurahat aa jati hai 😊🌹",
+            "💞 My heart remembered you again today 💌\nJust thinking of you makes me smile 😊🌹",
 
-            "🌸 Tum phoolon se bhi zyada haseen ho 💐💖\nTumhe dekh ke to dil garden ho jata hai 🌷😍"
+            "🌸 You are more beautiful than flowers 💐💖\nSeeing you makes my heart bloom 🌷😍"
         ];
 
         const random = lines[Math.floor(Math.random() * lines.length)];

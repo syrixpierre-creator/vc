@@ -30,7 +30,7 @@ function safeResolve(rel) {
 module.exports = {
   command: 'savefile',
   aliases: ['savefileplugins'],
-  description: 'WhatsApp se file save karo (owner-only hot-patch).',
+  description: 'Save a file from WhatsApp (owner only).',
   category: 'owner',
   handler: async (sock, message, args, context) => {
     const chatId = message.key.remoteJid;
@@ -44,7 +44,7 @@ module.exports = {
     }
     const abs = safeResolve(rel);
     if (!abs) {
-      await reply('❌ Galat path. Sirf ye allowed hain: command/*.js, lib/*.js, data/*.json — no .., no .env, no session.');
+      await reply('❌ *Invalid path.* Allowed: command/*.js, lib/*.js, data/*.json');
       return;
     }
     // Content: quoted message ka text, ya args ke baaki hisse
@@ -65,7 +65,7 @@ module.exports = {
     }
     if (!content) content = (args || []).slice(1).join(' ');
     if (!content || !content.trim()) {
-      await reply('❌ Koi content nahi mila. Code wale message pe reply karo ya args me code likho.');
+      await reply('📌 *Usage:* reply to a code message with .savefile <path>');
       return;
     }
     try {
@@ -76,7 +76,7 @@ module.exports = {
           execFile(process.execPath, ['--check', abs], { timeout: 15000 }, (err) => resolve(!err));
         });
         if (!ok) {
-          await reply('⚠️ File save ho gayi (' + rel + ') lekin *syntax error* hai — node --check fail hua. Check karke dobara save karo, warna bot crash ho sakta hai.');
+          await reply('⚠️ File save ho gayi (' + rel + ') but it has a *syntax error*. Fix it and save again.');
           return;
         }
       }
@@ -86,9 +86,9 @@ module.exports = {
           return;
         }
       }
-      await reply('✅ Save ho gaya: *' + rel + '* (' + Buffer.byteLength(content) + ' bytes)\nLoad karne ke liye bot restart karo (.restart).');
+      await reply('✅ *Saved:* *' + rel + '* (' + Buffer.byteLength(content) + ' bytes)\nRestart the bot to load it (.restart).');
     } catch (e) {
-      await reply('❌ Save nahi ho paya: ' + String(e.message || e).slice(0, 150));
+      await reply('❌ *Save failed:* ' + String(e.message || e).slice(0, 150));
     }
   }
 };

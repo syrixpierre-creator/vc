@@ -45,7 +45,7 @@ let handler = async (m, { conn, text, command, usedPrefix }) => {
 
     } catch (err) {
         console.error('❌ Error\nLogs error:', err);
-        m.reply('❌ Error\nTerjadi kesalahan saat memproses permintaan anda.');
+        m.reply('❌ *An error occurred while processing your request.*');
     }
 }
 

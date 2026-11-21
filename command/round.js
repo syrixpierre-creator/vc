@@ -32,14 +32,14 @@ module.exports = {
   commands: [
     {
       command: 'round', aliases: ['rounded', 'roundsticker'],
-      description: 'Photo ko rounded-corner sticker banao.',
+      description: 'Make a rounded-corner sticker from a photo.',
       category: 'media',
       handler: async (sock, message, args, context) => {
         const chatId = message.key.remoteJid;
         const reply = (text) => sock.sendMessage(chatId, { text }, { quoted: message });
         const media = await getMedia(message, ['image', 'sticker']);
         if (!media) {
-          await reply('❌ Pehle kisi photo/sticker pe reply karo, phir *.round* chalao.');
+          await reply('📌 *Usage:* reply to a photo or sticker with .round');
           return;
         }
         try {
@@ -58,7 +58,7 @@ module.exports = {
     },
     {
       command: 'fusion', aliases: ['avfusion', 'mergeav2'],
-      description: 'Audio + video ek saath merge karo: video bhejte waqt audio pe reply karo.',
+      description: 'Merge audio + video: reply to an audio while sending a video.',
       category: 'media',
       handler: async (sock, message, args, context) => {
         const chatId = message.key.remoteJid;
@@ -71,7 +71,7 @@ module.exports = {
           else if (own.kind === 'audio' && quoted.kind === 'video') { audioBuf = own.buffer; videoBuf = quoted.buffer; }
         }
         if (!videoBuf || !audioBuf) {
-          await reply('❌ Usage: video bhejte waqt audio pe reply karo (ya audio bhejte waqt video pe reply karo) aur *.fusion* likho.\nAgar do-step chahiye to *.avmix* use karo.');
+          await reply('📌 *Usage:* reply to an audio/video with .fusion');
           return;
         }
         const vIn = writeTmp(videoBuf, 'mp4');
@@ -81,7 +81,7 @@ module.exports = {
           await ffmpeg(['-y', '-i', vIn, '-i', aIn, '-c:v', 'copy', '-c:a', 'aac', '-shortest', outPath], 120000);
           await sock.sendMessage(chatId, { video: fs.readFileSync(outPath), caption: '🔀 Fusion ready' }, { quoted: message });
         } catch (e) {
-          await reply('❌ Fusion nahi ho paya: ' + String(e.message || e).slice(0, 150));
+          await reply('❌ *Fusion failed:* ' + String(e.message || e).slice(0, 150));
         } finally { cleanup(vIn, aIn, outPath); }
       }
     }

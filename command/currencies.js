@@ -24,7 +24,7 @@ module.exports = {
         for (const name of currencies.NAMES) {
           lines.push(currencies.EMOJI[name] + ' ' + name.charAt(0).toUpperCase() + name.slice(1) + ': ' + fmt(cur[name]) + '  (1 = ' + fmt(currencies.RATES[name]) + ' coins)');
         }
-        lines.push('\nConvert karne ke liye: *.exchange <from> <to> <amount>*\nExample: .exchange diamond coin 2');
+        lines.push('\n📌 *Usage:* .exchange <from> <to> <amount>');
         await sock.sendMessage(chatId, { text: lines.join('\n') }, { quoted: message });
       }
     },
@@ -48,7 +48,7 @@ module.exports = {
           await reply('❌ ' + res.error);
           return;
         }
-        await reply('✅ *Exchange ho gaya!*\n\n' + res.amount + ' ' + res.from + ' → ' + fmt(res.got) + ' ' + res.to);
+        await reply('✅ *Exchange done!*\n\n' + res.amount + ' ' + res.from + ' → ' + fmt(res.got) + ' ' + res.to);
       }
     }
   ]

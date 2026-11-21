@@ -36,14 +36,14 @@ async function jimpMeme(buffer, top, bottom) {
 module.exports = {
   command: 'memegen',
   aliases: ['meme', 'makememe'],
-  description: 'Photo par top/bottom text likho: .memegen upar wali line | neeche wali line',
+  description: 'Write top/bottom text on a photo: .memegen top | bottom',
   category: 'fun',
   handler: async (sock, message, args, context) => {
     const chatId = message.key.remoteJid;
     const reply = (text) => sock.sendMessage(chatId, { text }, { quoted: message });
     const media = await getMedia(message, ['image']);
     if (!media) {
-      await reply('❌ Pehle kisi photo pe reply karo, phir *.memegen upar | neeche* likho.');
+      await reply('📌 *Usage:* reply to a photo with .memegen <top> | <bottom>');
       return;
     }
     const joined = (args || []).join(' ');
@@ -51,7 +51,7 @@ module.exports = {
     const top = parts[0] || '';
     const bottom = parts[1] || '';
     if (!top && !bottom) {
-      await reply('❌ Usage: *.memegen upar wali line | neeche wali line*\nExample: .memegen jab bot slow ho | aur owner bole jaldi karo');
+      await reply('📌 *Usage:* .memegen <top> | <bottom>');
       return;
     }
     // API pehle — uploadFileFast {url, host} object deta hai (string nahi);

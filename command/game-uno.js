@@ -16,23 +16,21 @@ let Fruatre = async (m, { conn, args, command, usedPrefix }) => {
     global.games = global.games || {};
 
     if (!action) {
-        return m.reply(`
-🎮 *Panduan Bermain Uno* 🎮
-➤ *${usedPrefix}uno start* - Memulai permainan Uno baru.
-➤ *${usedPrefix}uno join* - Bergabung dengan permainan Uno yang sedang berlangsung.
-➤ *${usedPrefix}uno play <nomor_kartu>* - Memainkan kartu tertentu dari tangan Anda.
-➤ *${usedPrefix}uno draw* - Mengambil kartu dari dek.
-➤ *${usedPrefix}uno status* - Melihat status permainan saat ini.
-➤ *${usedPrefix}uno delete* - Menghapus permainan saat ini.
-➤ *${usedPrefix}uno viewcard* - Melihat list kartu ini.
+        return m.reply(`❌ *Invalid option!*
 
-🎯 *Tujuan*: Jadi pemain pertama yang menghabiskan semua kartu!
-        `);
+Available options:
+- start
+- join
+- play <card number>
+- draw
+- status
+- delete
+- viewcard`);
     }
 
     if (action === 'start') {
         if (global.games[chatId]) {
-            return m.reply("🚫 Permainan sudah dimulai. Bergabunglah atau tunggu hingga selesai.");
+            return m.reply("❌ *The game has already started.*");
         }
         global.games[chatId] = {
             deck: createDeck(),
@@ -52,8 +50,8 @@ let Fruatre = async (m, { conn, args, command, usedPrefix }) => {
     const game = global.games[chatId];
 
     if (action === 'join') {
-        if (!game || game.status !== 'waiting') return m.reply("🚫 Tidak ada permainan yang menunggu. Gunakan *!uno start* untuk membuat permainan baru.");
-        if (game.players.includes(playerId)) return m.reply("🚫 Anda sudah bergabung.");
+        if (!game || game.status !== 'waiting') return m.reply("❌ *No game waiting.* Start one with .uno start");
+        if (game.players.includes(playerId)) return m.reply("❌ *You already joined.*");
         if (game.players.length >= 4) return m.reply("🚫 Permainan penuh (maksimal 4 pemain).");
         game.players.push(playerId);
         game.hands[playerId] = drawCards(game.deck, 7);
@@ -66,7 +64,7 @@ let Fruatre = async (m, { conn, args, command, usedPrefix }) => {
         return;
     }
 
-    if (game.status !== 'playing') return m.reply("🚫 Permainan belum dimulai atau status tidak valid.");
+    if (game.status !== 'playing') return m.reply("❌ *The game has not started yet.*");
     if (game.players[game.turn] !== playerId) return m.reply("⛔ Bukan giliran Anda!");
 
     if (action === 'draw') {
@@ -84,7 +82,7 @@ let Fruatre = async (m, { conn, args, command, usedPrefix }) => {
         if (isNaN(cardIndex) || cardIndex < 0 || cardIndex >= hand.length) return m.reply("🚫 Nomor kartu tidak valid.");
 
         const card = hand[cardIndex];
-        if (!isPlayable(card, game.currentCard)) return m.reply("🚫 Anda tidak bisa memainkan kartu itu.");
+        if (!isPlayable(card, game.currentCard)) return m.reply("❌ *You cannot play that card.*");
 
         game.currentCard = card;
         hand.splice(cardIndex, 1);
@@ -110,7 +108,7 @@ let Fruatre = async (m, { conn, args, command, usedPrefix }) => {
     }
 
     if (action === 'delete') {
-        if (game.creator !== playerId) return m.reply("🚫 Hanya pembuat game yang bisa menghapus permainan.");
+        if (game.creator !== playerId) return m.reply("🚫 *Only the game creator can delete the game.*");
         delete global.games[chatId];
         m.reply("🗑️ Permainan Uno berhasil dihapus.");
         return;
@@ -164,7 +162,7 @@ const showGameState = async (chatId, conn) => {
         stateMessage += `${i === game.turn ? '➡️ ' : ''}@${id.split('@')[0]} (${game.hands[id].length} kartu)\n`;
     });
 
-    stateMessage += `\n🧐 *Lihat kartu Anda:*\n- .uno viewcard\n_Bot akan mengirimkan daftar kartu via PM._\n\n💡 *Tidak bisa main?* Ketik *.uno draw* untuk mengambil kartu baru.`;
+    stateMessage += `\n🃏 See your cards: .uno viewcard\nCannot play? Use .uno draw`;
 
     await conn.reply(chatId, stateMessage, null, { mentions: game.players });
 };

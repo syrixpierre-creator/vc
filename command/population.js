@@ -10,7 +10,7 @@ const axios = require('axios');
 async function fromRestCountries(name) {
   const res = await axios.get('https://restcountries.com/v3.1/name/' + encodeURIComponent(name) + '?fields=name,population,capital,region,cca2', { timeout: 15000 });
   const d = (res.data && res.data[0]) || {};
-  if (!d.population) throw new Error('Country nahi mila');
+  if (!d.population) throw new Error('Country not found');
   return {
     name: (d.name && d.name.common) || name, population: d.population,
     capital: (d.capital || []).join(', ') || '—', region: d.region || '—', cca2: d.cca2 || ''
@@ -21,7 +21,7 @@ async function fromWorldBank(cca2) {
   const res = await axios.get('https://api.worldbank.org/v2/country/' + cca2 + '/indicator/SP.POP.TOTL?format=json&date=2020:2024&per_page=5', { timeout: 15000 });
   const rows = (res.data && res.data[1]) || [];
   const latest = rows.find((r) => r && r.value);
-  if (!latest) throw new Error('World Bank se data nahi mila');
+  if (!latest) throw new Error('No data from World Bank');
   return { population: latest.value, year: latest.date };
 }
 
@@ -42,7 +42,7 @@ module.exports = {
     try { info = await fromRestCountries(name); }
     catch (e) { lastErr = e; }
     if (!info) {
-      await reply('❌ Country nahi mila: *' + name + '* — ' + String((lastErr && lastErr.message) || lastErr).slice(0, 100));
+      await reply('❌ *Country not found:* *' + name + '* — ' + String((lastErr && lastErr.message) || lastErr).slice(0, 100));
       return;
     }
     let wbNote = '';

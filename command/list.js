@@ -103,7 +103,7 @@ module.exports = {
         if (real) cmd = commandHandler.commands.get(real);
       }
       if (!cmd) {
-        return sock.sendMessage(chatId, { text: `❌ \`${name}\` nahi mila. \`${prefix}menu\`` }, { quoted: message });
+        return sock.sendMessage(chatId, { text: `❌ *${name} not found.* See ${prefix}menu` }, { quoted: message });
       }
       return sock.sendMessage(chatId, {
         text: `*📖 ${prefix}${cmd.command}*\n${cmd.description || '—'}\nCategory: *${cmd.category || 'general'}*\nUsage: \`${cmd.usage || prefix + cmd.command}\``

@@ -47,6 +47,6 @@ module.exports = {
       [out[i], out[j]] = [out[j], out[i]];
     }
     const pass = out.join('');
-    await reply('🔐 *Password Generator*\n\n`' + pass + '`\n\n📏 Length: ' + len + ' • Mode: ' + mode + '\n⚠️ Ye password kisi se share mat karo.');
+    await reply('🔐 *Password Generator*\n\n`' + pass + '`\n\n📏 Length: ' + len + ' • Mode: ' + mode + '\n⚠️ Do not share this password.');
   },
 };

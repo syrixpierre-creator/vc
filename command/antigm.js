@@ -28,7 +28,7 @@ module.exports = {
     const chatId = context.chatId || message.key.remoteJid;
     const isGroup = chatId.endsWith('@g.us');
     if (!isGroup) {
-      return sock.sendMessage(chatId, { text: '❌ Sirf group me use karo.' }, { quoted: message });
+      return sock.sendMessage(chatId, { text: '❌ *This command can only be used in groups!*' }, { quoted: message });
     }
 
     const data = load();
@@ -115,12 +115,12 @@ Ignore: ${data.ignore.length ? data.ignore.join(', ') : 'none'}
 
       if (data.action === 'delete') {
         await sock.sendMessage(chatId, { delete: message.key }).catch(() => {});
-        await sock.sendMessage(chatId, { text: '🚫 Group mention allowed nahi hai!' });
+        await sock.sendMessage(chatId, { text: '🚫 Group mentions are not allowed!' });
       } else if (data.action === 'warn') {
         await sock.sendMessage(chatId, { text: `⚠️ @${sender.split('@')[0]} Group mention mat karo!`, mentions: [sender] });
       } else if (data.action === 'kick') {
         await sock.groupParticipantsUpdate(chatId, [sender], 'remove').catch(() => {});
-        await sock.sendMessage(chatId, { text: `👢 Group mention ke liye kick: @${sender.split('@')[0]}`, mentions: [sender] });
+        await sock.sendMessage(chatId, { text: `👢 Kicked for group mention: @${sender.split('@')[0]}`, mentions: [sender] });
       }
     } catch (e) {
       console.error('[antigm]', e.message);

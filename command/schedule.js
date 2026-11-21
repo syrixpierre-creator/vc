@@ -39,38 +39,38 @@ module.exports = { commands: [
         const q = quoted?.conversation || quoted?.extendedTextMessage?.text || quoted?.imageMessage?.caption || '';
         text = String(q || '').trim();
       }
-      if (!timeInput || !text) return reply('❌ Usage: `.setschedule 10m Good morning sabko` ya message par reply karke `.setschedule 18:30`');
+      if (!timeInput || !text) return reply('📌 *Usage:* .setschedule 10m <message>');
       const res = schedMsg.add(chatId, text, timeInput, senderJid);
       if (!res.ok) return reply('❌ ' + res.error);
-      return reply(`✅ *Message schedule ho gaya!*\n\nID: \`${res.item.id}\`\nTime: ${schedMsg.fmtTime(res.item.at)}${res.item.repeat === 'daily' ? ' (roz)' : ''}\nMessage: ${text.slice(0, 100)}\n\nDekho: \`.getschedule\` • Delete: \`.delschedule ${res.item.id}\``);
+      return reply(`✅ *Message scheduled!*\n\nID: \`${res.item.id}\`\nTime: ${schedMsg.fmtTime(res.item.at)}${res.item.repeat === 'daily' ? ' (daily)' : ''}`);
     },
   },
   {
     command: 'getschedule', aliases: ['listschedule', 'myschedule'], category: 'group',
-    description: 'Scheduled messages ki list dekho', usage: '.getschedule',
+    description: 'Show scheduled messages', usage: '.getschedule',
     async handler(sock, message, args, context = {}) {
       const chatId = context.chatId || message.key.remoteJid;
       const senderJid = message.key.participant || message.key.remoteJid;
       const isGroup = chatId.endsWith('@g.us');
       const reply = (t) => sock.sendMessage(chatId, { text: t }, { quoted: message });
-      if (!(await canManage(senderJid, sock, chatId, isGroup))) return reply('❌ Sirf group admin ya owner dekh sakta hai.');
+      if (!(await canManage(senderJid, sock, chatId, isGroup))) return reply('🚫 *You are not authorized to use this command!*');
       const items = schedMsg.list(chatId);
-      if (!items.length) return reply('📅 Koi scheduled message nahi hai.\nAdd karo: `.setschedule 10m <message>`');
+      if (!items.length) return reply('❌ *No scheduled messages.*\n📌 *Usage:* .setschedule 10m <message>');
       return reply(`📅 *Scheduled Messages (${items.length}):*\n\n${items.map((it) => `\`${it.id}\` — ${schedMsg.fmtTime(it.at)}${it.repeat === 'daily' ? ' (roz)' : ''}\n  ${it.text.slice(0, 80)}`).join('\n\n')}`);
     },
   },
   {
     command: 'delschedule', aliases: ['delsched', 'cancelschedule'], category: 'group',
-    description: 'Scheduled message delete karo', usage: '.delschedule <id>',
+    description: 'Delete a scheduled message', usage: '.delschedule <id>',
     async handler(sock, message, args, context = {}) {
       const chatId = context.chatId || message.key.remoteJid;
       const senderJid = message.key.participant || message.key.remoteJid;
       const isGroup = chatId.endsWith('@g.us');
       const reply = (t) => sock.sendMessage(chatId, { text: t }, { quoted: message });
-      if (!(await canManage(senderJid, sock, chatId, isGroup))) return reply('❌ Sirf group admin ya owner delete kar sakta hai.');
+      if (!(await canManage(senderJid, sock, chatId, isGroup))) return reply('🚫 *You are not authorized to use this command!*');
       const id = (args[0] || '').trim();
-      if (!id) return reply('❌ Usage: `.delschedule S1234`');
-      return reply(schedMsg.remove(chatId, id) ? `✅ Scheduled message \`${id.toUpperCase()}\` delete kar diya.` : '❌ ID nahi mili. `.getschedule` se dekho.');
+      if (!id) return reply('📌 *Usage:* .delschedule <id>');
+      return reply(schedMsg.remove(chatId, id) ? `✅ Scheduled message \`${id.toUpperCase()}\` delete kar diya.` : '❌ *ID not found.* See .getschedule');
     },
   },
 ] };

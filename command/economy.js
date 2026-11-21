@@ -24,13 +24,13 @@ module.exports = { commands: [
       const sender = message.key.participant || message.key.remoteJid;
       const reply = (t) => sock.sendMessage(chatId, { text: t }, { quoted: message });
       const r = eco.daily(sender);
-      if (!r.ok) return reply(`⏳ Daily reward abhi nahi! Agla claim *${r.wait}* baad.`);
+      if (!r.ok) return reply(`⏳ *Daily reward not ready.* Next claim in *${r.wait}*.`);
       return reply(`🎁 *Daily Reward!*\n\n+${r.got} coins mile!\n💰 Balance: *${r.coins} coins*\n\nKal phir aana! 😄`);
     }
   },
   {
     command: 'balance', aliases: ['coins'], category: 'economy',
-    description: 'Apne coins aur items dekho',
+    description: 'Show your coins and items',
     usage: '.balance',
     async handler(sock, message, args, context = {}) {
       const chatId = context.chatId || message.key.remoteJid;
@@ -42,7 +42,7 @@ module.exports = { commands: [
         return s ? `${s.emoji} ${s.name}` : id;
       });
       const badge = (user.items || []).includes('vip') ? ' 👑 VIP' : ((user.items || []).includes('crown') ? ' 🤴 KING' : '');
-      return reply(`💰 *Tumhara Wallet*${badge}\n\n🪙 Coins: *${user.coins || 0}*\n🎒 Items: ${items.length ? items.join(', ') : 'koi nahi — .bazaar se kharido'}\n🏆 Wins: ${user.wins || 0} | Losses: ${user.losses || 0}\n\n`.daily` — roz 100 coins\n`.kaam` — kaam karke coins kamao`);
+      return reply(`💰 *Wallet*${badge}\n\n🪙 Coins: *${user.coins || 0}*\n🎒 Items: ${items.length ? items.join(', ') : 'none'}\n🏆 Wins: ${user.wins || 0} | Losses: ${user.losses || 0}\n\n`.daily` — roz 100 coins\n`.kaam` — kaam karke coins kamao`);
     }
   },
   {
@@ -55,7 +55,7 @@ module.exports = { commands: [
       const reply = (t) => sock.sendMessage(chatId, { text: t }, { quoted: message });
       const bal = eco.balance(sender);
       const list = eco.SHOP.map((s) => `${s.emoji} *${s.name}* — ${s.price} coins\n   _${s.desc}_`).join('\n\n');
-      return reply(`🛒 *QUEEN AKUMA Bazaar*\n\n💰 Tumhare coins: *${bal}*\n\n${list}\n\nKharidne ke liye: \`.buyitem <name>\`\nExample: \`.buyitem lucky\``);
+      return reply(`🛒 *Bazaar*\n\n💰 Your coins: *${bal}*\n\n${list}\n\n📌 *Usage:* .buyitem <name>`);
     }
   },
   {
@@ -67,7 +67,7 @@ module.exports = { commands: [
       const sender = message.key.participant || message.key.remoteJid;
       const reply = (t) => sock.sendMessage(chatId, { text: t }, { quoted: message });
       const id = (args[0] || '').toLowerCase();
-      if (!id) return reply('❌ Usage: `.buyitem lucky`\nItems: `.bazaar` se dekho.');
+      if (!id) return reply('📌 *Usage:* .buyitem <name>');
       const r = eco.buy(sender, id);
       if (!r.ok) return reply('❌ ' + r.error);
       return reply(`✅ *Kharid liya!* ${r.item.emoji} *${r.item.name}*\n\n💰 Bache hue coins: *${r.coins}*\n_${r.item.desc}_`);
@@ -75,7 +75,7 @@ module.exports = { commands: [
   },
   {
     command: 'sendcoins', aliases: [], category: 'economy',
-    description: 'Dusre user ko coins bhejo',
+    description: 'Send coins to another user',
     usage: '.sendcoins @user <amount>',
     async handler(sock, message, args, context = {}) {
       const chatId = context.chatId || message.key.remoteJid;
@@ -83,8 +83,8 @@ module.exports = { commands: [
       const reply = (t) => sock.sendMessage(chatId, { text: t }, { quoted: message });
       const to = targetJid(message, args);
       const amount = parseInt(args[args.length - 1], 10);
-      if (!to) return reply('❌ Usage: `.sendcoins @user 50`\nUser ko tag karo ya reply karo.');
-      if (num(to) === num(sender)) return reply('❌ Khud ko coins nahi bhej sakte!');
+      if (!to) return reply('📌 *Usage:* .sendcoins @user 50');
+      if (num(to) === num(sender)) return reply('❌ *You cannot send coins to yourself!*');
       const r = eco.transfer(sender, to, amount);
       if (!r.ok) return reply('❌ ' + r.error);
       return reply(`💸 *Coins bhej diye!*\n\n${amount} coins → @${num(to)}\n💰 Tumhara balance: *${r.from}*`);
@@ -98,7 +98,7 @@ module.exports = { commands: [
       const chatId = context.chatId || message.key.remoteJid;
       const reply = (t) => sock.sendMessage(chatId, { text: t }, { quoted: message });
       const top = eco.leaderboard(10);
-      if (!top.length) return reply('🏆 Leaderboard khaali hai!\n`.daily` se coins kamao aur pehle bano.');
+      if (!top.length) return reply('🏆 *Leaderboard is empty.*');
       const medals = ['🥇', '🥈', '🥉'];
       const lines = top.map((u, i) => {
         const crown = (u.items || []).includes('crown') ? ' 🤴' : ((u.items || []).includes('vip') ? ' 👑' : '');
@@ -134,20 +134,20 @@ module.exports = { commands: [
       const jobs = ['chai banayi ☕', 'bot ki safai ki 🧹', 'group me welcome kiya 👋', 'sticker banaya 🎨', 'news padhi 📰'];
       const r = eco.work(sender);
       if (!r.ok) return reply(`⏳ Abhi thak gaye! Agla kaam *${r.wait}* baad.`);
-      return reply(`💼 *Kaam ho gaya!* ${jobs[Math.floor(Math.random() * jobs.length)]}\n\n+${r.earned} coins mile!\n💰 Balance: *${r.coins}*`);
+      return reply(`💼 *Work done!* ${jobs[Math.floor(Math.random() * jobs.length)]}\n\n+${r.earned} coins\n💰 Balance: *${r.coins}*`);
     }
   },
   {
     command: 'rob', aliases: [], category: 'economy',
-    description: 'Dusre user ke coins churao (risk hai!)',
+    description: 'Steal coins from another user (risky!)',
     usage: '.rob @user',
     async handler(sock, message, args, context = {}) {
       const chatId = context.chatId || message.key.remoteJid;
       const sender = message.key.participant || message.key.remoteJid;
       const reply = (t) => sock.sendMessage(chatId, { text: t }, { quoted: message });
       const to = targetJid(message, args);
-      if (!to) return reply('❌ Usage: `.rob @user`\nUser ko tag karo ya reply karo.');
-      if (num(to) === num(sender)) return reply('❌ Khud ko rob nahi kar sakte!');
+      if (!to) return reply('📌 *Usage:* .rob @user');
+      if (num(to) === num(sender)) return reply('❌ *You cannot rob yourself!*');
       const r = eco.rob(sender, to);
       if (!r.ok) return reply('❌ ' + r.error);
       if (r.win) return reply(`🦹 *Rob successful!*\n\n@${num(to)} se *${r.steal} coins* churaye!\n💰 Balance: *${r.coins}*`);

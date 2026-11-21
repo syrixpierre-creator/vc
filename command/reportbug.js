@@ -33,10 +33,10 @@ module.exports = {
     const reply = (t) => sock.sendMessage(chatId, { text: t }, { quoted: message });
     const text = (args || []).join(' ').trim();
     if (!text) {
-      return reply('🐞 *Report a Bug / Request a Feature*\n\nUsage: `.reportbug <tumhari report>`\n\nExample: `.reportbug .menu photo nahi aa rahi`');
+      return reply('📌 *Usage:* .reportbug <your report>');
     }
     const owners = ownerJids();
-    if (!owners.length) return reply('❌ Owner number configured nahi hai — report nahi bheji ja sakti.');
+    if (!owners.length) return reply('❌ *Owner number is not configured.*');
     const who = sender.split('@')[0];
     const isGroup = !!context.isGroup;
     const body = `🐞 *Bug Report / Feature Request*\n\n👤 From: @${who}\n💬 Chat: ${isGroup ? 'Group' : 'DM'}\n\n${text}`;
@@ -44,7 +44,7 @@ module.exports = {
     for (const oj of owners) {
       try { await sock.sendMessage(oj, { text: body, mentions: [sender] }); sent++; } catch (_) {}
     }
-    if (!sent) return reply('❌ Report owners tak nahi pahunch payi. Baad me try karo.');
+    if (!sent) return reply('❌ *Report could not be sent. Try again later.*');
     return reply('✅ Report bhej di gayi! Owner jald dekh lega. 🙏');
   },
 };

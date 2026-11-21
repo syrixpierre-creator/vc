@@ -24,7 +24,7 @@ module.exports = {
     const reply = (text) => sock.sendMessage(chatId, { text }, { quoted: message });
     const token = tgToken();
     if (!token) {
-      await reply('❌ *TELEGRAM_BOT_TOKEN nahi hai.*\n\n1. @BotFather se bot banao, token lo\n2. settings.js me `telegramBotToken` daalo ya .env me `TELEGRAM_BOT_TOKEN=<token>`\n\nPhir dobara try karo.');
+      await reply('❌ *TELEGRAM_BOT_TOKEN is missing.* Set it in .env.');
       return;
     }
     let pack = String((args || [])[0] || '').trim().replace(/^https?:\/\/t\.me\/addstickers\//, '').replace(/^\@/, '');
@@ -40,7 +40,7 @@ module.exports = {
       });
       const set = res.data && res.data.result;
       if (!set || !set.stickers || !set.stickers.length) {
-        await reply('❌ Pack nahi mila ya khaali hai: *' + pack + '*');
+        await reply('❌ *Pack not found or empty:* *' + pack + '*');
         return;
       }
       const pack2 = (settings && (settings.packname || settings.packName)) || 'QUEEN AKUMA';
@@ -65,7 +65,7 @@ module.exports = {
       await reply('✅ *' + sent + ' stickers* import ho gaye pack *' + pack + '* se.' + (skipped ? '\n⏭️ ' + skipped + ' skip hue (animated/video ya fail).' : ''));
     } catch (e) {
       const desc = (e.response && e.response.data && e.response.data.description) || e.message;
-      await reply('❌ Telegram pack nahi mila: ' + String(desc).slice(0, 150) + '\nPack naam check karo (t.me/addstickers/<name> wala).');
+      await reply('❌ *Telegram pack not found:* ' + String(desc).slice(0, 150) + '\nCheck the pack name (t.me/addstickers/<name>).');
     }
   }
 };

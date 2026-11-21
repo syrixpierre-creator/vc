@@ -17,10 +17,10 @@ module.exports = {
       const elite = require('../lib/eliteApi');
       const d = await elite.callRaw('ytsearch', { q });
       const vids = (d && d.results && d.results.videos) || (d && d.videos) || [];
-      if (!vids.length) return reply('❌ Kuch nahi mila. Dobara try karo.');
+      if (!vids.length) return reply('❌ *Nothing found. Try again.*');
       const top = vids.slice(0, 5);
       const lines = top.map((v, i) => `${i + 1}. *${v.title || 'Untitled'}*\n   ${v.url || ''}${v.duration ? ' • ' + v.duration : ''}`).join('\n\n');
-      return reply(`🔍 *YouTube Search:* ${q}\n\n${lines}\n\nAudio ke liye: \`.song ${q}\``);
+      return reply(`🔍 *YouTube Search:* ${q}\n\n${lines}`);
     } catch (e) {
       return reply('❌ Search failed: ' + String((e && e.message) || e).slice(0, 100));
     }

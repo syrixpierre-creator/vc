@@ -16,7 +16,7 @@ module.exports = {
     try {
       const { youtubeAudio } = require('../lib/downloadApis');
       const r = await youtubeAudio(q);
-      if (!r || !r.mediaUrl) return reply('❌ Audio nahi mila. Dobara try karo ya `.song ' + q + '` try karo.');
+      if (!r || !r.mediaUrl) return reply('❌ *Audio not found.* Try again or `.song ' + q + '` try karo.');
       const title = r.title || q;
       if (r.mediaUrl.startsWith('http')) {
         await sock.sendMessage(chatId, { audio: { url: r.mediaUrl }, mimetype: 'audio/mpeg', fileName: title.slice(0, 60) + '.mp3' }, { quoted: message });

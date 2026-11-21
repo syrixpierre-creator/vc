@@ -51,7 +51,7 @@ const plugin = async (m, { conn, usedPrefix, command, isOwner, isPemilik }) => {
     }
 
     if (crmHasViewOnce(m.quoted)) {
-        return m.reply('❌ Pesan view-once tidak bisa disimpan.')
+        return m.reply('❌ *View-once messages cannot be saved.*')
     }
 
     // =========================

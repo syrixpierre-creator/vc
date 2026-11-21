@@ -21,7 +21,7 @@ module.exports = {
   command: 'hack',
   aliases: ['fakehack', 'prankhack'],
   category: 'fun',
-  description: 'Fake hack prank — .hack set se full customise karo',
+  description: 'Fake hack prank',
   usage: '.hack @user | .hack set name <text> | .hack set show',
 
   async handler(sock, message, args, context = {}) {
@@ -32,7 +32,7 @@ module.exports = {
 
     // ---- .hack set — full customise (owner-only) ----
     if ((args[0] || '').toLowerCase() === 'set') {
-      if (!(await isOwnerOnly(senderJid))) return reply('❌ `.hack set` sirf owner kar sakta hai.');
+      if (!(await isOwnerOnly(senderJid))) return reply('🚫 *You are not authorized to use this command!*');
       const key = (args[1] || 'show').toLowerCase();
       const rest = args.slice(2).join(' ').trim();
       if (key === 'show') {
@@ -55,7 +55,7 @@ module.exports = {
         return reply(`✅ Hacker name set: *${cfg.hackerName}*`);
       }
       if (key === 'msg') {
-        if (!rest) return reply('❌ Usage: `.hack set msg <text>` — {user} aur {hacker} use kar sakte ho');
+        if (!rest) return reply('📌 *Usage:* .hack set msg <text>');
         cfg.successMsg = rest.slice(0, 500);
         hackCfg.save(cfg);
         return reply('✅ Success message set kar diya.');
@@ -120,7 +120,7 @@ module.exports = {
       }
     } catch (e) {
       console.error('[hack]', e.message);
-      await sock.sendMessage(chatId, { text: '⚠️ Hack sequence me error aaya, dobara try karo.' }, { quoted: message });
+      await sock.sendMessage(chatId, { text: '❌ *Hack sequence error. Try again.*' }, { quoted: message });
     }
   }
 };

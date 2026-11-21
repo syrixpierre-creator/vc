@@ -82,9 +82,9 @@ module.exports = {
           ['Disappearing', s.disappearing != null ? (LABELS[s.disappearing] || s.disappearing) : undefined],
         ].filter(([, v]) => v !== undefined && v !== null)
           .map(([k, v]) => `• ${k}: *${LABELS[v] || v}*`).join('\n');
-        return reply(`🔒 *Current Privacy Settings*\n\n${rows || 'Settings read nahi ho paye.'}`);
+        return reply(`🔒 *Privacy settings*\n\n${rows || 'Could not read settings.'}`);
       } catch (e) {
-        return reply('❌ Privacy settings read nahi ho paye: ' + (e.message || e));
+        return reply('❌ *Failed to read privacy settings:* ' + (e.message || e));
       }
     }
 
@@ -93,14 +93,14 @@ module.exports = {
       const v = String(args[0] || '').toLowerCase();
       const map = { everyone: 'all', all: 'all', contacts: 'contacts', except: 'contact_blacklist', nobody: 'none', none: 'none' };
       if (!map[v]) {
-        return reply('👁️ *Status Viewer*\n\nUsage: `.viewer everyone` / `.viewer contacts` / `.viewer except` / `.viewer nobody`\n\n• everyone — sab log bot ka status dekh sakte hain\n• contacts — sirf contacts\n• except — contacts except selected\n• nobody — koi nahi dekh sakta');
+        return reply('❌ *Invalid option!*\n\nAvailable options:\n- everyone\n- contacts\n- except\n- nobody');
       }
       const val = map[v];
       try {
         await sock.updateStatusPrivacy(val);
         return reply(`👁️ Status privacy set: *${v === 'all' || v === 'everyone' ? 'everyone' : v}*`);
       } catch (e) {
-        return reply('❌ Status privacy set nahi ho payi: ' + (e.message || e));
+        return reply('❌ *Failed to set status privacy:* ' + (e.message || e));
       }
     }
 
@@ -119,9 +119,9 @@ module.exports = {
       if (typeof sock[setter] !== 'function') throw new Error(`${setter} is not available on this Baileys version`);
       await sock[setter](value);
       const shown = LABELS[value] || value;
-      return reply(`✅ Privacy *${type}* set ho gaya: *${shown}*`);
+      return reply(`✅ *Privacy ${type} set to: ${shown}*`);
     } catch (e) {
-      return reply(`❌ Privacy ${type} set nahi ho payi: ${e.message || e}`);
+      return reply(`❌ *Failed to set privacy ${type}:* ${e.message || e}`);
     }
   },
 };

@@ -49,7 +49,7 @@ module.exports = { commands: [
       const word = (args[0] || '').trim();
       if (!word) return reply('❌ Usage: `.dictionary hello`');
       const data = await fetchJson('https://api.dictionaryapi.dev/api/v2/entries/en/' + encodeURIComponent(word));
-      if (!data || !data[0]) return reply(`❌ "${word}" ka meaning nahi mila. Spelling check karo.`);
+      if (!data || !data[0]) return reply(`❌ *No meaning found for "${word}".*`);
       const e = data[0];
       const meanings = (e.meanings || []).slice(0, 3).map((m) => {
         const def = m.definitions && m.definitions[0];
@@ -73,13 +73,13 @@ module.exports = { commands: [
         const id = CRYPTO[from] || CRYPTO[to];
         const vs = CRYPTO[from] ? to : from;
         const data = await fetchJson(`https://api.coingecko.com/api/v3/simple/price?ids=${id}&vs_currencies=${vs}`);
-        if (!data || !data[id] || !data[id][vs]) return reply('❌ Crypto rate nahi mila. Dobara try karo.');
+        if (!data || !data[id] || !data[id][vs]) return reply('❌ *Crypto rate not found. Try again.*');
         const rate = data[id][vs];
         const out = CRYPTO[from] ? amount * rate : amount / rate;
         return reply(`🪙 *${amount} ${from.toUpperCase()} = ${out.toLocaleString('en-IN')} ${to.toUpperCase()}*\n\nRate: 1 ${from.toUpperCase()} = ${rate.toLocaleString('en-IN')} ${to.toUpperCase()} (CoinGecko, live)`);
       }
       const data = await fetchJson(`https://api.frankfurter.app/latest?from=${from.toUpperCase()}&to=${to.toUpperCase()}&amount=${amount}`);
-      if (!data || !data.rates || !data.rates[to.toUpperCase()]) return reply('❌ Currency rate nahi mila. Code check karo (USD, INR, EUR...).');
+      if (!data || !data.rates || !data.rates[to.toUpperCase()]) return reply('❌ *Currency rate not found.* Check the code (USD, EUR...).');
       const out = data.rates[to.toUpperCase()];
       return reply(`💱 *${amount} ${from.toUpperCase()} = ${out.toLocaleString('en-IN')} ${to.toUpperCase()}*\n\nRate: 1 ${from.toUpperCase()} = ${(out / amount).toFixed(4)} ${to.toUpperCase()} (Frankfurter, live)`);
     },
@@ -95,7 +95,7 @@ module.exports = { commands: [
         fetchJson('https://api.gold-api.com/price/XAG'),
         fetchJson('https://api.frankfurter.app/latest?from=USD&to=INR&amount=1'),
       ]);
-      if (!xau || !xag) return reply('❌ Gold rate nahi mila. Dobara try karo.');
+      if (!xau || !xag) return reply('❌ *Gold rate not found. Try again.*');
       const inr = fx && fx.rates ? fx.rates.INR : 88;
       const perGram = (usdPerOz) => (usdPerOz / 31.1035 * inr);
       return reply(`🥇 *Gold / Silver Rate (Live)*\n\n*Gold (XAU):* $${xau.price.toFixed(2)}/oz\n  • 10g (24K): ₹${Math.round(perGram(xau.price) * 10).toLocaleString('en-IN')}\n  • 1g (24K): ₹${Math.round(perGram(xau.price)).toLocaleString('en-IN')}\n\n*Silver (XAG):* $${xag.price.toFixed(2)}/oz\n  • 10g: ₹${Math.round(perGram(xag.price) * 10).toLocaleString('en-IN')}\n  • 1kg: ₹${Math.round(perGram(xag.price) * 1000).toLocaleString('en-IN')}\n\n_1 USD = ₹${inr.toFixed(2)} • Source: gold-api.com_`);
@@ -109,9 +109,9 @@ module.exports = { commands: [
       const reply = (t) => sock.sendMessage(chatId, { text: t }, { quoted: message });
       const city = (args || []).join(' ').trim() || 'Delhi';
       const key = process.env.COLLECTAPI_KEY || '';
-      if (!key) return reply(`⛽ *Petrol/Diesel Price*\n\nLive price ke liye free API key chahiye:\n1. https://collectapi.com se FREE key lo\n2. \`.env\` me daalo: \`COLLECTAPI_KEY=<redacted>\n\nPhir dobara try karo: \`.petrol ${city}\``);
+      if (!key) return reply(`❌ *COLLECTAPI_KEY is missing.* Set it in .env.`);
       const data = await fetchJson(`https://api.collectapi.com/gasPrice/state?state=${encodeURIComponent(city)}`, 15000);
-      if (!data || !data.result) return reply(`❌ "${city}" ka price nahi mila. City ka naam check karo.`);
+      if (!data || !data.result) return reply(`❌ *No price found for "${city}".*`);
       const r = data.result;
       return reply(`⛽ *Fuel Price — ${r.state || city}*\n\nPetrol: ₹${r.gasoline || '—'}/L\nDiesel: ₹${r.diesel || '—'}/L`);
     },
@@ -124,7 +124,7 @@ module.exports = { commands: [
       const reply = (t) => sock.sendMessage(chatId, { text: t }, { quoted: message });
       const xml = await fetchText('https://feeds.bbci.com/news/rss.xml');
       const titles = rssTitles(xml, 8);
-      if (!titles.length) return reply('❌ News nahi mili. Dobara try karo.');
+      if (!titles.length) return reply('❌ *No news found. Try again.*');
       return reply(`📰 *Aaj ki Khabrein (BBC)*\n\n${titles.map((t, i) => `${i + 1}. ${t}`).join('\n')}`);
     },
   },
@@ -136,7 +136,7 @@ module.exports = { commands: [
       const reply = (t) => sock.sendMessage(chatId, { text: t }, { quoted: message });
       const data = await fetchJson('https://site.api.espn.com/apis/site/v2/sports/cricket/scoreboard');
       const events = (data && data.events) || [];
-      if (!events.length) return reply('🏏 Abhi koi live match nahi chal raha.');
+      if (!events.length) return reply('🏏 *No live match right now.*');
       const lines = events.slice(0, 5).map((ev) => {
         const comp = ev.competitions && ev.competitions[0];
         const teams = (comp?.competitors || []).map((c) => `${c.team?.shortDisplayName || c.team?.displayName} ${c.score || ''}`).join(' vs ');
@@ -155,9 +155,9 @@ module.exports = { commands: [
       const trainNo = (args[0] || '').trim();
       if (!trainNo) return reply('❌ Usage: `.train 12002` (train number)');
       const key = process.env.RAILWAY_API_KEY || '';
-      if (!key) return reply(`🚆 *Train Status*\n\nLive train status ke liye free API key chahiye:\n1. https://rapi.verifya2z.com se FREE key lo\n2. \`.env\` me daalo: \`RAILWAY_API_KEY=<redacted>\n\nPhir dobara try karo: \`.train ${trainNo}\``);
+      if (!key) return reply(`❌ *RAILWAY_API_KEY is missing.* Set it in .env.`);
       const data = await fetchJson(`https://rapi.verifya2z.com/api/v1/train/status?train_no=${encodeURIComponent(trainNo)}&api_key=${encodeURIComponent(key)}`);
-      if (!data) return reply('❌ Train status nahi mila. Number check karo ya dobara try karo.');
+      if (!data) return reply('❌ *Train status not found.*');
       return reply(`🚆 *Train ${trainNo}*\n\n\`\`\`\n${JSON.stringify(data, null, 2).slice(0, 1500)}\n\`\`\``);
     },
   },
@@ -169,7 +169,7 @@ module.exports = { commands: [
       const reply = (t) => sock.sendMessage(chatId, { text: t }, { quoted: message });
       const xml = await fetchText('https://www.sarkariresult.com/feed/');
       const titles = rssTitles(xml, 8);
-      if (!titles.length) return reply('❌ Jobs nahi mile. Dobara try karo.');
+      if (!titles.length) return reply('❌ *No jobs found. Try again.*');
       return reply(`💼 *Sarkari Naukri — Latest*\n\n${titles.map((t, i) => `${i + 1}. ${t}`).join('\n')}\n\n_Source: sarkariresult.com_`);
     },
   },
@@ -184,7 +184,7 @@ module.exports = { commands: [
       const book = db[chatId];
       if (!args.length) {
         const names = Object.keys(book);
-        if (!names.length) return reply('📒 *Khata Book*\n\nKoi hisaab nahi hai.\nAdd karo: `.khata Rahul +500 chai` (+ = usne liya, - = usne diya)\nClear: `.khata clear Rahul`');
+        if (!names.length) return reply('📒 *Khata Book is empty.*\n📌 *Usage:* .khata <name> +500 <note>');
         const lines = names.map((n) => {
           const total = book[n].reduce((s, e) => s + e.amount, 0);
           return `• *${n}:* ${total >= 0 ? `₹${total} lena hai` : `₹${-total} dena hai`}`;
@@ -193,7 +193,7 @@ module.exports = { commands: [
       }
       if (args[0].toLowerCase() === 'clear') {
         const name = args.slice(1).join(' ');
-        if (!book[name]) return reply('❌ Ye naam khata me nahi hai.');
+        if (!book[name]) return reply('❌ *This name is not in the khata.*');
         delete book[name];
         saveJson(dataPath('khata.json'), db);
         return reply(`✅ *${name}* ka hisaab clear kar diya.`);
@@ -226,7 +226,7 @@ module.exports = { commands: [
         const total = monthList.reduce((s, e) => s + e.amount, 0);
         const byCat = {};
         monthList.forEach((e) => { byCat[e.cat] = (byCat[e.cat] || 0) + e.amount; });
-        const catLines = Object.entries(byCat).sort((a, b) => b[1] - a[1]).map(([c, v]) => `• ${c}: ₹${v}`).join('\n') || 'Koi kharcha nahi.';
+        const catLines = Object.entries(byCat).sort((a, b) => b[1] - a[1]).map(([c, v]) => `• ${c}: ₹${v}`).join('\n') || 'No expenses.';
         return reply(`💰 *Kharcha — ${now.toLocaleString('en-IN', { month: 'long', year: 'numeric' })}*\n\nTotal: *₹${total}*\n\n${catLines}\n\nAdd karo: \`.kharcha 200 khana\``);
       }
       const amount = parseFloat(args[0]);
@@ -251,7 +251,7 @@ module.exports = { commands: [
       const notes = db.users[k];
       const sub = (args[0] || '').toLowerCase();
       if (sub === 'list') {
-        return reply(notes.length ? `📝 *Tumhare Notes (${notes.length}):*\n\n${notes.map((n, i) => `${i + 1}. ${n}`).join('\n')}` : '📝 Koi note nahi hai. `.mynote <text>` se add karo.');
+        return reply(notes.length ? `📝 *Tumhare Notes (${notes.length}):*\n\n${notes.map((n, i) => `${i + 1}. ${n}`).join('\n')}` : '📝 *No notes.*\n📌 *Usage:* .mynote <text>');
       }
       if (sub === 'del') {
         const n = parseInt(args[1], 10);
@@ -264,7 +264,7 @@ module.exports = { commands: [
       if (!text) return reply('❌ Usage: `.mynote doodh lena hai`');
       notes.push(text.slice(0, 500));
       saveJson(dataPath('notes.json'), db);
-      return reply(`✅ Note #${notes.length} save ho gaya.`);
+      return reply(`✅ *Note #${notes.length} saved.*`);
     },
   },
   {
@@ -280,7 +280,7 @@ module.exports = { commands: [
       const todos = db.users[k];
       const sub = (args[0] || '').toLowerCase();
       if (sub === 'list' || !args.length) {
-        if (!todos.length) return reply('✅ Koi todo nahi hai. `.todo <kaam>` se add karo.');
+        if (!todos.length) return reply('✅ *No todos.*\n📌 *Usage:* .todo <task>');
         return reply(`📋 *Tumhare Todos:*\n\n${todos.map((t, i) => `${t.done ? '✅' : '⬜'} ${i + 1}. ${t.text}`).join('\n')}\n\nDone karo: \`.todo done <n>\``);
       }
       if (sub === 'done') {
@@ -300,7 +300,7 @@ module.exports = { commands: [
       const text = (args || []).join(' ').trim();
       todos.push({ text: text.slice(0, 300), done: false });
       saveJson(dataPath('todos.json'), db);
-      return reply(`✅ Todo #${todos.length} add ho gaya: "${text.slice(0, 80)}"`);
+      return reply(`✅ *Todo #${todos.length} added:* "${text.slice(0, 80)}"`);
     },
   },
   {
@@ -317,14 +317,14 @@ module.exports = { commands: [
       const sub = (args[0] || '').toLowerCase();
       if (sub === 'list') {
         const names = Object.keys(idx);
-        return reply(names.length ? `🗄️ *Tumhara File Vault (${names.length}):*\n\n${names.map((n, i) => `${i + 1}. ${n} (${idx[n].type}, ${Math.round(idx[n].size / 1024)}KB)`).join('\n')}\n\nWapas lo: \`.filevault get <name>\`` : '🗄️ Vault khaali hai. Kisi file par reply karke `.filevault <name>` likho.');
+        return reply(names.length ? `🗄️ *Tumhara File Vault (${names.length}):*\n\n${names.map((n, i) => `${i + 1}. ${n} (${idx[n].type}, ${Math.round(idx[n].size / 1024)}KB)`).join('\n')}\n\nWapas lo: \`.filevault get <name>\`` : '🗄️ *Vault is empty.*\n📌 *Usage:* reply to a file with .filevault <name>');
       }
       if (sub === 'get') {
         const name = args.slice(1).join(' ');
         const rec = idx[name];
-        if (!rec) return reply('❌ Ye file vault me nahi hai.');
+        if (!rec) return reply('❌ *This file is not in the vault.*');
         const filePath = path.join(dir, rec.file);
-        if (!fs.existsSync(filePath)) return reply('❌ File disk par nahi mili.');
+        if (!fs.existsSync(filePath)) return reply('❌ *File not found on disk.*');
         const buf = fs.readFileSync(filePath);
         if (rec.type === 'image') return sock.sendMessage(chatId, { image: buf, caption: `🗄️ ${name}` }, { quoted: message });
         if (rec.type === 'video') return sock.sendMessage(chatId, { video: buf, caption: `🗄️ ${name}` }, { quoted: message });
@@ -347,7 +347,7 @@ module.exports = { commands: [
         saveJson(idxPath, idx);
         return reply(`✅ File save ho gayi: *${name}* (${Math.round(buf.length / 1024)}KB)\nWapas lo: \`.filevault get ${name}\``);
       } catch (e) {
-        return reply('❌ File save nahi hui: ' + String(e.message || e).slice(0, 120));
+        return reply('❌ *File not saved:* ' + String(e.message || e).slice(0, 120));
       }
     },
   },
@@ -361,11 +361,11 @@ module.exports = { commands: [
       const sub = (args[0] || '').toLowerCase();
       if (sub === 'list') {
         const list = birthday.list(chatId);
-        return reply(list.length ? `🎂 *Birthdays:*\n\n${list.map((b) => `• ${b.name} — ${String(b.day).padStart(2, '0')}-${String(b.month).padStart(2, '0')}`).join('\n')}` : '🎂 Koi birthday save nahi hai. `.bday set 15-08 Inconnu` se add karo.');
+        return reply(list.length ? `🎂 *Birthdays:*\n\n${list.map((b) => `• ${b.name} — ${String(b.day).padStart(2, '0')}-${String(b.month).padStart(2, '0')}`).join('\n')}` : '🎂 *No birthdays saved.*\n📌 *Usage:* .bday set 15-08 <name>');
       }
       if (sub === 'del') {
         const name = args.slice(1).join(' ');
-        return reply(birthday.del(chatId, name) ? `✅ *${name}* ka birthday hata diya.` : '❌ Ye naam nahi mila.');
+        return reply(birthday.del(chatId, name) ? `✅ *${name}* ka birthday hata diya.` : '❌ *Name not found.*');
       }
       if (sub === 'set') {
         const m = (args[1] || '').match(/^(\d{1,2})-(\d{1,2})$/);
@@ -375,9 +375,9 @@ module.exports = { commands: [
         if (day < 1 || day > 31 || month < 1 || month > 12) return reply('❌ Galat date. Format: DD-MM (15-08)');
         const mentioned = message.message?.extendedTextMessage?.contextInfo?.mentionedJid?.[0];
         birthday.add(chatId, name, day, month, mentioned || senderJid);
-        return reply(`🎂 *${name}* ka birthday save ho gaya: ${String(day).padStart(2, '0')}-${String(month).padStart(2, '0')}\n\nUs din subah 8 baje bot yahin wish karega! 🎉`);
+        return reply(`✅ *Birthday saved for ${name}:* ${String(day).padStart(2, '0')}-${String(month).padStart(2, '0')}`);
       }
-      return reply('🎂 *Birthday Wisher*\n\n`.bday set 15-08 Inconnu` — add karo\n`.bday list` — dekho\n`.bday del Inconnu` — hatao');
+      return reply('❌ *Invalid option!*\n\nAvailable options:\n- set <dd-mm> <name>\n- list\n- del <name>');
     },
   },
 ] };

@@ -38,7 +38,7 @@ module.exports = {
         const q = quotedMsg(message);
         const qText = q ? (q.conversation || (q.extendedTextMessage && q.extendedTextMessage.text) || (q.imageMessage && q.imageMessage.caption) || (q.videoMessage && q.videoMessage.caption) || '') : '';
         if (!media && !qText) {
-          await reply('❌ Pehle kisi message pe reply karo, phir *.bookmark* chalao.');
+          await reply('📌 *Usage:* reply to a message with .bookmark');
           return;
         }
         const store = load();
@@ -59,7 +59,7 @@ module.exports = {
         }
         store[k].push(item);
         save(store);
-        await reply('🔖 Bookmark save ho gaya! ID: *' + id + '*\nDekhne ke liye: *.saved* ya *.getbookmark ' + id + '*');
+        await reply('✅ *Bookmark saved!* ID: *' + id + '*\nView: .saved or .getbookmark ' + id + '*');
       }
     },
     {
@@ -73,7 +73,7 @@ module.exports = {
         const sender = message.key.participant || context.senderId;
         const items = (load()[key(sender)] || []);
         if (!items.length) {
-          await reply('ℹ️ Tumhare koi bookmarks nahi hain. Kisi message pe reply karke *.bookmark* chalao.');
+          await reply('❌ *You have no bookmarks.*');
           return;
         }
         const lines = items.slice(-20).map((it, i) =>
@@ -93,7 +93,7 @@ module.exports = {
         const sender = message.key.participant || context.senderId;
         const items = (load()[key(sender)] || []);
         const item = items.find((it) => it.id === id);
-        if (!item) { await reply('❌ Bookmark nahi mila: *' + (id || '') + '*'); return; }
+        if (!item) { await reply('❌ *Bookmark not found:* *' + (id || '') + '*'); return; }
         try {
           if (item.type === 'text') { await reply('🔖 *' + item.id + '*\n\n' + item.text); return; }
           const buf = fs.readFileSync(item.file);
@@ -102,7 +102,7 @@ module.exports = {
           else if (item.type === 'audio') await sock.sendMessage(chatId, { audio: buf, mimetype: item.mimetype || 'audio/mpeg' }, { quoted: message });
           else if (item.type === 'sticker') await sock.sendMessage(chatId, { sticker: buf }, { quoted: message });
         } catch (e) {
-          await reply('❌ Bookmark file nahi mili (delete ho gayi ho sakti hai).');
+          await reply('❌ *Bookmark file not found.*');
         }
       }
     },
@@ -120,11 +120,11 @@ module.exports = {
         const store = load();
         const items = store[k] || [];
         const idx = items.findIndex((it) => it.id === id);
-        if (idx === -1) { await reply('❌ Bookmark nahi mila: *' + (id || '') + '*'); return; }
+        if (idx === -1) { await reply('❌ *Bookmark not found:* *' + (id || '') + '*'); return; }
         const [gone] = items.splice(idx, 1);
         try { if (gone.file && fs.existsSync(gone.file)) fs.unlinkSync(gone.file); } catch (e) {}
         save(store);
-        await reply('✅ Bookmark delete ho gaya: *' + id + '*');
+        await reply('✅ *Bookmark deleted:* *' + id + '*');
       }
     }
   ]

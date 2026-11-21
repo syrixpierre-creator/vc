@@ -30,7 +30,7 @@ module.exports = {
           if (names.length) found.push({ file: f, names });
         }
         if (!found.length) {
-          await reply('❌ Koi sticker command nahi mili.');
+          await reply('❌ *No sticker command found.*');
           return;
         }
         const lines = ['🎨 *Sticker Commands* (' + found.reduce((n, g) => n + g.names.length, 0) + ')\n'];

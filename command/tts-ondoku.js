@@ -25,8 +25,7 @@ let handler = async (m, { conn, args, command, usedPrefix, text }) => {
   }
 
   // Perintah utama `.ondoku`
-  if (!text) throw `Contoh:\n${usedPrefix + command} id-ID-ArdiNeural|halo semua\nAtau:\n${usedPrefix + command} halo semua
-  list tts lainya ketik .voiceonduku`
+  if (!text) throw `📌 *Usage:* ${usedPrefix + command} <text>`
 
   let [voiceRaw, ...txt] = text.split('|')
   let voice = 'id-ID-ArdiNeural'

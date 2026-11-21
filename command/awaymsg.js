@@ -54,7 +54,7 @@ module.exports = {
         const start = parseHM(m[1]), end = parseHM(m[2]);
         if (start == null || end == null) { await reply('❌ Time galat hai. Format: HH:MM-HH:MM (24h).'); return; }
         save({ enabled: true, start, end, startStr: m[1], endStr: m[2], message: msg });
-        await reply('✅ *Away auto-reply ON*\n\n⏰ Window: ' + m[1] + ' – ' + m[2] + ' (IST)\n💬 Message: ' + msg + '\n\nIs time me DM aane par bot khud ye reply bhej dega. Band karne ke liye: *.awayoff*');
+        await reply('✅ *Away auto-reply ON*\n\n⏰ Window: ' + m[1] + ' – ' + m[2] + ' (IST)\n💬 Message: ' + msg + '\n\nDisable: .awayoff');
       }
     },
     {
@@ -70,7 +70,7 @@ module.exports = {
         const st = load();
         st.enabled = false;
         save(st);
-        await reply('✅ Away auto-reply OFF ho gaya.');
+        await reply('✅ *Away reply DISABLED*');
       }
     },
     {
@@ -83,7 +83,7 @@ module.exports = {
         const reply = (text) => sock.sendMessage(chatId, { text }, { quoted: message });
         const st = load();
         if (!st.enabled) {
-          await reply('ℹ️ Away auto-reply OFF hai.\nSet karne ke liye: *.setaway 22:00-08:00 <message>*');
+          await reply('✅ *Away reply: OFF*\n📌 *Usage:* .setaway 22:00-08:00 <message>');
           return;
         }
         await reply('🌙 *Away Auto-Reply ON*\n\n⏰ Window: ' + st.startStr + ' – ' + st.endStr + ' (IST)\n💬 Message: ' + st.message);

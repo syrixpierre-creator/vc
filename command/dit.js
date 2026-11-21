@@ -30,7 +30,7 @@ async function handle(sock, message, args, lang, label) {
     return;
   }
   if (text.length > 200) {
-    await reply('❌ Text 200 characters se zyada lamba hai. Chhota text do.');
+    await reply('❌ *Text is longer than 200 characters.*');
     return;
   }
   let out = null;

@@ -28,10 +28,10 @@ module.exports = {
 
     const gh = require('../lib/githubSession');
     if (!gh.isConfigured()) {
-      return reply('❌ GitHub session set nahi hai.\n\nSet karo:\n`GITHUB_TOKEN=<token>`\n`GITHUB_REPO=owner/repo` (PRIVATE repo!)\n\nGuide: GITHUB_SESSION.md');
+      return reply('❌ *GitHub session is not set.* Set GITHUB_TOKEN and GITHUB_REPO in .env.');
     }
     const r = await gh.saveCurrentSession();
-    if (!r.ok) return reply('❌ Save nahi hua: ' + r.error);
-    return reply(`✅ *Session GitHub par save ho gayi!*\n\n📁 Repo: \`${r.repo}\`\n📄 File: \`${r.path}\`\n\nAb restart par bot khud wapas la lega — dobara pair nahi karna padega.`);
+    if (!r.ok) return reply('❌ *Save failed:* ' + r.error);
+    return reply(`✅ *Session saved to GitHub!*`);
   }
 };

@@ -16,7 +16,7 @@ const handler = async (m, { conn, text, args, participants }) => {
     if (!text) return m.reply('❌ Tag orangnya first bang, example: .spamtag @user')
 
     const mention = m.mentionedJid && m.mentionedJid.length > 0 ? m.mentionedJid[0] : ''
-    if (!mention) return m.reply('❌ Tag that bener bang, harus pakai @user')
+    if (!mention) return m.reply('📌 *Usage:* .spamtag @user')
 
     const ownerNumber = '6287823745178'
     const user = db.data.users[m.sender]

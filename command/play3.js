@@ -24,7 +24,7 @@ module.exports = {
         if (!result && typeof downloadApis.youtubeAudio === 'function') result = await downloadApis.youtubeAudio(query);
       }
       if (!result) {
-        return reply(`❌ Result nahi mila.\nTry: \`.play ${query}\` ya \`.song ${query}\``);
+        return reply(`❌ *No result found.*`);
       }
       const title = result.title || result.name || query;
       const url = result.url || result.download || result.link || result.audio || result.mp3;
@@ -36,7 +36,7 @@ module.exports = {
         }, { quoted: message });
         return;
       }
-      return reply(`🎵 *${title}*\n` + (url ? `Link: ${url}` : 'Link nahi mila — `.play` try karo.'));
+      return reply(`🎵 *${title}*\n` + (url ? `Link: ${url}` : 'No link found, try .play'));
     } catch (e) {
       return reply(`❌ Error: ${e.message || e}\nTry \`.play ${query}\``);
     }

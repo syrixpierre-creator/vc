@@ -38,7 +38,7 @@ module.exports = {
     if (!isOwner) { await reply('🚫 *You are not authorized to use this command!*'); return; }
     const list = load().filter((e) => jidOf(e));
     if (!list.length) {
-      await reply('👑 *Premium Users (0)*\n\nKoi premium user nahi hai.\nAdd karne ke liye: `.addprem <number>`');
+      await reply('❌ *No premium users.*');
       return;
     }
     const mentions = [];

@@ -63,7 +63,7 @@ module.exports = {
 
         if (!args[0]) {
             return await sock.sendMessage(chatId, {
-                text: `❌ Kisko stop karna hai? Number ya list index do.\nExample: \`.stoprent 919876543210\` ya \`.stoprent 1\` ya \`.stoprent all\`\n\nPehle \`.listrent\` se list dekho.`
+                text: `📌 *Usage:* .stoprent <number | index | all>`
             }, { quoted: message });
         }
 
@@ -75,7 +75,7 @@ module.exports = {
                 } catch (e) {}
             }
             return await sock.sendMessage(chatId, {
-                text: `✅ All sub-bots have been stopped and removed.\n\nStopped (online): ${stoppedCount} / ${list.length}\nRent records history me save hain — .rentexpired se dekho.`
+                text: `✅ *All sub-bots stopped.* (${stoppedCount}/${list.length})`
             }, { quoted: message });
         }
 
@@ -91,7 +91,7 @@ module.exports = {
         await sock.sendMessage(chatId, {
             text: `✅ Stopped and removed sub-bot: @${target.number}${target.name ? ' (' + target.name + ')' : ''}\n\n` +
                   `Pehle status: ${wasOnline ? 'Online' : 'Offline'}\n` +
-                  `Rent record history me save hai — .rentexpired se dekho.`,
+                  ``,
             mentions: [target.number + '@s.whatsapp.net']
         }, { quoted: message });
     }

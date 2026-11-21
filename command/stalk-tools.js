@@ -19,13 +19,13 @@ module.exports = {
     if (!num && ctxInfo.mentionedJid && ctxInfo.mentionedJid[0]) num = digits(ctxInfo.mentionedJid[0]);
     if (!num && ctxInfo.participant) num = digits(ctxInfo.participant);
     if (!num || num.length < 10) {
-      await reply('🔍 *WaStalk*\n\nUsage: `.wastalk 919876543210`\nNumber ke saath bhejo.');
+      await reply('📌 *Usage:* .wastalk <number>');
       return;
     }
     const jid = num + '@s.whatsapp.net';
     let exists = null;
     try {
-      if (typeof sock.onWhatsApp !== 'function') { await reply('❌ Ye feature is connection par available nahi hai.'); return; }
+      if (typeof sock.onWhatsApp !== 'function') { await reply('❌ *This feature is not available on this connection.*'); return; }
       const res = await sock.onWhatsApp(jid);
       const row = Array.isArray(res) ? res[0] : res;
       exists = !!(row && row.exists);

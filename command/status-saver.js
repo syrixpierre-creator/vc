@@ -12,7 +12,7 @@ module.exports = {
   command: 'save',
   aliases: [],
   category: 'tools',
-  description: 'Quoted status/media ko save karke wapas bhejo.',
+  description: 'Save a quoted status/media and send it back.',
   usage: '.save (kisi photo/video/status pe reply karke)',
   async handler(sock, message, args, context = {}) {
     const chatId = context.chatId || message.key.remoteJid;
@@ -28,7 +28,7 @@ module.exports = {
         else await sock.sendMessage(chatId, { document: media.buffer, mimetype: 'application/octet-stream', fileName: 'saved-file' }, { quoted: message });
         return;
       } catch (e) {
-        await reply('❌ Save nahi ho paya: ' + String(e.message || e).slice(0, 120));
+        await reply('❌ *Save failed:* ' + String(e.message || e).slice(0, 120));
         return;
       }
     }

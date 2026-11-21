@@ -65,7 +65,7 @@ cmd({
 
     } catch (e) {
         console.log(e);
-        reply("⚠ Error: Video fetch nahi hua!");
+        reply("❌ *Failed to fetch video!*");
     }
 });
 
@@ -101,7 +101,7 @@ cmd({
 
     } catch (err) {
         console.log(err);
-        reply("⚠ Error: Asupan video fetch nahi hua!");
+        reply("❌ *Failed to fetch video!*");
     }
 });
 
@@ -140,7 +140,7 @@ cmd({
 
     } catch (err) {
         console.log(err);
-        reply("⚠ Error: Joker image fetch nahi hua!");
+        reply("❌ *Failed to fetch image!*");
     }
 });
 
@@ -175,7 +175,7 @@ cmd({
 
     } catch (err) {
         console.error(err);
-        reply("⚠ Error: Loli image fetch nahi hua!");
+        reply("❌ *Failed to fetch image!*");
     }
 });
 
@@ -211,7 +211,7 @@ cmd({
 
     } catch (err) {
         console.error(err);
-        reply("⚠ Error: Naruto video fetch nahi hua!");
+        reply("❌ *Failed to fetch video!*");
     }
 });
 
@@ -247,7 +247,7 @@ cmd({
 
     } catch (err) {
         console.error(err);
-        reply("⚠ Error: STS video fetch nahi ho saka!");
+        reply("❌ *Failed to fetch video!*");
     }
 });
 
@@ -283,7 +283,7 @@ cmd({
 
     } catch (err) {
         console.error(err);
-        reply("⚠ Error: Demon Slayer video fetch nahi hua!");
+        reply("❌ *Failed to fetch video!*");
     }
 });
 
@@ -319,7 +319,7 @@ cmd({
 
     } catch (err) {
         console.error(err);
-        reply("⚠ Error: One Piece video fetch nahi hua!");
+        reply("❌ *Failed to fetch video!*");
     }
 });
 
@@ -371,7 +371,7 @@ cmd({
         });
     } catch (err) {
         console.error(err);
-        reply("⚠ Error: Pakistani video fetch nahi hua!");
+        reply("❌ *Failed to fetch video!*");
     }
 });
 
@@ -424,7 +424,7 @@ cmd({
         });
     } catch (err) {
         console.error(err);
-        reply("⚠ Error: Sad shayari fetch nahi hui!");
+        reply("❌ *Failed to fetch shayari!*");
     }
 });
 
@@ -477,7 +477,7 @@ cmd({
         });
     } catch (err) {
         console.error(err);
-        reply("⚠ Error: Happy shayari fetch nahi hui!");
+        reply("❌ *Failed to fetch shayari!*");
     }
 });
 
@@ -529,7 +529,7 @@ cmd({
         });
     } catch (err) {
         console.error(err);
-        reply("⚠ Error: Love video fetch nahi hua!");
+        reply("❌ *Failed to fetch video!*");
     }
 });
 
@@ -582,7 +582,7 @@ cmd({
         });
     } catch (err) {
         console.error(err);
-        reply("⚠ Error: Romantic video fetch nahi hua!");
+        reply("❌ *Failed to fetch video!*");
     }
 });
 
@@ -630,7 +630,7 @@ cmd({
         });
     } catch (err) {
         console.error(err);
-        reply("⚠ Error: Zareem poetry fetch nahi hui!");
+        reply("❌ *Failed to fetch poetry!*");
     }
 });
 
@@ -678,7 +678,7 @@ cmd({
         });
     } catch (err) {
         console.error(err);
-        reply("⚠ Error: Hafi poetry fetch nahi hui!");
+        reply("❌ *Failed to fetch poetry!*");
     }
 });
 
@@ -726,7 +726,7 @@ cmd({
         });
     } catch (err) {
         console.error(err);
-        reply("⚠ Error: Jaun Elia fetch nahi hua!");
+        reply("❌ *Failed to fetch poetry!*");
     }
 });
 
@@ -774,7 +774,7 @@ cmd({
         });
     } catch (err) {
         console.error(err);
-        reply("⚠ Error: Faraz poetry fetch nahi hui!");
+        reply("❌ *Failed to fetch poetry!*");
     }
 });
 
@@ -822,7 +822,7 @@ cmd({
         });
     } catch (err) {
         console.error(err);
-        reply("⚠ Error: Faiz poetry fetch nahi hui!");
+        reply("❌ *Failed to fetch poetry!*");
     }
 });
 
@@ -869,7 +869,7 @@ cmd({
         });
     } catch (err) {
         console.error(err);
-        reply("⚠ Error: Wasif poetry fetch nahi hui!");
+        reply("❌ *Failed to fetch poetry!*");
     }
 });
 
@@ -916,7 +916,7 @@ cmd({
         });
     } catch (err) {
         console.error(err);
-        reply("⚠ Error: Iqbal poetry fetch nahi hui!");
+        reply("❌ *Failed to fetch poetry!*");
     }
 });
 
@@ -963,7 +963,7 @@ cmd({
         });
     } catch (err) {
         console.error(err);
-        reply("⚠ Error: Parveen Shakir fetch nahi hui!");
+        reply("❌ *Failed to fetch poetry!*");
     }
 });
 
@@ -1010,7 +1010,7 @@ cmd({
         });
     } catch (err) {
         console.error(err);
-        reply("⚠ Error: Mohsin Naqvi fetch nahi hua!");
+        reply("❌ *Failed to fetch poetry!*");
     }
 });
 
@@ -1057,7 +1057,7 @@ cmd({
         });
     } catch (err) {
         console.error(err);
-        reply("⚠ Error: Amjad poetry fetch nahi hui!");
+        reply("❌ *Failed to fetch poetry!*");
     }
 });
 
@@ -1104,7 +1104,7 @@ cmd({
         });
     } catch (err) {
         console.error(err);
-        reply("⚠ Error: Qateel poetry fetch nahi hui!");
+        reply("❌ *Failed to fetch poetry!*");
     }
 });
 
@@ -1151,7 +1151,7 @@ cmd({
         });
     } catch (err) {
         console.error(err);
-        reply("⚠ Error: Javed Akhtar fetch nahi hua!");
+        reply("❌ *Failed to fetch poetry!*");
     }
 });
 
@@ -1254,7 +1254,7 @@ cmd({
     }
   } catch (error) {
     console.error(error);
-    await conn.sendMessage(from, { text: "❌ Error: Cat image load nahi hui. Dobara koshish karen." }, { quoted: mek });
+    await conn.sendMessage(from, { text: "❌ *Failed to load image. Try again.*" }, { quoted: mek });
   }
 });
 
@@ -1326,7 +1326,7 @@ cmd({
     }
   } catch (error) {
     console.error(error);
-    await conn.sendMessage(from, { text: "❌ Error: Vietnam girl image load nahi hui. Dobara try karein." }, { quoted: mek });
+    await conn.sendMessage(from, { text: "❌ *Failed to load image. Try again.*" }, { quoted: mek });
   }
 });
 
@@ -1375,7 +1375,7 @@ cmd({
     }
   } catch (error) {
     console.error(error);
-    await conn.sendMessage(from, { text: "❌ Error: Korea girl image load nahi hui. Dobara try karein." }, { quoted: mek });
+    await conn.sendMessage(from, { text: "❌ *Failed to load image. Try again.*" }, { quoted: mek });
   }
 });
 
@@ -1424,7 +1424,7 @@ cmd({
     }
   } catch (error) {
     console.error(error);
-    await conn.sendMessage(from, { text: "❌ Error: Japan girl image load nahi hui. Dobara koshish karein." }, { quoted: mek });
+    await conn.sendMessage(from, { text: "❌ *Failed to load image. Try again.*" }, { quoted: mek });
   }
 });
 
@@ -1473,7 +1473,7 @@ cmd({
     }
   } catch (error) {
     console.error(error);
-    await conn.sendMessage(from, { text: "❌ Error: Image load nahi hui. Dobara koshish karen." }, { quoted: mek });
+    await conn.sendMessage(from, { text: "❌ *Failed to load image. Try again.*" }, { quoted: mek });
   }
 });
 
@@ -1522,7 +1522,7 @@ cmd({
     }
   } catch (error) {
     console.error(error);
-    await conn.sendMessage(from, { text: "❌ Error: Image fetch nahi hui. Dobara try karein." }, { quoted: mek });
+    await conn.sendMessage(from, { text: "❌ *Failed to fetch image. Try again.*" }, { quoted: mek });
   }
 });
 
@@ -1571,7 +1571,7 @@ cmd({
     }
   } catch (error) {
     console.error(error);
-    await conn.sendMessage(from, { text: "❌ Error: Thailand girl image load nahi hui. Dobara try karein." }, { quoted: mek });
+    await conn.sendMessage(from, { text: "❌ *Failed to load image. Try again.*" }, { quoted: mek });
   }
 });
 
@@ -1581,7 +1581,7 @@ const SERP_API_KEY = "a0595eaca61ed48798648f2a5a4bfa83a776b4cda61c6a4229f0c788ec
 cmd({
     pattern: "image2",
     alias: ["img2", "images2"],
-    desc: "Google search se 5 images download karke bhejo",
+    desc: "Download 5 images from Google search",
     category: "random",
     react: "🖼️",
     filename: __filename
@@ -1589,7 +1589,7 @@ cmd({
 async (conn, mek, m, { args, reply }) => {
     try {
         if (!args.length) {
-            return reply("❌ Image ka naam likho\n\nExample:\n.image cat");
+            return reply("📌 *Usage:* .image <name>");
         }
 
         const query = args.join(" ");
@@ -1598,7 +1598,7 @@ async (conn, mek, m, { args, reply }) => {
         const { data } = await axios.get(apiUrl);
 
         if (!data.images_results || data.images_results.length === 0) {
-            return reply("❌ Koi image nahi mili");
+            return reply("❌ *No image found.*");
         }
 
         reply(`🔎 *SEARCHING* ${query}\n📤 *SENDING 5 IMAGES...*`);
@@ -1685,7 +1685,7 @@ async (conn, mek, m, { args, reply }) => {
 
         let results = await duckDuckGoImages(query);
         if (!results.length) {
-            return reply("❌ Koi image nahi mili");
+            return reply("❌ *No image found.*");
         }
 
         results = shuffleArray(results);
@@ -1714,7 +1714,7 @@ async (conn, mek, m, { args, reply }) => {
         }
 
         if (sent === 0) {
-            reply("❌ Images mili lekin send nahi ho saki");
+            reply("❌ *Images found but could not be sent.*");
         }
 
     } catch (err) {
@@ -1731,10 +1731,10 @@ const bdayMessages = [
   "🎂 *HAPPY BIRTHDAY!* 🎀 Aapka har sapna poora ho, har arman nikal aaye! 🌸",
   "🎉 *HAPPY BIRTHDAY!* 🌹 Khuda aapko sehat, khushi aur kamiyabi de! 🤲",
   "🎈 *HAPPY BIRTHDAY!* 💝 Aapki zindagi khushboo ki tarah mehke aur chamakti rahe! 🌺",
-  "🥳 *HAPPY BIRTHDAY!* 🎁 Aapke liye dua hai ke aage bhi aap hamesha khush rahe! 🙏",
+  "🥳 *HAPPY BIRTHDAY!* 🎁 May you always stay happy! 🙏",
   "🎂 *HAPPY BIRTHDAY!* ✨ Aapka din mithai se bhi zyada meetha ho! 🍰",
   "🎉 *HAPPY BIRTHTHDAY!* 🌟 Aapki muskurahat hamesha aisi hi chamakti rahe! 😊",
-  "🎈 *HAPPY BIRTHDAY!* 💫 Aapke janmdin par aasman bhi aapke liye taare barsaye! 🌠"
+  "🎈 *HAPPY BIRTHDAY!* 💫 May the sky rain stars for you today! 🌠"
 ];
 
 cmd({
@@ -1755,10 +1755,10 @@ const frameBdayMessages = [
   "\n  🎂 HAPPY BIRTHDAY 🎂\n\n*🎉 Aapka Janmdin Khushiyon Aur Muskurahaton Se Bhara Ho  😊*",
   "\n  🎂 HAPPY BIRTHDAY 🎂\n\n*❤️ Aapki Zindagi Mein Har Din Itni Khushiyan Aayein Ke Aap Gin Na Saken  🌈*",
   "\n  🎂 HAPPY BIRTHDAY 🎂\n\n*👑 Aapki Muskurahat Hamesha Aisi Hi Chamakti Rahe  💎*",
-  "\n  🎂 HAPPY BIRTHDAY 🎂\n\n*🕊️ Aapke Liye Dua Hai Ke Aage Bhi Aap Hamesha Khush Rahe  🙏*",
+  "🎂 *HAPPY BIRTHDAY* 🎂\n\n🕊️ May you always stay happy 🙏",
   "\n  🎂 HAPPY BIRTHDAY 🎂\n\n*🎯 Aapke Raste Hamesha Khushiyon Se Bhare Rahe  🛣️*",
   "\n  🎂 HAPPY BIRTHDAY 🎂\n\n*🌺 Aapki Zindagi Khushboo Ki Tarah Mehke Aur Chamakti Rahe  🌸*",
-  "\n  🎂 HAPPY BIRTHDAY 🎂\n\n*💝 Aapke Janmdin Par Aasman Bhi Aapke Liye Taare Barsaye  🌠*"
+  "🎂 *HAPPY BIRTHDAY* 🎂\n\n💝 May the sky rain stars for you today 🌠"
 ];
 
 cmd({
@@ -1776,13 +1776,13 @@ const gmMessages = [
   "🌞 *GOOD MORNING!* 🌅 Subah ki roshni aapke din ko khushiyon se bhar de ✨",
   "☀️ *GOOD MORNING!* 🌄 Nayi subah, nayi umeed, nayi shuruaat 🍃",
   "🌤️ *GOOD MORNING!* 🌺 Khuda aapke din ko barkat se bhar de 🤲",
-  "🌅 *GOOD MORNING!* 🌼 Suraj ki pehli kirne aapke liye khushkhabri le kar aaye 🌞",
-  "🌞 *GOOD MORNING!* 🌸 Aaj ka din aapke liye khas hai, har pal khoobsurat ho 💫",
-  "☀️ *GOOD MORNING!* 🌹 Nind se utho aur duniya ko apni muskurahat se roshan karo 😊",
-  "🌤️ *GOOD MORNING!* 🌿 Aaj woh din hai jo kal ka intezar kar raha tha 🌟",
+  "🌅 *GOOD MORNING!* 🌼 May the first rays of the sun bring you good news 🌞",
+  "🌞 *GOOD MORNING!* 🌸 Today is a special day for you, may every moment be beautiful 💫",
+  "☀️ *GOOD MORNING!* 🌹 Wake up and light up the world with your smile 😊",
+  "🌤️ *GOOD MORNING!* 🌿 Today is the day yesterday was waiting for 🌟",
   "🌅 *GOOD MORNING!* 🌺 Subah ki hawa aapki thakan door kare 🕊️",
   "🌞 *GOOD MORNING!* 🌼 Aapka din shanti, khushi aur safalta se bhara ho 🙏",
-  "☀️ *GOOD MORNING!* 💖 Har nayi subah ek naya mauka hai apne sapno ko poora karne ka ✨"
+  "☀️ *GOOD MORNING!* 💖 Every new morning is a new chance to make your dreams come true ✨"
 ];
 
 cmd({
@@ -1800,11 +1800,11 @@ const gnMessages = [
   "🌙 *GOOD NIGHT!* 🌌 May your dreams be sweet & peaceful ✨",
   "🌃 *GOOD NIGHT!* 🌠 Chandni raat apke sapno ko roshan kare 🌙",
   "😴 *GOOD NIGHT!* 🌸 Relax, recharge, and wake up refreshed 🌞",
-  "🌌 *GOOD NIGHT!* 🌺 Aankhein band karo aur sukoon bhari neend mein kho jao 💫",
+  "🌌 *GOOD NIGHT!* 🌺 Close your eyes and drift into a peaceful sleep 💫",
   "🌙 *GOOD NIGHT!* 🌼 Raat ki khamoshi apke dil ko sukoon de 🍃",
   "🌠 *GOOD NIGHT!* 🌹 Sweet dreams, peaceful sleep, khush raho 💖",
   "🌃 *GOOD NIGHT!* 🌸 Stars apke sapnon ko chamka dein ✨",
-  "🌙 *GOOD NIGHT!* 🌿 Sleep well, kal ka din aur behtareen hoga 🌞",
+  "🌙 *GOOD NIGHT!* 🌿 Sleep well, tomorrow will be even better 🌞",
   "🌌 *GOOD NIGHT!* 🌺 Subhanallah ki khubsurat raat ka maza lo 🌠",
   "🌙 *GOOD NIGHT!* 🌼 Khuda apke sapnon ko barkat se bharde 🙏"
 ];

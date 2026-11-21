@@ -34,7 +34,7 @@ module.exports = {
     let items = await search(q, '3840x2160');
     if (!items.length) items = await search(q, null);
     if (!items.length) {
-      await reply('❌ "' + q + '" ke liye koi 4K wallpaper nahi mila.');
+      await reply('❌ "' + q + 'No 4K wallpaper found for this search.');
       return;
     }
     const it = items[Math.floor(Math.random() * items.length)];

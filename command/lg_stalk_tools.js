@@ -51,7 +51,7 @@ module.exports = {
     }
 
     if (['ytstalk', 'youtubestalk'].includes(invoked)) {
-      await reply('❌ *YouTube stalk* ke liye YouTube Data API key chahiye — free no-key API nahi hai.\nAPI key ho to `.env` me YOUTUBE_API_KEY daalo aur dobara bolo.');
+      await reply('❌ *YOUTUBE_API_KEY is missing.* Set it in .env.');
       return;
     }
 
@@ -65,7 +65,7 @@ module.exports = {
       const d = await fetchJson('https://api.fxtwitter.com/' + encodeURIComponent(user), 12000);
       const u = d && d.user;
       if (!u) {
-        await reply('❌ Twitter user `@' + user + '` nahi mila ya API down hai.');
+        await reply('❌ Twitter user `@' + user + '` not found or API is down.');
         return;
       }
       const lines = [
@@ -84,7 +84,7 @@ module.exports = {
     if (['githubstalk', 'gstalk', 'gitstalk', 'gits'].includes(invoked)) {
       const u = await fetchJson('https://api.github.com/users/' + encodeURIComponent(user), 12000);
       if (!u || !u.login) {
-        await reply('❌ GitHub user `' + user + '` nahi mila ya API down hai.');
+        await reply('❌ GitHub user `' + user + '` not found or API is down.');
         return;
       }
       const lines = [
@@ -119,7 +119,7 @@ module.exports = {
       const d = await fetchJson('https://www.tikwm.com/api/user/info?unique_id=@' + encodeURIComponent(user), 12000);
       const u = (d && (d.data && (d.data.user || d.data))) || null;
       if (!d || d.code !== 0 || !u || !(u.unique_id || u.nickname)) {
-        await reply('❌ TikTok user `@' + user + '` ki info abhi nahi mil payi (TikTok API ne block kiya ho sakta hai — thodi der baad try karo).');
+        await reply('❌ TikTok user `@' + user + '`: info not available right now. Try again later.');
         return;
       }
       const nick = u.nickname || u.unique_id;

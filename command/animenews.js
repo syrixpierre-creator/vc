@@ -21,7 +21,7 @@ async function fetchRss(url, source) {
     const date = $(el).find('pubDate').text().trim();
     if (title) items.push({ title, link, date, source });
   });
-  if (!items.length) throw new Error(source + ' se news nahi mili');
+  if (!items.length) throw new Error(source + ' no news found');
   return items;
 }
 
@@ -39,7 +39,7 @@ module.exports = {
       try { items = items.concat(await fetchRss('https://myanimelist.net/rss/news.xml', 'MAL')); } catch (e) {}
     }
     if (!items.length) {
-      await reply('❌ Anime news nahi mili — dono RSS down ho sakte hain. Thodi der baad try karo.');
+      await reply('❌ *No anime news found. Try again later.*');
       return;
     }
     const lines = items.slice(0, 5).map((it, i) =>

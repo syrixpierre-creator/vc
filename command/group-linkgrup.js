@@ -5,12 +5,8 @@ let handler = async (m, { conn }) => {
   let code = await conn.groupInviteCode(m.chat)
   let gcLink = `https://chat.whatsapp.com/${code}`
 
-  let text = `
-*– 乂 LINK GRUP –*
-${gcLink}
-
-Gunakan link ini untuk mengundang member ke grup.
-`.trim()
+  let text = `🔗 *Group link*
+${gcLink}`.trim()
 
   await conn.reply(m.chat, text, m)
 }

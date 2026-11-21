@@ -20,7 +20,7 @@ module.exports = {
     const n = parseInt(args[0], 10);
     if (isNaN(n)) return list();
     if (n < 1 || n > allFonts.length) {
-      await sock.sendMessage(chatId, { text: `❌ Style number 1 se ${allFonts.length} tak hona chahiye.\nExample: .style 5 QUEEN AKUMA` }, { quoted: message });
+      await sock.sendMessage(chatId, { text: `❌ *Style number must be 1 to ${allFonts.length}.*` }, { quoted: message });
       return;
     }
     const text = args.slice(1).join(' ').trim();

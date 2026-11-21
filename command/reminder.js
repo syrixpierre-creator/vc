@@ -18,7 +18,7 @@ module.exports = { commands: [
       const parsed = sch.parseTime(args[0]);
       const text = (args || []).slice(1).join(' ').trim();
       if (!parsed || !text) {
-        return reply('❌ Usage:\n`.setremind 10m paani pina hai` — 10 min baad ek baar\n`.setremind 2h meeting hai` — 2 ghante baad\n`.setremind 18:30 good night` — roz shaam 6:30\n\nList: `.myreminders` | Delete: `.delremind <id>`');
+        return reply('📌 *Usage:* .setremind 10m <text> | .setremind 18:30 <text>');
       }
       const item = sch.add(chatId, text, parsed.at, parsed.repeat, sender);
       return reply(`⏰ *Reminder set!* \n\n🆔 ${item.id}\n📅 ${parsed.repeat === 'daily' ? 'Roz ' + sch.fmtTime(item.at) : sch.fmtTime(item.at)}\n📝 ${text}`);
@@ -26,13 +26,13 @@ module.exports = { commands: [
   },
   {
     command: 'myreminders', aliases: [], category: 'tools',
-    description: 'Is chat ke reminders dekho',
+    description: 'Show the reminders of this chat',
     usage: '.myreminders',
     async handler(sock, message, args, context = {}) {
       const chatId = context.chatId || message.key.remoteJid;
       const reply = (t) => sock.sendMessage(chatId, { text: t }, { quoted: message });
       const items = sch.list(chatId);
-      if (!items.length) return reply('⏰ Is chat me koi reminder nahi.\n`.setremind 10m <text>` se banao.');
+      if (!items.length) return reply('❌ *No reminders in this chat.*\n📌 *Usage:* .setremind 10m <text>');
       const lines = items.map((it) => `🆔 *${it.id}* — ${it.repeat === 'daily' ? 'roz ' : ''}${sch.fmtTime(it.at)}\n   ${it.text}`).join('\n\n');
       return reply(`⏰ *Reminders*\n\n${lines}\n\nDelete: \`.delremind <id>\``);
     }
@@ -45,9 +45,9 @@ module.exports = { commands: [
       const chatId = context.chatId || message.key.remoteJid;
       const reply = (t) => sock.sendMessage(chatId, { text: t }, { quoted: message });
       const id = (args[0] || '').trim();
-      if (!id) return reply('❌ Usage: `.delremind R1A2B3`\nID `.myreminders` se dekho.');
+      if (!id) return reply('📌 *Usage:* .delremind <id>');
       const ok = sch.remove(chatId, id);
-      return reply(ok ? `✅ Reminder *${id.toUpperCase()}* delete ho gaya.` : `❌ Reminder *${id.toUpperCase()}* nahi mila.`);
+      return reply(ok ? `✅ *Reminder ${id.toUpperCase()} deleted.*` : `❌ *Reminder ${id.toUpperCase()} not found.*`);
     }
   }
 ] };

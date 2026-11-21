@@ -16,7 +16,7 @@ module.exports = {
     try {
       const { qrBuffer } = require('../lib/publicApis');
       const buf = await qrBuffer(text);
-      if (!buf) return reply('❌ QR generate nahi hua. Dobara try karo.');
+      if (!buf) return reply('❌ *QR generation failed. Try again.*');
       await sock.sendMessage(chatId, { image: buf, caption: `🔳 *QR Code*\n${text.slice(0, 200)}` }, { quoted: message });
     } catch (e) {
       return reply('❌ QR failed: ' + String((e && e.message) || e).slice(0, 100));

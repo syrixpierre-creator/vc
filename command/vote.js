@@ -34,13 +34,13 @@ module.exports = {
 
     if (sub === 'results' || sub === 'result') {
       const r = vote.results(chatId);
-      if (!r) return reply('❌ Koi vote nahi chal raha.\nStart karo: `.vote Best game kaunsi? | Ludo | Cricket`');
+      if (!r) return reply('❌ *No vote running.*\n📌 *Usage:* .vote <question> | <option> | <option>');
       return reply(`🗳️ *Vote Results*\n\n❓ ${r.vote.question}\nTotal votes: *${r.total}*\n\n${vote.fmt(r.vote, r.counts, r.total)}\n\nVote dalo: \`.vote 1\` ya \`.vote <option>\``);
     }
     if (sub === 'end' || sub === 'close' || sub === 'stop') {
       if (!(await isAdminOrOwner(sock, chatId, senderJid))) return reply('❌ *Only group admins or the bot owner can use this command.*');
       const r = vote.end(chatId);
-      if (!r) return reply('❌ Koi vote nahi chal raha.');
+      if (!r) return reply('❌ *No vote running.*');
       return reply(`🗳️ *Vote khatm!*\n\n❓ ${r.vote.question}\nTotal votes: *${r.total}*\n\n${vote.fmt(r.vote, r.counts, r.total)}\n\n🏆 *Winner: ${r.winner}* (${r.winnerVotes} votes)`);
     }
     if (raw.includes('|')) {

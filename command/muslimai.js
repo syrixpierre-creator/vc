@@ -18,7 +18,7 @@ module.exports = {
     const reply = (t) => sock.sendMessage(chatId, { text: t }, { quoted: message });
     const text = (args || []).join(' ').trim() || 'assalamualaikum';
     const res = await geminiText('Answer as a knowledgeable, respectful Islamic assistant. Be brief and accurate, cite Quran/Hadith references when relevant. Answer in the same language as the question:\n\n' + text, { maxTokens: 1200, temperature: 0.3 });
-    if (!res.ok) return reply(res.error || '❌ Muslim AI se jawab nahi mila. Thodi der baad try karo.');
+    if (!res.ok) return reply(res.error || '❌ *No answer from Muslim AI. Try again later.*');
     await reply('🕌 *Muslim AI*' + (res.via === 'pollinations' ? ' (Pollinations)' : '') + '\n\n' + res.text.slice(0, 3000));
   }
 };

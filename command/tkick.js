@@ -32,15 +32,15 @@ module.exports = {
       const botId = sock.user?.id?.split(':')[0] + '@s.whatsapp.net' || sock.user.id;
       const botParticipant = meta.participants.find(p => p.id.includes(botId.split('@')[0]));
       if (!botParticipant || !['admin', 'superadmin'].includes(botParticipant.admin)) {
-        return reply('❌ Bot admin nahi hai.');
+        return reply('❌ *Please make the bot an admin first.*');
       }
 
       const targetP = meta.participants.find(p => p.id === target);
       if (targetP && ['admin', 'superadmin'].includes(targetP.admin)) {
-        return reply(`❌ @${target.split('@')[0]} admin hai, kick nahi kar sakta.`, { mentions: [target] });
+        return reply(`❌ *@${target.split('@')[0]} is an admin, cannot kick.*`, { mentions: [target] });
       }
 
-      await reply(`⏳ @${target.split('@')[0]} ko temporary kick kar raha hoon...\n5 minute baad wapas add hoga.`, { mentions: [target] });
+      await reply(`⏳ Kicking @${target.split('@')[0]} for 5 minutes...`, { mentions: [target] });
 
       await sock.groupParticipantsUpdate(chatId, [target], 'remove');
 

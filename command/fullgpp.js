@@ -29,7 +29,7 @@ module.exports = {
     const quoted = m.extendedTextMessage?.contextInfo?.quotedMessage;
     const imageMsg = quoted?.imageMessage || m.imageMessage;
     if (!imageMsg) {
-      return reply('🖼️ Kisi image par reply karke `.fullgpp` bhejo.\n\nGroup ki profile pic bina crop ke set ho jayegi (720px).');
+      return reply('📌 *Usage:* reply to an image with .fullgpp');
     }
     try {
       const buf = await getBuffer(imageMsg);
@@ -43,7 +43,7 @@ module.exports = {
       });
       return reply('✅ Group profile pic set ho gayi — bina crop ke!');
     } catch (e) {
-      return reply('❌ Group PP set nahi ho payi: ' + (e.message || e) + '\n(Bot ko group admin hona chahiye.)');
+      return reply('❌ *Failed to set group picture:* ' + (e.message || e) + '\n(The bot must be a group admin.)');
     }
   },
 };

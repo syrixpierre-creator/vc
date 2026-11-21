@@ -36,23 +36,23 @@ module.exports = {
 
     // Sirf DM — group me session string kabhi nahi
     if (String(chatId || '').endsWith('@g.us')) {
-      return reply('🔒 Session string sirf DM me milti hai.\nBot ko DM me `.exportsession` bhejo.');
+      return reply('🔒 *Use this command in DM.*');
     }
 
     const credsPath = path.join(__dirname, '..', 'session', 'creds.json');
     if (!fs.existsSync(credsPath)) {
-      return reply('❌ Session nahi mili — bot abhi paired nahi hai.\nPehle pairing code se connect karo, phir `.exportsession` bhejo.');
+      return reply('❌ *No session found. The bot is not paired yet.*');
     }
 
     let raw;
     try { raw = fs.readFileSync(credsPath, 'utf8'); JSON.parse(raw); }
-    catch (_) { return reply('❌ Session file kharab hai — dobara pair karo.'); }
+    catch (_) { return reply('❌ *Session file is corrupted. Pair again.*'); }
 
     const sessionId = 'QUEEN-AKUMA~' + Buffer.from(raw, 'utf8').toString('base64');
     return reply(
-      '🔑 *SESSION_ID* (Deploy ke liye)\n\n' +
+      '🔑 *SESSION_ID*\n\n' +
       '```\n' + sessionId + '\n```\n\n' +
-      '⚠️ *Ye secret hai — kisi ko mat bhejo!*\n' +
+      '⚠️ *Secret: do not share it!*\n' +
       'Naye host par `SESSION_ID` env var me yehi string daalo.\n' +
       'Render / Railway / Heroku / Fly.io — sab par yahi chalega.'
     );

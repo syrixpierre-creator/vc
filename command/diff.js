@@ -21,7 +21,7 @@ module.exports = {
     try {
       groups = await sock.groupFetchAllParticipating();
     } catch (e) {
-      await reply('❌ Groups ki list nahi mili: ' + String(e.message || e).slice(0, 100));
+      await reply('❌ *Failed to get the group list:* ' + String(e.message || e).slice(0, 100));
       return;
     }
     const list = Object.values(groups || {});
@@ -33,7 +33,7 @@ module.exports = {
     };
     const g1 = find(q1), g2 = find(q2);
     if (!g1 || !g2) {
-      await reply('❌ Group nahi mila: ' + (!g1 ? '"' + q1 + '"' : '"' + q2 + '"') + '\nBot dono groups me hona chahiye.');
+      await reply('❌ *Group not found:* ' + (!g1 ? '"' + q1 + '"' : '"' + q2 + '"') + '\nThe bot must be in both groups.');
       return;
     }
     const set1 = new Set((g1.participants || []).map((p) => String(p.id).split('@')[0]));

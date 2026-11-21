@@ -33,7 +33,7 @@ module.exports = {
     const sender = senderDigits(message, context);
     const isOwner = !!message.key.fromMe || (ownerNumber && sender.includes(ownerNumber));
     if (!isOwner) {
-      return reply('❌ Sirf bot owner `.setdetectvv` change kar sakta hai.');
+      return reply('🚫 *You are not authorized to use this command!*');
     }
 
     const option = String(args[0] || '').toLowerCase();
@@ -43,17 +43,17 @@ module.exports = {
       return reply(
         `✅ *Auto ViewOnce detect ${option.toUpperCase()}*\n\n` +
         `Ab is chat me view-once photo/video/audio aate hi download hokar owner DM me forward ho jayega.\n\n` +
-        `_Note: View-once media pe reply karke .vv/.vv2 bhi use kar sakte ho._`
+        ``
       );
     }
     if (option === 'off') {
       setAutoDetectMode(chatId, null);
-      return reply('✅ *Auto ViewOnce detect OFF*\nAb view-once media auto-forward nahi hoga.');
+      return reply('✅ *Auto ViewOnce detect DISABLED*');
     }
     if (option === 'status' || !option) {
       return reply(
         `ℹ️ *Auto ViewOnce detect:* ${current ? `*${current.toUpperCase()}*` : '❌ OFF'}\n\n` +
-        `ON karne ke liye: \`.setdetectvv on\`\nOFF karne ke liye: \`.setdetectvv off\``
+        `Available options:\n- on\n- off`
       );
     }
     return reply('❌ Use: `.setdetectvv on`, `.setdetectvv private`, `.setdetectvv off`, ya `.setdetectvv status`.');

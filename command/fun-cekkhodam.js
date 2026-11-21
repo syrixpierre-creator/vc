@@ -7,13 +7,10 @@ let handler = async (m, { conn, usedPrefix, command, text }) => {
 	let data = conn.khodam[text] || pickRandom(khodamList);
 	conn.khodam[text] = data;
 
-	let result = `
-👤 Nama: *${text}*
-🔮 Khodam kamu adalah: *${data.nama}*
+	let result = `👤 Name: *${text}*
+🔮 Your khodam: *${data.nama}*
 
-📖 Penjelasan:
-${data.deskripsi}
-  `.trim();
+${data.deskripsi}`.trim();
 
 	await m.reply(result);
 };
@@ -34,7 +31,7 @@ const khodamList = [
 	{ nama: 'Farhan Kebab', deskripsi: 'Kalau dipanggil langsung bikin lapar' },
 	{ nama: 'Rossi Becak', deskripsi: 'Juara MotoGP tapi naik becak' },
 	{ nama: 'Karyawan Indomaret', deskripsi: 'Senyumnya ga pernah habis, kayak promo diskon' },
-	{ nama: 'Peti Harta', deskripsi: 'Bisa isi emas, bisa isi utang' },
+	{ nama: 'Peti Harta', deskripsi: 'Can be full of gold, or full of debt' },
 	{ nama: 'Kuntilanak Lucu', deskripsi: 'Suka ngelawak, bikin tuyul ketawa' },
 	{ nama: 'Pocong berkepala 3', deskripsi: 'Kepalanya banyak, tapi isi tetep kosong' },
 	{ nama: 'Pace Yunus', deskripsi: 'Pace legendaris, bisa main bola sambil terbang' },

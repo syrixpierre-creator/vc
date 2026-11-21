@@ -45,7 +45,7 @@ module.exports = {
       } catch (e) {}
     }
     if (!sent) {
-      await reply('❌ SlideShare download nahi ho paya. Ye third-party host (bioskop-six) par chalta hai — down ho sakta hai. Thodi der baad try karo.');
+      await reply('❌ *SlideShare download failed. Try again later.*');
     }
   }
 };

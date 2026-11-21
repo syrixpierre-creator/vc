@@ -12,7 +12,7 @@ module.exports = {
   command: 'unbanuser',
   aliases: [],
   category: 'owner',
-  description: 'Banned user ko unban karo: .unbanuser <@user|reply|number>',
+  description: 'Unban a user: .unbanuser <@user|reply|number>',
   usage: '.unbanuser <@user|reply|number>',
   // adminOnly: true zaroori hai — dispatcher tabhi isBotAdmin/isSenderAdmin
   // compute karta hai (lib/messageHandler.js: adminOnly branch). Bina iske
@@ -22,9 +22,9 @@ module.exports = {
     const { chatId, isGroup, senderIsOwnerOrSudo, isSenderAdmin, isBotAdmin, channelInfo } = context;
     const reply = (t) => sock.sendMessage(chatId, { text: t, ...(channelInfo || {}) }, { quoted: message });
     if (isGroup) {
-      if (!isBotAdmin) { await reply('❌ Pehle bot ko admin banao.'); return; }
+      if (!isBotAdmin) { await reply('❌ *Please make the bot an admin first.*'); return; }
       if (!isSenderAdmin && !message.key.fromMe && !senderIsOwnerOrSudo) {
-        await reply('❌ Sirf group admin ya owner unban kar sakta hai.');
+        await reply('🚫 *You are not authorized to use this command!*');
         return;
       }
     } else if (!message.key.fromMe && !senderIsOwnerOrSudo) {
@@ -51,19 +51,19 @@ module.exports = {
         idx = banned.findIndex((b) => digits(b) === d || String(b).split('@')[0].endsWith(d.slice(-10)));
       }
       if (idx === -1) {
-        await reply('ℹ️ @' + String(target).split('@')[0] + ' banned hi nahi hai.');
+        await reply('ℹ️ @' + String(target).split('@')[0] + ' is not banned.');
         return;
       }
       const removed = banned[idx];
       banned.splice(idx, 1);
       await saveBannedUsers(banned);
       await sock.sendMessage(chatId, {
-        text: '✅ *Unbanned*\n\n👤 @' + String(removed).split('@')[0] + ' ab bot use kar sakta hai.',
+        text: '✅ *Unbanned*\n\n👤 @' + String(removed).split('@')[0] + ' has been unbanned.',
         mentions: [String(removed)],
         ...(channelInfo || {}),
       }, { quoted: message });
     } catch (e) {
-      await reply('❌ Unban nahi ho paya: ' + String(e.message || e).slice(0, 120));
+      await reply('❌ *Unban failed:* ' + String(e.message || e).slice(0, 120));
     }
   },
 };

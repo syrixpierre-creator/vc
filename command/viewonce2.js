@@ -30,7 +30,7 @@ module.exports = {
         '▢ `.vv2` — view-once pe reply karo\\n' +
         '    photo / video / audio / *document* / sticker reveal\\n' +
         '    (forward-first — download nahi, tez)\\n\\n' +
-        '▢ `.vv2 <number>` — unlocked media us number ko bhejo\\n\\n' +
+        '▢ `.vv2 <number>` — send the unlocked media to that number\\n\\n' +
         '▢ `.vv2 status on` — status auto-download ON\\n' +
         '    Har status (photo/video/audio) download hokar\\n' +
         '    owner ko bhej diya jayega\\n\\n' +
@@ -52,7 +52,7 @@ module.exports = {
       }
       const cfg = vv2.getConfig();
       return reply(
-        `📥 *VV2 Status Auto-Download:* ${cfg.statusDownload ? '✅ ON' : '❌ OFF'}\\n\\nON karne ke liye: \`.vv2 status on\`\\nOFF karne ke liye: \`.vv2 status off\``
+        `✅ *VV2 status auto-download: ${cfg.statusDownload ? 'ON' : 'OFF'}*\\n\\nAvailable options:\\n- status on\\n- status off`
       );
     }
 

@@ -35,16 +35,16 @@ module.exports = { commands: [
         const st = aiMod.getStatus(chatId);
         const top = st.strikes.length
           ? st.strikes.map((s, i) => `${i + 1}. @${s.jid} — ${s.count} strikes (${s.lastReason})`).join('\n')
-          : 'Koi strike nahi.';
-        return reply(`🤖 *AI Auto-Admin — Status*\n\nStatus: *${st.enabled ? 'ON ✅' : 'OFF ❌'}*\nGemini key: ${st.keySet ? 'set ✅' : 'NAHI hai ❌ — GEMINI_API_KEY set karo'}\nWarn limit: ${st.warnLimit} strikes\nKick on limit: ${st.kickOn ? 'ON' : 'OFF'}\nAuto-delete: ${st.deleteOn ? 'ON' : 'OFF'}\n\n⚠️ *Top Strikers*\n${top}\n\nCommands: \`.aimod on\` / \`.aimod off\` / \`.aimod reset @user\``);
+          : 'No strikes.';
+        return reply(`🤖 *AI Auto-Admin:* ${st.enabled ? 'ON' : 'OFF'}\nWarn limit: ${st.warnLimit}\n\n⚠️ *Top strikes*\n${top}`);
       }
 
-      if (!(await isAdminOrOwner(sock, message, chatId))) return reply('❌ Sirf group admin ya owner AI Auto-Admin control kar sakta hai.');
+      if (!(await isAdminOrOwner(sock, message, chatId))) return reply('🚫 *You are not authorized to use this command!*');
 
       if (sub === 'on') {
         aiMod.setEnabled(chatId, true);
         const st = aiMod.getStatus(chatId);
-        return reply(`🤖 *AI Auto-Admin ON!* ✅\n\nAb Gemini har message check karega: Hinglish gali, jhagda, spam, promo, scam — warn/delete/kick khud karega.\n${st.keySet ? '' : '⚠️ *GEMINI_API_KEY nahi hai* — key set karo, tabhi AI kaam karega. Flood detect abhi bhi chalega.'}\nBot ko kick/delete ke liye group admin banao.`);
+        return reply(`✅ *AI Auto-Admin ENABLED*${st.keySet ? '' : '\n⚠️ GEMINI_API_KEY is missing.'}`);
       }
       if (sub === 'off') {
         aiMod.setEnabled(chatId, false);
@@ -79,7 +79,7 @@ module.exports = { commands: [
         }
         return reply('❌ Usage: `.aimod set warnlimit <n>` / `.aimod set kick on|off` / `.aimod set delete on|off`');
       }
-      return reply('🤖 *AI Auto-Admin*\n\n`.aimod on` — chalu karo\n`.aimod off` — band karo\n`.aimod status` — status + strikes\n`.aimod reset @user` — strikes clear karo\n`.aimod set warnlimit 3` — limit badlo');
+      return reply('❌ *Invalid option!*\n\nAvailable options:\n- on\n- off\n- status\n- reset');
     }
   }
 ] };

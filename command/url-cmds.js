@@ -14,7 +14,7 @@ module.exports = {
   command: 'url',
   aliases: [],
   category: 'tools',
-  description: 'Quoted media ka public URL banao (upload karke).',
+  description: 'Make a public URL for quoted media (upload).',
   usage: '.url (photo/video/audio pe reply karke)',
   async handler(sock, message, args, context = {}) {
     const chatId = context.chatId || message.key.remoteJid;
@@ -27,12 +27,12 @@ module.exports = {
     try {
       const url = await uploadFileFast(media.buffer, NAMES[media.kind] || 'file');
       if (!url || typeof url !== 'string' || !/^https?:\/\//.test(url)) {
-        await reply('❌ Upload nahi ho paya. Dobara try karo.');
+        await reply('❌ *Upload failed. Try again.*');
         return;
       }
       await reply('🔗 *Media URL*\n\n' + url + '\n\n_Type: ' + media.kind + ' • Size: ' + (media.buffer.length / 1024).toFixed(1) + ' KB_');
     } catch (e) {
-      await reply('❌ Upload nahi ho paya: ' + String(e.message || e).slice(0, 120));
+      await reply('❌ *Upload failed:* ' + String(e.message || e).slice(0, 120));
     }
   }
 };

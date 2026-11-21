@@ -23,7 +23,7 @@ cmd({
             targetJid = num + "@s.whatsapp.net";
         }
         else {
-            return reply("❌ Use: .getpp <number> ya kisi ke msg pe reply karke .getpp likho\nExample: .getpp 923001234567");
+            return reply("📌 *Usage:* .getpp <number> or reply to a message with .getpp");
         }
 
         await conn.sendMessage(from, { react: { text: "🔍", key: m.key } });
@@ -39,7 +39,7 @@ cmd({
 
         } catch (e) {
             await conn.sendMessage(from, { react: { text: "❌", key: m.key } });
-            return reply(`❌ DP nahi mili! Number private hai ya WhatsApp pe nahi.`);
+            return reply(`❌ *No profile picture found.*`);
         }
 
     } catch (error) {

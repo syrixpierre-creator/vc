@@ -35,7 +35,7 @@ module.exports = {
             `✅ *Self/DM Anti-Delete ON*\n\n` +
             `Config: self=*${check.self}*\n` +
             `Ab DM me message delete hone par bot tumhare apne chat (Message yourself) me recover karega.\n\n` +
-            `_Note: Delete se pehle message bot ko receive hona chahiye._`
+            ``
         },
         { quoted: message }
       );

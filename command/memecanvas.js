@@ -22,7 +22,7 @@ async function targetAvatar(sock, message) {
 async function fetchImage(url) {
   const res = await axios.get(url, { responseType: 'arraybuffer', timeout: 20000, maxContentLength: 20 * 1024 * 1024 });
   const ct = String((res.headers && res.headers['content-type']) || '');
-  if (ct.indexOf('image') === -1 && ct.indexOf('octet') === -1) throw new Error('API se image nahi mili');
+  if (ct.indexOf('image') === -1 && ct.indexOf('octet') === -1) throw new Error('No image from the API');
   return Buffer.from(res.data);
 }
 async function sendCanvas(sock, message, url) {
@@ -31,7 +31,7 @@ async function sendCanvas(sock, message, url) {
     const img = await fetchImage(url);
     await sock.sendMessage(chatId, { image: img }, { quoted: message });
   } catch (e) {
-    await reply(sock, message, '❌ Meme nahi ban paya: ' + String(e.message || e).slice(0, 120) + '\nAPI down ho sakti hai, thodi der baad try karo.');
+    await reply(sock, message, '❌ Meme nahi ban paya: ' + String(e.message || e).slice(0, 120) + '\nThe API may be down, try again later.');
   }
 }
 
@@ -141,7 +141,7 @@ module.exports = {
           } catch (e) {}
         }
         if (!url) {
-          await reply(sock, message, '❌ GIF nahi mila, API down ho sakti hai. Thodi der baad try karo.');
+          await reply(sock, message, '❌ *GIF not found.* Try again later.');
           return;
         }
         try {

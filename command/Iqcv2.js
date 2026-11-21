@@ -26,10 +26,7 @@ let handler = async (m, { conn, text, usedPrefix, command }) => {
   let mime = (q?.mimetype || m.mimetype || '')
 
   if (!text && !/image/.test(mime)) {
-    return m.reply(`✨ Kirim gambar atau reply + caption
-
-Contoh:
-${usedPrefix + command} halo cihuyy`)
+    return m.reply(`📌 *Usage:* send or reply to an image with ${usedPrefix + command} <text>`)
   }
 
   let imageUrl

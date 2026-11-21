@@ -88,10 +88,10 @@ module.exports = {
         if (pw && pw === apiReg.getPassword()) {
           gate.set(k, { step: 'ok', until: Date.now() + SESSION_MS });
           return sock.sendMessage(chatId, {
-            text: '✅ Access 10 min ke liye open.\nAb `.dexapi status` / `.dexapi test` use karo.'
+            text: '✅ *Access open for 10 minutes.*'
           }, { quoted: message });
         }
-        return sock.sendMessage(chatId, { text: '❌ Galat password. Pehle *papa* flow dobara.' }, { quoted: message });
+        return sock.sendMessage(chatId, { text: '❌ *Wrong password.*' }, { quoted: message });
       } else {
         // if they typed papa as free text via .dexapi papa
         if (g.step === 'password') {
@@ -108,7 +108,7 @@ module.exports = {
     }
 
     if (sub === 'papa') {
-      return sock.sendMessage(chatId, { text: '👑 Owner ho — seedha `.dexapi status` use karo.' }, { quoted: message });
+      return sock.sendMessage(chatId, { text: '✅ *You are the owner, use .dexapi status directly.*' }, { quoted: message });
     }
 
     if (sub === 'pass' || sub === 'password') {
@@ -175,7 +175,7 @@ if (sub === 'list' || sub === 'status') {
 
     if (sub === 'test') {
       const name = String(rest[0] || '').toLowerCase();
-      await sock.sendMessage(chatId, { text: '⏳ API test chal raha hai…' }, { quoted: message });
+      await sock.sendMessage(chatId, { text: '⏳ Testing APIs…' }, { quoted: message });
       if (name) {
         const r = await apiReg.testEndpoint(name);
         const body =
@@ -255,7 +255,7 @@ if (sub === 'list' || sub === 'status') {
 
     if (sub === 'add' || sub === 'set') {
       if (!owner && !(gate.get(k) && gate.get(k).step === 'ok' && gate.get(k).until > Date.now())) {
-        return sock.sendMessage(chatId, { text: '❌ Add/set ke liye owner ya unlocked session.' }, { quoted: message });
+        return sock.sendMessage(chatId, { text: '🚫 *You are not authorized to use this command!*' }, { quoted: message });
       }
       const name = String(rest[0] || '').toLowerCase();
       const url = rest.slice(1).join(' ').trim();

@@ -14,7 +14,7 @@ module.exports = {
     const chatId = context.chatId || message.key.remoteJid;
     let text = (args || []).join(' ').trim();
     if (!text) {
-      await sock.sendMessage(chatId, { text: '✍️ *Text Styles*\n\nUsage: .textstyles <text>\nExample: .textstyles QUEEN AKUMA\n\nEk text ke 40 styles ek saath dikhenge. Kisi ek style ke liye: .font1 <text> ya .style 5 <text>' }, { quoted: message });
+      await sock.sendMessage(chatId, { text: '📌 *Usage:* .textstyles <text>' }, { quoted: message });
       return;
     }
     if (text.length > 25) text = text.slice(0, 25);

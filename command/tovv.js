@@ -10,14 +10,14 @@ const { getMedia } = mediaDl;
 module.exports = {
   command: 'tovv',
   aliases: ['viewonce', 'vvsend', 'sendvv'],
-  description: 'Quoted photo/video ko view-once bana ke bhejo.',
+  description: 'Send a quoted photo/video as view-once.',
   category: 'tools',
   handler: async (sock, message, args, context) => {
     const chatId = message.key.remoteJid;
     const reply = (text) => sock.sendMessage(chatId, { text }, { quoted: message });
     const media = await getMedia(message, ['image', 'video', 'audio']);
     if (!media) {
-      await reply('❌ Pehle kisi photo/video/audio pe reply karo, phir *.tovv* chalao.');
+      await reply('📌 *Usage:* reply to a photo/video/audio with .tovv');
       return;
     }
     try {

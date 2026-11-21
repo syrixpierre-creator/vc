@@ -44,14 +44,14 @@ function buildPdf(jpegBuf, w, h) {
 module.exports = {
   command: 'pdf',
   aliases: ['topdf', 'makepdf', 'imgtopdf'],
-  description: 'Photo se A4 PDF banao.',
+  description: 'Make an A4 PDF from a photo.',
   category: 'tools',
   handler: async (sock, message, args, context) => {
     const chatId = message.key.remoteJid;
     const reply = (text) => sock.sendMessage(chatId, { text }, { quoted: message });
     const media = await getMedia(message, ['image']);
     if (!media) {
-      await reply('❌ Pehle kisi photo pe reply karo, phir *.pdf* chalao.\nEk photo = ek page wali A4 PDF banegi.');
+      await reply('📌 *Usage:* reply to a photo with .pdf');
       return;
     }
     try {

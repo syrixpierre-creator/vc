@@ -25,18 +25,18 @@ module.exports = {
       });
       const items = (res.data && res.data.data) || [];
       if (!items.length) {
-        await reply('❌ *"' + q + '"* ke liye koi wallpaper nahi mila.\nKoi aur word try karo — example: *.wallpaper anime*');
+        await reply('❌ *"' + q + '": no wallpaper found.');
         return;
       }
       const pick = items[Math.floor(Math.random() * items.length)];
       const imgUrl = pick.path || (pick.thumbs && pick.thumbs.original);
-      if (!imgUrl) { await reply('❌ Wallpaper ka image URL nahi mila. Dobara try karo.'); return; }
+      if (!imgUrl) { await reply('❌ *Wallpaper image not found. Try again.*'); return; }
       await sock.sendMessage(chatId, {
         image: { url: imgUrl },
         caption: '🖼️ *Wallpaper — ' + q + '*\n\n📐 ' + (pick.resolution || '?') + '  •  👁️ ' + (pick.views || 0).toLocaleString('en-IN') + ' views\n🔗 ' + (pick.url || ('https://wallhaven.cc/w/' + pick.id)) + '\n\n_Source: wallhaven.cc (free, no key)_'
       }, { quoted: message });
     } catch (e) {
-      await reply('❌ Wallpaper nahi mila: ' + String(e.message || e).slice(0, 120) + '\nThodi der baad try karo.');
+      await reply('❌ *Wallpaper not found:* ' + String(e.message || e).slice(0, 120) + '\nThodi der baad try karo.');
     }
   }
 };

@@ -43,7 +43,7 @@ module.exports = {
         const chatId = message.key.remoteJid;
         const reply = (text) => sock.sendMessage(chatId, { text }, { quoted: message });
         const name = safeName((args || [])[0]);
-        if (!name) { await reply('❌ Naam do.\nUsage: kisi message pe reply karke *.addmsg <naam>* likho.'); return; }
+        if (!name) { await reply('📌 *Usage:* reply to a message with .addmsg <name>'); return; }
         const store = load();
         const sc = safeChat(chatId);
         store[sc] = store[sc] || {};
@@ -60,13 +60,13 @@ module.exports = {
           fs.writeFileSync(file, media.buffer);
           store[sc][name] = { type: media.kind, file, mimetype: content.mimetype || '', caption: qText, by: context.senderId, at: Date.now() };
           save(store);
-          await reply('✅ Save ho gaya: *' + name + '* (' + media.kind + ')');
+          await reply('✅ *Saved:* *' + name + '* (' + media.kind + ')');
         } else if (qText) {
           store[sc][name] = { type: 'text', text: qText, by: context.senderId, at: Date.now() };
           save(store);
-          await reply('✅ Save ho gaya: *' + name + '* (text)');
+          await reply('✅ *Saved:* *' + name + '* (text)');
         } else {
-          await reply('❌ Pehle kisi message (text/photo/video/audio/sticker) pe reply karo, phir *.addmsg <naam>* chalao.');
+          await reply('📌 *Usage:* reply to a message with .addmsg <name>');
         }
       }
     },
@@ -81,7 +81,7 @@ module.exports = {
         const name = safeName((args || [])[0]);
         const store = load();
         const item = store[safeChat(chatId)] && store[safeChat(chatId)][name];
-        if (!item) { await reply('❌ *' + (name || '') + '* naam se kuch save nahi hai. .listmsg se list dekho.'); return; }
+        if (!item) { await reply('❌ *' + (name || '') + '*: nothing saved with this name. See .listmsg'); return; }
         try {
           if (item.type === 'text') { await reply(item.text); return; }
           const buf = fs.readFileSync(item.file);
@@ -91,7 +91,7 @@ module.exports = {
           else if (item.type === 'sticker') await sock.sendMessage(chatId, { sticker: buf }, { quoted: message });
           else await reply('(unknown type: ' + item.type + ')');
         } catch (e) {
-          await reply('❌ Saved file nahi mili (delete ho gayi ho sakti hai).');
+          await reply('❌ *Saved file not found.*');
         }
       }
     },
@@ -106,9 +106,9 @@ module.exports = {
         const store = load();
         const items = store[safeChat(chatId)] || {};
         const names = Object.keys(items);
-        if (!names.length) { await reply('ℹ️ Is chat me kuch save nahi hai. Reply karke *.addmsg <naam>* se save karo.'); return; }
+        if (!names.length) { await reply('❌ *Nothing saved in this chat.*\n📌 *Usage:* reply to a message with .addmsg <name>'); return; }
         const lines = names.map((n, i) => (i + 1) + '. *' + n + '* (' + items[n].type + ')');
-        await reply('💾 *Saved Messages* (' + names.length + ')\n\n' + lines.join('\n') + '\n\nWapas lane ke liye: *.getmsg <naam>*');
+        await reply('💾 *Saved Messages* (' + names.length + ')\n\n' + lines.join('\n') + '\n\nGet it back: .getmsg <name>');
       }
     },
     {
@@ -123,13 +123,13 @@ module.exports = {
         const store = load();
         const sc = safeChat(chatId);
         const item = store[sc] && store[sc][name];
-        if (!item) { await reply('❌ *' + (name || '') + '* naam se kuch save nahi hai.'); return; }
+        if (!item) { await reply('❌ *' + (name || '') + '*: nothing saved with this name.'); return; }
         const canDel = context.isSenderAdmin || context.senderIsOwnerOrSudo || context.isOwnerOrSudoCheck || item.by === context.senderId;
-        if (!canDel) { await reply('❌ Sirf jisne save kiya, admin ya owner delete kar sakta hai.'); return; }
+        if (!canDel) { await reply('🚫 *Only the one who saved it, an admin or the owner can delete it.*'); return; }
         try { if (item.file && fs.existsSync(item.file)) fs.unlinkSync(item.file); } catch (e) {}
         delete store[sc][name];
         save(store);
-        await reply('✅ Delete ho gaya: *' + name + '*');
+        await reply('✅ *Deleted:* *' + name + '*');
       }
     }
   ]

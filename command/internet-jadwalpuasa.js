@@ -14,10 +14,7 @@ let handler = async (m, { conn, text, usedPrefix, command }) => {
   if (!text) {
     return conn.reply(
       m.chat,
-      `Masukkan nama kota
-
-Contoh:
-${usedPrefix + command} tasikmalaya`,
+      `📌 *Usage:* ${usedPrefix + command} <city>`,
       m
     )
   }

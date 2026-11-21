@@ -44,7 +44,7 @@ module.exports = {
     }
     if (arg === 'off') {
       groupAnti.setAction('antisticker', 'delete');
-      await sock.sendMessage(chatId, { text: '✅ *Anti-Sticker Warn OFF*\n\nSticker ab seedha delete hoga (warn nahi).' }, { quoted: message });
+      await sock.sendMessage(chatId, { text: '✅ *Anti-Sticker warn DISABLED*' }, { quoted: message });
       return;
     }
     const n = parseInt(arg, 10);
@@ -52,7 +52,7 @@ module.exports = {
       const d2 = groupAnti.load();
       d2.warningLimit = n;
       groupAnti.save(d2);
-      await sock.sendMessage(chatId, { text: `✅ *Sticker warn limit: ${n}*\n\n${n} warnings par member kick hoga. (Ye limit .warnlimit se shared hai.)` }, { quoted: message });
+      await sock.sendMessage(chatId, { text: `✅ *Sticker warn limit: ${n}*` }, { quoted: message });
       return;
     }
     await sock.sendMessage(chatId, { text: '❌ Use: `.antistickerwarn on|off|<1-10>|status`' }, { quoted: message });

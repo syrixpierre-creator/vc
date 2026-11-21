@@ -16,7 +16,7 @@ async function searchAptoide(query, host) {
     headers: { 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36' }
   });
   const list = res.data && res.data.datalist && res.data.datalist.list;
-  if (!list || !list.length) throw new Error('Koi APK nahi mila');
+  if (!list || !list.length) throw new Error('No APK found');
   return list[0];
 }
 
@@ -24,7 +24,7 @@ module.exports = {
   command: 'modapk',
   aliases: ['apk', 'apkdl'],
   category: 'download',
-  description: 'Kisi bhi app ka APK download karo (Aptoide).',
+  description: 'Download the APK of any app (Aptoide).',
   usage: '.modapk <app name>',
   async handler(sock, message, args, context = {}) {
     const chatId = context.chatId || message.key.remoteJid;
@@ -41,17 +41,17 @@ module.exports = {
       catch (e) { lastErr = e; }
     }
     if (!app) {
-      await reply('❌ APK nahi mila: ' + String((lastErr && lastErr.message) || lastErr).slice(0, 120));
+      await reply('❌ *APK not found:* ' + String((lastErr && lastErr.message) || lastErr).slice(0, 120));
       return;
     }
     const dl = app.file && app.file.path;
     if (!dl) {
-      await reply('❌ Is app ka download link nahi mila.');
+      await reply('❌ *No download link for this app.*');
       return;
     }
     const sizeMB = app.size ? (app.size / (1024 * 1024)).toFixed(1) : '?';
     if (app.size && app.size > MAX_APK) {
-      await reply('⛔ File bahut badi hai (' + sizeMB + ' MB). 200MB se zyada wali APK nahi bhejta.');
+      await reply('⛔ File bahut badi hai (' + sizeMB + ' MB). APKs bigger than 200MB are not sent.');
       return;
     }
     const name = (app.name || query).replace(/[^\w\s.-]/g, '').trim() || query;
@@ -63,7 +63,7 @@ module.exports = {
         fileName: name + '.apk', caption
       }, { quoted: message });
     } catch (e) {
-      await reply(caption + '\n🔗 Download link: ' + dl + '\n\n⚠️ File seedha nahi bhej paya, link se download kar lo.');
+      await reply(caption + '\n🔗 Download link: ' + dl + '\n\n⚠️ Could not send the file, use the link.');
     }
   }
 };

@@ -20,7 +20,7 @@ module.exports = {
     const invoked = String((context.rawText || message.body || '').replace(/^\./, '').split(/\s+/)[0] || 'analytics').toLowerCase();
     const data = ga.getStats(chatId);
     if (!data || data.totalMessages === 0) {
-      return reply('📊 *No analytics data yet.*\n\nBot jab se start hua hai tab se messages track ho rahe hain. Thoda chat karo, phir check karo!');
+      return reply('📊 *No analytics data yet.*');
     }
     if (invoked === 'peakhours') {
       const maxH = Math.max(...data.hourly);

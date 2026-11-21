@@ -55,7 +55,7 @@ module.exports = {
       }
     } catch (_) {}
     if (!target) {
-      return reply(`❌ Command "${query}" nahi mila.\n\nExample: \`.findcmd menu\``);
+      return reply(`❌ *Command "${query}" not found.*`);
     }
     const commandsDir = path.join(process.cwd(), 'command');
     const fileLoc = findFileLocation(commandsDir, targetName) || 'Unknown';

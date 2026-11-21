@@ -35,8 +35,8 @@ module.exports = {
     const reply = (t) => sock.sendMessage(chatId, { text: t }, { quoted: message });
     const isOwner = message.key.fromMe || isOwnerOrSudo.isOwnerOnly(senderJid) || await isOwnerOrSudo(senderJid, sock, chatId);
     if (!isOwner) return reply('🚫 *You are not authorized to use this command!*');
-    if (chatId.endsWith('@g.us')) return reply('❌ Backup sirf DM me milega (session andar hota hai) — mujhe DM me `.fullbackup` likho.');
-    await reply('📦 *Backup bana raha hoon...*');
+    if (chatId.endsWith('@g.us')) return reply('🔒 *Use this command in DM.*');
+    await reply('⏳ *Making backup...*');
     const stamp = new Date().toISOString().slice(0, 16).replace(/[-:T]/g, '');
     const zipName = `QUEEN-AKUMA-backup-${stamp}.zip`;
     const tmpZip = path.join(os.tmpdir(), zipName);
@@ -45,10 +45,10 @@ module.exports = {
       fs.writeFileSync(restoreTxt,
         'QUEEN AKUMA BACKUP — RESTORE STEPS\n' +
         '1. Zip extract karo, npm install --legacy-peer-deps chalao\n' +
-        '2. .env me GEMINI_API_KEY / GROQ_API_KEY / TELEGRAM_BOT_TOKEN dobara daalo (ye backup me nahi hain)\n' +
-        '3. node index.js — session/creds.json se bot seedha connect hoga\n');
+        '2. Add GEMINI_API_KEY / GROQ_API_KEY / TELEGRAM_BOT_TOKEN again in .env (not in the backup)\n' +
+        '3. Run the bot: it connects from session/creds.json\n');
       const targets = ['session', 'data', 'settings.js', 'RESTORE.txt'].filter((t) => fs.existsSync(path.join(BOT_ROOT, t)));
-      if (!targets.length) return reply('❌ Backup karne layak kuch nahi mila.');
+      if (!targets.length) return reply('❌ *Nothing to back up.*');
       try {
         await run('zip', ['-r', '-q', tmpZip, ...targets], BOT_ROOT);
       } catch (_) {
@@ -62,7 +62,7 @@ module.exports = {
         document: buf,
         mimetype: file.endsWith('.gz') ? 'application/gzip' : 'application/zip',
         fileName: finalName,
-        caption: `📦 *QUEEN AKUMA Backup*\n\n${finalName} (${(buf.length / 1024).toFixed(0)} KB)\nAndar: session/ + data/ + settings.js\n\n⚠️ *Ye file kisi ko mat bhejo* — isme tumhara WhatsApp session hai!\nRestore steps zip ke andar RESTORE.txt me hain.`
+        caption: `📦 *Backup* ${finalName} (${(buf.length / 1024).toFixed(0)} KB)\n\n⚠️ *Do not share this file:* it contains your WhatsApp session.`
       }, { quoted: message });
     } catch (e) {
       return reply('❌ Backup fail: ' + String((e && e.message) || e).slice(0, 200));

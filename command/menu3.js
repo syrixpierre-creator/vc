@@ -49,7 +49,7 @@ function buildNeonMenu() {
   text += `🤖 \`${p}eliteai <sawal>\` — AI chat\n`;
   text += `🎨 \`${p}eliteimg <prompt>\` — AI image\n`;
   text += `🌤️ \`${p}weather <city>\` — live weather\n`;
-  text += `🧠 \`${p}smart <kuch bhi>\` — smart router\n`;
+  text += `🧠 \`${p}smart <anything>\` — smart router\n`;
   text += `🔤 \`${p}fonts\` — 40 text styles\n`;
   text += `🎵 \`${p}play <song>\` — music\n`;
   text += `\n━━━━━━━━━━━━━━━━\n`;
@@ -126,7 +126,7 @@ module.exports = {
           if (!allowed) {
             return sock.sendMessage(chatId, { text:
               `🚫 *You are not authorized to use this command!*\n\n` +
-              `Theme dekhne ke liye: \`${p}menutheme\``
+              `See themes: \`${p}menutheme\``
             }, { quoted: message });
           }
           const saved = setTheme(nameMap[arg]);
@@ -134,12 +134,12 @@ module.exports = {
           return sock.sendMessage(chatId, { text:
             `✅ *Menu theme set: ${label}*\n\n` +
             `Ab \`${p}menu\` ${label} style me dikhega.\n` +
-            `Wapas badalne ke liye: \`${p}menutheme <classic|royal|neon>\``
+            `Change back: \`${p}menutheme <classic|royal|neon>\``
           }, { quoted: message });
         }
         if (arg) {
           return sock.sendMessage(chatId, { text:
-            `❌ Theme nahi mila: *${arg}*\n\n` +
+            `❌ *Theme not found: ${arg}*\n\n` +
             `Sahi naam: \`classic\`, \`royal\` ya \`neon\`\n` +
             `Example: \`${p}menutheme royal\``
           }, { quoted: message });
@@ -151,7 +151,7 @@ module.exports = {
           `📖 *Classic* — \`${p}menu\`${mark('classic')}\n   Default menu, photo + full list\n\n` +
           `👑 *ROYAL* — \`${p}menu2\`${mark('royal')}\n   Bold text style + crown emojis, category view\n   Try: \`${p}menu2 download\`\n\n` +
           `✨ *NEON* — \`${p}menu3\`${mark('neon')}\n   Neon text style + sparkle emojis, top categories + stats\n\n` +
-          `💡 Theme set karne ke liye: \`${p}menutheme <classic|royal|neon>\`\n` +
+          `📌 *Usage:* ${p}menutheme <classic|royal|neon>\n` +
           `   Example: \`${p}menutheme neon\`\n\n` +
           `💎 Sabhi themes me fakevCard quote + fast cached media milta hai.`
         }, { quoted: message });

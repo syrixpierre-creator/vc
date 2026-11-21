@@ -82,6 +82,6 @@ module.exports = {
       custom[def.key] = value;
       writeJson(CUSTOM_FILE, custom);
     }
-    await reply(`✅ *${def.label}* set ho gaya: ${value}\n\n⚠️ Restart ke baad lagega — .restart bhejo ya bot ko dobara start karo.`);
+    await reply(`✅ *${def.label} set to: ${value}*\nRestart the bot to apply (.restart).`);
   }
 };

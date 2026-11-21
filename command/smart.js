@@ -41,14 +41,14 @@ async function aiAnswer(q) {
     const j = JSON.parse(res);
     const text = j?.candidates?.[0]?.content?.parts?.map((p) => p.text || '').join('');
     if (text) return text;
-    throw new Error('AI se jawab nahi mila');
+    throw new Error('No answer from the AI');
   }
   let ans = null;
   try { const { ai } = require('../lib/apiSwitch'); ans = await ai(q); } catch {}
   if (!ans) {
     try { const { call } = require('../lib/eliteApi'); const d = await call('gemini', q); ans = d.result || d.response || d; } catch {}
   }
-  if (!ans) throw new Error('AI busy hai. GEMINI_API_KEY set karke .inconnuai try karo.');
+  if (!ans) throw new Error('The AI is busy. Try again later.');
   return String(ans);
 }
 
@@ -56,14 +56,14 @@ module.exports = {
   command: 'smart',
   aliases: ['sm', 'smartai'],
   category: 'ai',
-  description: 'Smart command — link/IP/number/domain/weather/AI sab samajhta hai',
+  description: 'Smart command: understands link/IP/number/domain/weather/AI',
   usage: '.smart <kuch bhi>',
   async handler(sock, message, args, context = {}) {
     const chatId = context.chatId || message.key.remoteJid;
     const reply = (t) => sock.sendMessage(chatId, { text: t }, { quoted: message });
     const input = (args || []).join(' ').trim();
     if (!input) {
-      return reply('🧠 *Smart Command*\n\nUsage: .smart <kuch bhi>\n\n• .smart 8.8.8.8 — IP info\n• .smart 919876543210 — phone info\n• .smart google.com — domain whois\n• .smart https://example.com — link title\n• .smart weather Delhi — weather\n• .smart Bharat ki rajdhani? — AI jawab');
+      return reply('📌 *Usage:* .smart <anything>');
     }
     try {
       // weather intent
@@ -79,7 +79,7 @@ module.exports = {
         try { title = await fetchTitle(input); } catch {}
         let dom = '';
         try { dom = T.formatDomain(await T.domainInfo(u.hostname)); } catch {}
-        return reply(`🔗 *Smart Link*\n\n🌐 Domain: ${u.hostname}\n📰 Title: ${title || 'nahi mila'}${dom ? '\n\n' + dom : ''}`);
+        return reply(`🔗 *Link*\n\n🌐 Domain: ${u.hostname}\n📰 Title: ${title || 'not found'}${dom ? '\n\n' + dom : ''}`);
       }
       // IP
       if (/^\d{1,3}(\.\d{1,3}){3}$/.test(input)) {

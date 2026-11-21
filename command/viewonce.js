@@ -67,7 +67,7 @@ module.exports = {
 
       if (!buffer || buffer.length < 50) {
         return sock.sendMessage(chatId, {
-          text: '❌ Media download empty. View-once already opened/expired ho sakta hai.'
+          text: '❌ *Empty media.* The view-once may be already opened or expired.'
         }, { quoted: message });
       }
 

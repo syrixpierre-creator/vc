@@ -24,7 +24,7 @@ module.exports = {
       if (hit) {
         const cmd = typeof hit === 'string' ? commandHandler.commands.get(hit) : hit;
         extra = `\n\n*Found:* \`.${cmd.command}\`\nCategory: ${cmd.category || '—'}\nDesc: ${cmd.description || '—'}`;
-      } else extra = `\n\n❌ \`.${q}\` loaded nahi hai.`;
+      } else extra = `\n\n❌ \`.${q}\` is not loaded.`;
     }
     const text =
       ` 🔌 *PLUGIN STATUS* \n\n` +

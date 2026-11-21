@@ -12,7 +12,7 @@ function isOwner(senderJid, sock, chatId) {
 module.exports = { commands: [
   {
     command: 'addbot', aliases: [], category: 'owner',
-    description: 'Ek aur WhatsApp number ko isi host par bot banao',
+    description: 'Make another WhatsApp number a bot on this host',
     usage: '.addbot <number>',
     ownerOnly: true,
     async handler(sock, message, args, context = {}) {
@@ -21,17 +21,17 @@ module.exports = { commands: [
       const reply = (t) => sock.sendMessage(chatId, { text: t }, { quoted: message });
       if (!message.key.fromMe && !await isOwner(senderJid, sock, chatId)) return reply('🚫 *You are not authorized to use this command!*');
       const number = (args[0] || '').trim();
-      if (!number) return reply('❌ Usage: `.addbot 919876543210`\nMax 3 extra bots. Har bot ka alag session banta hai.');
-      await reply('🤖 *Extra bot start ho raha hai...*');
+      if (!number) return reply('📌 *Usage:* .addbot <number>');
+      await reply('⏳ *Starting extra bot...*');
       const r = await mb.addBot(number);
       if (!r.ok) return reply('❌ ' + r.error);
-      if (r.status === 'connected') return reply(`✅ *Extra bot connected!*\n\n📱 ${r.number}\n${r.note || ''}\nAb is number par bhi saare commands chalenge.`);
-      return reply(`🔑 *Pairing code — ${r.number}*\n\n\`${r.code}\`\n\nWhatsApp me: Linked devices → Link with phone number → ye code daalo.\nCode daalte hi bot connect ho jayega.`);
+      if (r.status === 'connected') return reply(`✅ *Extra bot connected:* ${r.number}`);
+      return reply(`🔑 *Pairing code (${r.number}):* \`${r.code}\``);
     }
   },
   {
     command: 'bots', aliases: ['mybots'], category: 'owner',
-    description: 'Extra bots ki list dekho',
+    description: 'Show the extra bots',
     usage: '.bots',
     ownerOnly: true,
     async handler(sock, message, args, context = {}) {
@@ -40,7 +40,7 @@ module.exports = { commands: [
       const reply = (t) => sock.sendMessage(chatId, { text: t }, { quoted: message });
       if (!message.key.fromMe && !await isOwner(senderJid, sock, chatId)) return reply('🚫 *You are not authorized to use this command!*');
       const list = mb.listBots();
-      if (!list.length) return reply(`🤖 *Multi-Bot Manager*\n\nKoi extra bot nahi hai.\nAdd karo: \`.addbot 919876543210\`\nMax ${mb.MAX_EXTRA} extra bots.`);
+      if (!list.length) return reply(`❌ *No extra bots.*\n📌 *Usage:* .addbot <number>`);
       const lines = list.map((b) => `📱 ${b.number} — *${b.status}*`).join('\n');
       return reply(`🤖 *Multi-Bot Manager*\n\n${lines}\n\nAdd: \`.addbot <number>\`\nRemove: \`.removebot <number>\``);
     }
@@ -59,7 +59,7 @@ module.exports = { commands: [
       if (!number) return reply('❌ Usage: `.removebot 919876543210`');
       const r = mb.removeBot(number);
       if (!r.ok) return reply('❌ ' + r.error);
-      return reply(`🗑️ Extra bot *${r.number}* hata diya gaya (session delete).`);
+      return reply(`✅ *Extra bot ${r.number} removed.*`);
     }
   }
 ] };

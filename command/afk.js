@@ -25,7 +25,7 @@ module.exports = {
     if (!reason) {
       const me = afk[sender];
       if (me) return reply(`😴 Tum AFK ho since ${new Date(me.since).toLocaleString('en-IN')}.\nReason: ${me.reason || '—'}\nWapas aakar koi message bhejte hi AFK hat jayega.`);
-      return reply('😴 AFK set karne ke liye reason likho:\n`.afk sone ja raha hu`');
+      return reply('📌 *Usage:* .afk <reason>');
     }
     afk[sender] = { reason, since: Date.now() };
     saveAfk(afk);
@@ -54,7 +54,7 @@ module.exports = {
     if (hit) {
       const { reason, since } = afk[hit];
       const mins = Math.max(1, Math.round((Date.now() - since) / 60000));
-      try { await sock.sendMessage(chatId, { text: `😴 @${hit.split('@')[0]} AFK hai (${mins} min se)${reason ? `: ${reason}` : ''}.`, mentions: [hit] }, { quoted: message }); } catch (_) {}
+      try { await sock.sendMessage(chatId, { text: `😴 @${hit.split('@')[0]} is AFK (${mins} min)${reason ? `: ${reason}` : ''}.`, mentions: [hit] }, { quoted: message }); } catch (_) {}
     }
     return false;
   }

@@ -19,7 +19,7 @@ const fei = require('../lib/feiApi');
 const fs = require('fs');
 const path = require('path');
 
-const FAIL = '❌ API abhi jawab nahi de rahi. Thodi der baad try karo.';
+const FAIL = '❌ *API is not responding. Try again later.*';
 
 function make(cmd, aliases, desc, usage, run, extra) {
   const obj = {
@@ -76,7 +76,7 @@ async function runNewsOutlet(sock, chatId, message, code, countArg) {
     const n = Number(countArg);
     if (Number.isFinite(n) && n >= 1 && n <= 10) count = Math.floor(n);
   }
-  await sock.sendMessage(chatId, { text: '📰 ' + source.name + ' ki headlines la raha hun…' }, { quoted: message }).catch(() => {});
+  await sock.sendMessage(chatId, { text: '📰 ' + source.name + ' headlines loading…' }, { quoted: message }).catch(() => {});
   const articles = await fei.fetchNews(source, count);
   await sock.sendMessage(chatId, { text: formatArticles(source, articles) }, { quoted: message });
 }
@@ -153,7 +153,7 @@ const canvasCommands = [
     const img = await fei.xrinaImage('canvas/windows', { text: quote });
     await sock.sendMessage(chatId, { image: img, caption: '🪟 *WINDOWS QUOTE*\n“' + quote.slice(0, 200) + '”' }, { quoted: message });
   }),
-  make('canvasquote', [], 'Quote canvas banao author ke saath', '.canvasquote <quote> | <author>', async (sock, chatId, message, input, args, reply) => {
+  make('canvasquote', [], 'Make a quote image with author', '.canvasquote <quote> | <author>', async (sock, chatId, message, input, args, reply) => {
     const parts = input.split('|').map(s => s.trim());
     if (parts.length !== 2 || !parts[0] || !parts[1]) return reply('❌ Usage: .canvasquote <quote> | <author>');
     if (parts[0].length > 650 || parts[1].length > 100) return reply('❌ Quote 650 aur author 100 chars tak rakho.');
@@ -178,10 +178,10 @@ const groupCommands = [
   make('getgcpp', [], 'Group ki profile photo dikhao', '.getgcpp', async (sock, chatId, message, input, args, reply) => {
     let url = '';
     try { url = await sock.profilePictureUrl(chatId, 'image'); } catch (_) {}
-    if (!url) return reply('❌ Is group ki profile photo nahi mili.');
+    if (!url) return reply('❌ *No group profile photo found.*');
     await sock.sendMessage(chatId, { image: { url }, caption: '👥 *Group Profile Photo*' }, { quoted: message });
   }, { groupOnly: true }),
-  make('groupcount', [], 'Group me kitne members aur admins hain', '.groupcount', async (sock, chatId, message, input, args, reply) => {
+  make('groupcount', [], 'How many members and admins in the group', '.groupcount', async (sock, chatId, message, input, args, reply) => {
     const meta = await sock.groupMetadata(chatId);
     const parts = Array.isArray(meta.participants) ? meta.participants : [];
     const admins = parts.filter(p => p.admin === 'admin' || p.admin === 'superadmin').length;
@@ -198,7 +198,7 @@ const groupCommands = [
       .map(([jid, count]) => ({ jid, count: Number(count) || 0 }))
       .filter(e => e.count > 0)
       .sort((a, b) => b.count - a.count);
-    if (!entries.length) return reply('✅ Is group me kisi ko warning nahi mili.');
+    if (!entries.length) return reply('✅ *Nobody has a warning in this group.*');
     const lines = entries.map((e, i) => (i + 1) + '. @' + e.jid.split('@')[0] + ' — ⚠️ ' + e.count + '/3');
     await sock.sendMessage(chatId, {
       text: fei.box('⚠️ WARNINGS LIST', lines.join('\n') + '\n\n3 warnings = auto-kick'),
@@ -264,22 +264,22 @@ const extraCommands = [
     await reply([
       '🔒 *QUEEN AKUMA PRIVACY*',
       '',
-      '• Ye bot group-chat history collect nahi karta, member activity ranking nahi banata.',
-      '• Message-specific commands sirf tab chalte hain jab koi unhe invoke kare.',
-      '• Anti-delete OFF rehta hai by default. ON karne par har chat me bounded, short-lived cache use hota hai.',
-      '• Anti-delete kabhi view-once messages cache nahi karta.',
+      '• This bot does not collect group chat history.',
+      '• Message commands only run when someone uses them.',
+      '• Anti-delete is OFF by default.',
+      '• Anti-delete never caches view-once messages.',
       '• Welcome/goodbye greetings OFF rehte hain by default.',
       '• Auto status view/react owner-controlled hai.',
-      '• .vv sirf tab chalta hai jab view-once media par reply karke invoke karo.'
+      '• .vv only works when you reply to a view-once message.'
     ].join('\n'));
   }),
-  make('statusdraft', [], 'Apna text status draft ki tarah format karo', '.statusdraft <text>', async (sock, chatId, message, input, args, reply) => {
+  make('statusdraft', [], 'Format your text as a status draft', '.statusdraft <text>', async (sock, chatId, message, input, args, reply) => {
     const text = input.replace(/[\u0000-\u0008\u000b\u000c\u000e-\u001f\u007f]/g, '').trim();
     if (!text) return reply('❌ Usage: .statusdraft <apna status text>');
     if (text.length > 700) return reply('❌ Status draft 700 characters tak rakho.');
     await reply('📱 *STATUS DRAFT*\n\n' + text + '\n\n_Ready to copy into your WhatsApp status._');
   }),
-  make('statusideas', [], 'Status ke liye ideas lo (theme: general/motivation/gratitude/weekend)', '.statusideas [theme]', async (sock, chatId, message, input, args, reply) => {
+  make('statusideas', [], 'Get status ideas (theme: general/motivation/gratitude/weekend)', '.statusideas [theme]', async (sock, chatId, message, input, args, reply) => {
     const theme = (input || 'general').trim().toLowerCase();
     const list = STATUS_IDEAS[theme];
     if (!list) return reply('❌ Theme chuno: general, motivation, gratitude ya weekend.');

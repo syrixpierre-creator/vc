@@ -42,7 +42,7 @@ module.exports = {
       const sorted = Object.entries(g)
         .sort((a, b) => b[1] - a[1])
         .slice(0, 10);
-      if (!sorted.length) return reply('📭 Abhi koi data nahi.');
+      if (!sorted.length) return reply('❌ *No data yet.*');
       let msg = `🏆 *Top Active Members*\n\n`;
       sorted.forEach(([jid, count], i) => {
         const num = jid.split('@')[0];

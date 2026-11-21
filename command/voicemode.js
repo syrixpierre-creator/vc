@@ -28,14 +28,14 @@ module.exports = { commands: [
       const b = (args[1] || '').toLowerCase();
       if (a === 'on' || a === 'off') {
         vm.saveConfig({ enabled: a === 'on' });
-        return reply(`🎙️ *Voice Mode ${a === 'on' ? 'ON ✅' : 'OFF ❌'}*\n\n${a === 'on' ? 'Ab voice note bhejo — bot sunega aur command chalega.' : 'Voice notes ab text ki tarah ignore honge.'}\nLanguage: *${cfg.lang === 'hi' ? 'Hindi' : 'English'}* (.vlang hi|en)\nVoice reply: *${cfg.replyVoice ? 'ON' : 'OFF'}* (.voicemode reply on|off)`);
+        return reply(`✅ *Voice mode ${a === 'on' ? 'ENABLED' : 'DISABLED'}*`);
       }
       if (a === 'reply' && (b === 'on' || b === 'off')) {
         vm.saveConfig({ replyVoice: b === 'on' });
         return reply(`🔊 *Voice reply ${b === 'on' ? 'ON ✅' : 'OFF ❌'}*`);
       }
-      const key = (process.env.GROQ_API_KEY ? '✅ Groq' : (process.env.WIT_AI_TOKEN ? '✅ Wit.ai' : '❌ koi STT key nahi'));
-      return reply(`🎙️ *Voice Mode*\n\nStatus: *${cfg.enabled ? 'ON ✅' : 'OFF ❌'}*\nLanguage: *${cfg.lang === 'hi' ? 'Hindi' : 'English'}*\nVoice reply: *${cfg.replyVoice ? 'ON' : 'OFF'}*\nSTT key: ${key}\n\n*.voicemode on|off* — toggle\n*.voicemode reply on|off* — jawab voice me ya text me\n*.vlang hi|en* — language\n*.bol <text>* — text ko voice note banao\n\n${key.startsWith('❌') ? '⚠️ Key ke bina voice note kaam nahi karega.\nFree key: console.groq.com → GROQ_API_KEY env me daalo.\nDetails: VOICE_MODE.md' : '✅ Voice note bhejo, try karo!'}`);
+      const key = (process.env.GROQ_API_KEY ? '✅ Groq' : (process.env.WIT_AI_TOKEN ? '✅ Wit.ai' : '❌ no STT key'));
+      return reply(`✅ *Voice mode: ${cfg.enabled ? 'ON' : 'OFF'}*\n\nAvailable options:\n- on\n- off\n- reply on|off`);
     }
   },
   {

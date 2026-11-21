@@ -40,7 +40,7 @@ module.exports = {
       });
       const ct = String((res.headers && res.headers['content-type']) || '');
       if (!ct.startsWith('image/') || !res.data || res.data.length < 1000) {
-        await reply('❌ Screenshot nahi ban paya — site ne block kiya ho sakta hai. Koi aur URL try karo.');
+        await reply('❌ *Screenshot failed.* Try another URL.');
         return;
       }
       await sock.sendMessage(chatId, {

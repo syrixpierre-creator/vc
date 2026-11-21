@@ -40,7 +40,7 @@ function ttsSave(text, lang) {
   });
 }
 
-const FAIL = '❌ API abhi jawab nahi de rahi. Thodi der baad try karo.';
+const FAIL = '❌ *API is not responding. Try again later.*';
 
 function make(cmd, aliases, desc, usage, run) {
   return {
@@ -79,14 +79,14 @@ function valueAt(payload, paths) {
 
 function sendAnswer(reply, title, answer) {
   const body = String(answer || '').trim();
-  if (!body) throw new Error('AI ne jawab nahi diya.');
+  if (!body) throw new Error('The AI did not answer.');
   return reply(fei.box(title, body.slice(0, 3300)));
 }
 
 module.exports = {
   commands: [
     make('mathgpt', [], 'Maths step-by-step solve karo (Elite AI)', '.mathgpt <sawal>', async (sock, chatId, message, input, args, reply) => {
-      await sock.sendMessage(chatId, { text: '➗ MathGPT soch raha hai…' }, { quoted: message }).catch(() => {});
+      await sock.sendMessage(chatId, { text: '➗ Thinking…' }, { quoted: message }).catch(() => {});
       const ans = await fei.eliteMathgpt(input);
       await sendAnswer(reply, '➗ MATHGPT', ans);
     }),
@@ -118,7 +118,7 @@ module.exports = {
         out = await ttsSave(text, lang);
         const buf = fs.readFileSync(out);
         await sock.sendMessage(chatId, { audio: buf, mimetype: 'audio/mpeg', ptt: false }, { quoted: message });
-        await reply(fei.box('🔊 TEXT TO SPEECH V3', 'Text: ' + text.slice(0, 500) + '\nLanguage: ' + language + ' (' + lang + ')\n_Note: free gTTS me voice selection nahi hota._'));
+        await reply(fei.box('🔊 TEXT TO SPEECH V3', 'Text: ' + text.slice(0, 500) + '\nLanguage: ' + language + ' (' + lang + ')'));
       } catch (e) {
         await reply('❌ Voice nahi ban paya: ' + String(e.message || e).slice(0, 120));
       } finally {
@@ -135,7 +135,7 @@ module.exports = {
         out = await ttsSave(text, 'en');
         const buf = fs.readFileSync(out);
         await sock.sendMessage(chatId, { audio: buf, mimetype: 'audio/mpeg', ptt: false }, { quoted: message });
-        await reply(fei.box('🔊 TEXT TO SPEECH V2', 'Text: ' + text.slice(0, 500) + '\n_Note: free gTTS me voice selection nahi hota._'));
+        await reply(fei.box('🔊 TEXT TO SPEECH V2', 'Text: ' + text.slice(0, 500) + ''));
       } catch (e) {
         await reply('❌ Voice nahi ban paya: ' + String(e.message || e).slice(0, 120));
       } finally {

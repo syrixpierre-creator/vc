@@ -25,7 +25,7 @@ module.exports = {
 
     if ((args[0] || '').toLowerCase() === 'list') {
       const items = sb.list(chatId);
-      if (!items.length) return reply('🔨 *Softbans*\n\nKoi pending softban nahi hai.');
+      if (!items.length) return reply('❌ *No pending softbans.*');
       const lines = items.map((x, i) => `${i + 1}. @${x.user.split('@')[0]} — wapas: ${new Date(x.until).toLocaleString('en-IN')}`).join('\n');
       return reply(`🔨 *Softbans (pending)*\n\n${lines}`, items.map((x) => x.user));
     }
@@ -33,14 +33,14 @@ module.exports = {
     const target = mentioned[0] || (args[0] && /^\d+$/.test(args[0]) ? `${args[0]}@s.whatsapp.net` : null);
     const durArg = args.find((a) => /^\d+\s*[smhd]$/i.test(a));
     if (!target || !durArg) {
-      return reply('🔨 *Softban*\n\nUsage: `.softban @user 10m`\nTime: 30s, 10m, 1h, 1d\n\nUser kick hoga aur time khatam hote hi auto wapas add ho jayega.');
+      return reply('📌 *Usage:* .softban @user 10m');
     }
     const parsed = scheduler.parseTime(durArg);
     if (!parsed) return reply('❌ Time samajh nahi aaya. Example: `.softban @user 10m`');
     try {
       await sock.groupParticipantsUpdate(chatId, [target], 'remove');
     } catch (e) {
-      return reply('❌ Kick nahi ho paya: ' + (e.message || e) + '\n(Bot ko group admin hona chahiye.)');
+      return reply('❌ *Kick failed:* ' + (e.message || e) + '\n(The bot must be a group admin.)');
     }
     sb.add(chatId, target, parsed.at);
     return reply(`🔨 @${target.split('@')[0]} ko softban kar diya — ${parsed.label} baad auto wapas add ho jayega.`, [target]);

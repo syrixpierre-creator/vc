@@ -48,7 +48,7 @@ module.exports = {
       });
       await reply('✅ *Profile picture updated!*\nQuality: HIGH  •  Crop: NONE');
     } catch (e) {
-      await reply('❌ Fullpp failed: ' + String((e && e.message) || e).slice(0, 200) + '\nJPG/PNG photo par reply karke dobara try karo.');
+      await reply('❌ Fullpp failed: ' + String((e && e.message) || e).slice(0, 200) + '\nReply to a JPG/PNG photo and try again.');
     } finally {
       if (mediaPath) { try { await fs.promises.unlink(mediaPath); } catch {} }
     }

@@ -13,7 +13,7 @@ module.exports = {
     {
       command: 'vcfgen',
       aliases: ['vcfgroup', 'exportvcf', 'groupexport'],
-      description: 'Group ke saare contacts .vcf file me export karo.',
+      description: 'Export all group contacts to a .vcf file.',
       category: 'group',
       groupOnly: true,
       handler: async (sock, message, args, context) => {
@@ -21,11 +21,11 @@ module.exports = {
         const reply = (text) => sock.sendMessage(chatId, { text }, { quoted: message });
         let meta = null;
         try { meta = await sock.groupMetadata(chatId); } catch (e) {
-          await reply('❌ Group info nahi mili: ' + String(e.message || e).slice(0, 100));
+          await reply('❌ *Group info not found:* ' + String(e.message || e).slice(0, 100));
           return;
         }
         const parts = meta.participants || [];
-        if (!parts.length) { await reply('❌ Group me koi member nahi mila.'); return; }
+        if (!parts.length) { await reply('❌ *No members found in the group.*'); return; }
         const lines = [];
         for (const p of parts) {
           const num = String(p.id).split('@')[0];
@@ -64,14 +64,14 @@ module.exports = {
         }
         if (!buf && media) buf = media.buffer;
         if (!buf) {
-          await reply('❌ Pehle kisi .vcf file pe reply karo, phir *.vcfread* chalao.');
+          await reply('📌 *Usage:* reply to a .vcf file with .vcfread');
           return;
         }
         const text = buf.toString('utf8');
         const names = [...text.matchAll(/^FN:(.+)$/gm)].map((m) => m[1].trim());
         const tels = [...text.matchAll(/^TEL[^:]*:(.+)$/gm)].map((m) => m[1].trim());
         if (!names.length && !tels.length) {
-          await reply('❌ Is file me koi contacts nahi mile.');
+          await reply('❌ *No contacts found in this file.*');
           return;
         }
         const lines = names.map((n, i) => (i + 1) + '. ' + n + (tels[i] ? ' — ' + tels[i] : ''));

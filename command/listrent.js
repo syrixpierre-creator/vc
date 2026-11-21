@@ -33,7 +33,7 @@ module.exports = {
 
         if (list.length === 0) {
             return await sock.sendMessage(chatId, {
-                text: "*❌ No sub-bots are currently active or stored.*\n\nRent par bot dene ke liye: `.rentbot <number>` phir `.rentadd <number> <30d> [price] [naam]`"
+                text: "❌ *No sub-bots are active or stored.*"
             }, { quoted: message });
         }
 
@@ -50,7 +50,7 @@ module.exports = {
                 msg += `    💰 Price: ${rentLib.fmtPrice(e.rent.price)}\n`;
                 msg += `    ⏰ Expires: ${rentLib.fmtDateIST(e.rent.expiresAt)}${e.rent.expiresAt ? ' (' + rentLib.fmtRemaining(e.rent.expiresAt - Date.now()) + ')' : ' — unlimited'}\n`;
             } else {
-                msg += `    💰 Rent record nahi hai — .rentadd se add karo\n`;
+                msg += `    💰 No rent record\n`;
             }
             msg += `\n`;
         });

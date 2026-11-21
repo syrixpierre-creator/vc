@@ -29,7 +29,7 @@ module.exports = {
   command: 'delpremuser',
   aliases: [],
   category: 'owner',
-  description: 'Premium se hatao (owner-only): .delpremuser <number|@user|reply>',
+  description: 'Remove from premium (owner only): .delpremuser <number|@user|reply>',
   usage: '.delpremuser <number|@user|reply>',
   async handler(sock, message, args, context = {}) {
     const chatId = context.chatId || message.key.remoteJid;
@@ -41,16 +41,16 @@ module.exports = {
     if (!num && ctxInfo.mentionedJid && ctxInfo.mentionedJid[0]) num = digits(ctxInfo.mentionedJid[0]);
     if (!num && ctxInfo.participant) num = digits(ctxInfo.participant);
     if (!num || num.length < 10) {
-      await reply('👑 *Del Premium*\n\nUsage: `.delpremuser 919876543210`\nya user ko mention/reply karke bhejo.');
+      await reply('📌 *Usage:* .delpremuser <number>');
       return;
     }
     const list = load();
     const kept = list.filter((e) => digits(jidOf(e)) !== num);
     if (kept.length === list.length) {
-      await reply('ℹ️ +' + num + ' premium me hai hi nahi.\nList dekhne ke liye: `.cekprem`');
+      await reply('ℹ️ +' + num + ' is not premium.');
       return;
     }
     save(kept);
-    await reply('✅ *Premium hataya*\n\n📱 +' + num + ' ab premium nahi raha.\nBache hue premium users: ' + kept.length);
+    await reply('✅ *Premium hataya*\n\n📱 +' + num + ' is no longer premium.\nPremium users left: ' + kept.length);
   },
 };

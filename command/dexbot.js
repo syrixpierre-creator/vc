@@ -66,7 +66,7 @@ module.exports = {
       if (!q) return sock.sendMessage(chatId, { text: 'Usage: `.dexbot ask <question>`' }, { quoted: message });
       const isGroup = chatId.endsWith('@g.us');
       if (!dex.shouldReply(chatId, isGroup) && !owner) {
-        return sock.sendMessage(chatId, { text: '❌ Dexbot yahan OFF hai. Owner: `.dexbot on`' }, { quoted: message });
+        return sock.sendMessage(chatId, { text: '❌ *Dexbot is OFF here.*' }, { quoted: message });
       }
       await sock.sendMessage(chatId, { text: '⏳ Thinking…' }, { quoted: message }).catch(() => {});
       const ai = await dex.askGemini(q);
@@ -75,7 +75,7 @@ module.exports = {
     }
 
     if (!owner) {
-      return sock.sendMessage(chatId, { text: '❌ Sirf *owner* dexbot settings change kar sakta hai.\nAI ke liye: `.dexbot ask <q>` (agar on ho)' }, { quoted: message });
+      return sock.sendMessage(chatId, { text: '🚫 *You are not authorized to use this command!*' }, { quoted: message });
     }
 
     if (sub === 'on') {

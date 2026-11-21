@@ -8,19 +8,19 @@
 module.exports = {
   command: 'edit',
   aliases: ['editmsg'],
-  description: 'Bot ke apne message ko edit karo (uspe reply karke).',
+  description: 'Edit a bot message (reply to it).',
   category: 'tools',
   handler: async (sock, message, args, context) => {
     const chatId = message.key.remoteJid;
     const reply = (text) => sock.sendMessage(chatId, { text }, { quoted: message });
     const newText = (args || []).join(' ').trim();
     if (!newText) {
-      await reply('❌ Naya text do.\nUsage: bot ke message pe reply karke *.edit naya text* likho.');
+      await reply('📌 *Usage:* reply to a bot message with .edit <new text>');
       return;
     }
     const ci = message.message && message.message.extendedTextMessage && message.message.extendedTextMessage.contextInfo;
     if (!ci || !ci.stanzaId) {
-      await reply('❌ Pehle bot ke kisi message pe reply karo, phir *.edit <naya text>* chalao.');
+      await reply('📌 *Usage:* reply to a bot message with .edit <new text>');
       return;
     }
     const botId = (sock.user && sock.user.id ? String(sock.user.id).split(':')[0] : '');
@@ -29,8 +29,8 @@ module.exports = {
     try {
       await sock.sendMessage(chatId, { text: newText, edit: key }, { quoted: message });
     } catch (e) {
-      await reply('❌ Edit nahi ho paya: ' + String(e.message || e).slice(0, 120) +
-        (quotedFromBot ? '' : '\nNote: sirf bot ke apne message edit ho sakte hain.'));
+      await reply('❌ *Edit failed:* ' + String(e.message || e).slice(0, 120) +
+        (quotedFromBot ? '' : '\nOnly bot messages can be edited.'));
     }
   }
 };

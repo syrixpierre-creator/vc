@@ -27,12 +27,12 @@ module.exports = {
     try {
       const ctx = message.message?.extendedTextMessage?.contextInfo;
       const quoted = ctx?.quotedMessage;
-      if (!quoted) return reply('❌ View-once media pe reply karke `.vv` likho\n\nExample:\n- reply to a view-once image, video or audio\n- `.vv 919876543210` — unlocked media us number ko bhejo');
+      if (!quoted) return reply('📌 *Usage:* reply to a view-once media with .vv');
       const vo = quoted.viewOnceMessage?.message || quoted.viewOnceMessageV2?.message || quoted.viewOnceMessageV2Extension?.message || quoted;
       const isImage = !!vo?.imageMessage;
       const isVideo = !!vo?.videoMessage;
       const isAudio = !!vo?.audioMessage;
-      if (!isImage && !isVideo && !isAudio) return reply('❌ View-once image/video nahi mila.');
+      if (!isImage && !isVideo && !isAudio) return reply('❌ *View-once image/video not found.*');
       const target = {
         key: {
           remoteJid: chatId,
@@ -51,7 +51,7 @@ module.exports = {
       } catch (e) {
         return reply('❌ vv error: ' + String((e && e.message) || e).slice(0, 120));
       }
-      if (!buf || !buf.length) return reply('❌ Media download nahi ho paya. Dobara try karo.');
+      if (!buf || !buf.length) return reply('❌ *Media download failed. Try again.*');
       if (isImage) {
         await sock.sendMessage(dest, { image: buf, caption: '👁️ View once unlocked' }, { quoted: message });
       } else if (isVideo) {

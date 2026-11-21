@@ -55,7 +55,7 @@ module.exports = {
     const reply = (text) => sock.sendMessage(chatId, { text }, { quoted: message });
     const media = await getMedia(message, ['image', 'sticker']);
     if (!media) {
-      await reply('❌ Pehle kisi photo/sticker pe reply karo, phir *.getexif* chalao.');
+      await reply('📌 *Usage:* reply to a photo or sticker with .getexif');
       return;
     }
     try {
@@ -76,16 +76,16 @@ module.exports = {
             const strs = readableStrings(Buffer.from(exif), 4).filter((s) => /[A-Za-z]{3,}/.test(s));
             lines.push('\n📋 EXIF (' + exif.length + ' bytes):\n' + (strs.length ? strs.slice(0, 15).join('\n') : '(binary data, readable text nahi)'));
           } else {
-            lines.push('\n📋 EXIF: nahi mila (sticker me EXIF nahi hota aksar — sirf pack/author hota hai)');
+            lines.push('\n📋 EXIF: not found');
             if (img.icc) lines.push('🎨 ICC profile: haan');
           }
         } catch (e) {
-          lines.push('\n📋 WebP EXIF parse nahi ho paya: ' + String(e.message || e).slice(0, 80));
+          lines.push('\n📋 WebP EXIF parse failed: ' + String(e.message || e).slice(0, 80));
         }
       } else {
         const tags = jpegExifInfo(media.buffer);
         if (tags.length) lines.push('\n📋 EXIF tags:\n' + tags.join('\n'));
-        else lines.push('\n📋 EXIF: nahi mila (ye photo EXIF ke bina save hui hai)');
+        else lines.push('\n📋 EXIF: not found');
       }
       await reply(lines.join('\n'));
     } catch (e) {

@@ -28,7 +28,7 @@ function geminiVision(key, base64, mime, question, timeout = 30000) {
           const j = JSON.parse(d);
           const text = j?.candidates?.[0]?.content?.parts?.map((p) => p.text || '').join('');
           if (text) return resolve(text);
-          reject(new Error((j && j.error && j.error.message) || 'Gemini se jawab nahi mila'));
+          reject(new Error((j && j.error && j.error.message) || 'No answer from Gemini'));
         } catch (e) { reject(e); }
       });
     });
@@ -43,14 +43,14 @@ module.exports = {
   command: 'vision',
   aliases: ['seepic', 'whatsinpic'],
   category: 'ai',
-  description: 'Photo ko AI se samjho — describe karo ya sawal puchho',
+  description: 'Understand a photo with AI: describe it or ask a question',
   usage: '.vision [sawal] (photo par reply karo)',
   async handler(sock, message, args, context = {}) {
     const chatId = context.chatId || message.key.remoteJid;
     const reply = (t) => sock.sendMessage(chatId, { text: t }, { quoted: message });
     const key = process.env.GEMINI_API_KEY || '';
     if (!key) {
-      return reply('❌ *AI Vision ke liye Gemini key chahiye.*\n\n1. https://aistudio.google.com/app/apikey se FREE key lo\n2. `.env` me daalo: `GEMINI_API_KEY=<redacted>\n3. Bot restart karo, phir photo par reply karke `.vision` likho.');
+      return reply('❌ *GEMINI_API_KEY is missing.* Set it in .env and restart the bot.');
     }
     // Photo: khud ke message me image, ya quoted image
     const ctx = message.message?.extendedTextMessage?.contextInfo;
@@ -65,15 +65,15 @@ module.exports = {
       mime = quoted.imageMessage.mimetype || mime;
     }
     if (!target) {
-      return reply('❌ *Photo nahi mili!*\n\nKisi photo par reply karke likho:\n`.vision`\nYa sawal ke saath:\n`.vision is photo me kya hai?`');
+      return reply('📌 *Usage:* reply to a photo with .vision <question>');
     }
     const question = (args || []).join(' ').trim()
-      || 'Is photo ko detail me describe karo — kya dikh raha hai, log, cheezein, rang, mood. Hinglish me jawab do.';
+      || 'Describe this photo in detail: what is visible, people, objects, colors, mood. Answer in English.';
     await reply('👁️ *Photo dekh raha hoon...*');
     try {
       const { downloadMediaMessage } = require('@whiskeysockets/baileys');
       const buf = await downloadMediaMessage(target, 'buffer', {}, { reuploadRequest: sock.updateMediaMessage });
-      if (!buf || buf.length > 4 * 1024 * 1024) return reply('❌ Photo bahut badi hai (4MB se kam rakho).');
+      if (!buf || buf.length > 4 * 1024 * 1024) return reply('❌ *Photo is too big (keep it under 4MB).*');
       const ans = await geminiVision(key, buf.toString('base64'), mime, question);
       return reply('👁️ *AI Vision*\n\n' + String(ans).slice(0, 3500));
     } catch (e) {

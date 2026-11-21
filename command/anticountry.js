@@ -29,8 +29,8 @@ module.exports = {
     if (sub === 'unban') {
       const num = (args[1] || '').replace(/[^0-9]/g, '');
       if (!num) return reply('❌ Number do: `.anticountry unban 212xxxxxxxx`');
-      if (ac.addException(num)) return reply(`✅ *${num}* ko exception de diya — ab wo join kar sakta hai.`);
-      return reply(`ℹ️ *${num}* pehle se exception me hai.`);
+      if (ac.addException(num)) return reply(`✅ *${num} added to the exceptions.*`);
+      return reply(`❌ *${num} is already in the exceptions.*`);
     }
     return reply(`🛡️ *Anti-Country:* ${s.enabled ? '✅ ON' : '❌ OFF'}\n\nBlocked codes: ${s.codes.join(', ')}\n\nUsage:\n• \`.anticountry on\` / \`.anticountry off\`\n• \`.anticountry list\`\n• \`.anticountry unban <number>\``);
   },

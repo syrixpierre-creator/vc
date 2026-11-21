@@ -101,7 +101,7 @@ async function searchAnime(query) {
 const handler = async (m, { conn, command, args }) => {
     if (command === "otakudesu") {
         if (!args.length) {
-            return m.reply("Gunakan format :\n- *otakudesu latest* : Anime terbaru\n- *otakudesu search <judul>* : Cari anime\n- *otakudesu detail <url>* : Detail anime");
+            return m.reply("❌ *Invalid option!*\n\nAvailable options:\n- latest\n- search <title>\n- detail <url>");
         } else if (args[0] === "latest") {
             let data = await latestAnime();
             if (data.error) return m.reply(data.error);

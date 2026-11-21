@@ -5,8 +5,7 @@ let handler = async (m, { conn, text, usedPrefix, command }) => {
     await m.react('✨')
 
     if (!text) {
-        return m.reply(`Contoh penggunaan:
-${usedPrefix + command} cinta untuk starla`)
+        return m.reply(`📌 *Usage:* ${usedPrefix + command} <song name>`)
     }
 
     try {

@@ -105,11 +105,11 @@ module.exports = {
           "• .channelstatus 12036...@newsletter Hello\n\n" +
           "Channel: `" + channelJid + "`\n" +
           "Name: " + (settings.channelName || "-") + "\n\n" +
-          "Note: App me channel pe Add channel status dikhna chahiye. Bot Owner/Admin hona zaroori."
+          "The bot must be owner/admin of the channel."
       }, { quoted: message });
     }
 
-    await sock.sendMessage(chatId, { text: "⏳ Channel Status publish ho raha hai..." }, { quoted: message }).catch(function () {});
+    await sock.sendMessage(chatId, { text: "⏳ Publishing channel status..." }, { quoted: message }).catch(function () {});
 
     const caps = await tryCapabilities(sock, channelJid);
     let method = "";

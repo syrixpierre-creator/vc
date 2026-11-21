@@ -15,17 +15,12 @@ function parseReactions(values) { return [...new Set(values.join(' ').split(/[\s
 async function reactToNewsletter(conn, jid, messageId, reaction) {
   if (typeof conn.newsletterReactMessage === 'function') return conn.newsletterReactMessage(jid, messageId, reaction);
   if (typeof conn.newsletterReact === 'function') return conn.newsletterReact(jid, messageId, reaction);
-  throw new Error('Tumhare Baileys version mein newsletter reaction API available nahi hai.');
+  throw new Error('Your Baileys version does not support newsletter reactions.');
 }
 cmd({ pattern: 'chreact', aliases: ['creact', 'channelreact'], react: '❤️', desc: 'React to a WhatsApp Channel post by URL or newsletter JID', category: 'owner' }, async (conn, mek, _store, context) => {
   const { q, args, reply, isOwner, isSuperUser, isAdmin, isGroup } = context;
-  if (!isOwner && !isSuperUser && !(isGroup && isAdmin)) return reply('❌ Sirf bot owner/sudo ya group admin channel reaction use kar sakta hai.');
-  if (!q) return reply(`*Usage:*
-• .chreact https://whatsapp.com/channel/0029VbC6It7K0IBkQwaKYd2J/POST_ID 😍,❤️,😂
-• .chreact 120363403408693274@newsletter POST_ID 😍 ❤️ 😂
-• .channelreact JID/POST_ID reaction1 reaction2
-
-URL ya newsletter JID dono valid hain. Reaction comma ya space se separate kar sakte ho.`);
+  if (!isOwner && !isSuperUser && !(isGroup && isAdmin)) return reply('🚫 *You are not authorized to use this command!*');
+  if (!q) return reply(`📌 *Usage:* .chreact <channel post link> 😍,❤️,😂`);
   const target = parseTarget(args[0]);
   if (!target) return reply('❌ Invalid channel target. WhatsApp Channel post URL ya valid number@newsletter JID do.');
   let messageId = target.messageId;
@@ -35,10 +30,10 @@ URL ya newsletter JID dono valid hain. Reaction comma ya space se separate kar s
   if (!messageId || !isMessageId(messageId)) return reply('❌ Message ID missing hai. Example: .chreact 120363403408693274@newsletter 3129 😍,❤️');
   try {
     if (target.kind === 'invite') {
-      if (typeof conn.newsletterMetadata !== 'function') throw new Error('Newsletter metadata API available nahi hai.');
+      if (typeof conn.newsletterMetadata !== 'function') throw new Error('Newsletter metadata API is not available.');
       const metadata = await conn.newsletterMetadata('invite', target.invite);
       channelJid = metadata?.id;
-      if (!isNewsletterJid(channelJid)) throw new Error('Channel invite se valid newsletter JID nahi mila.');
+      if (!isNewsletterJid(channelJid)) throw new Error('❌ *Channel not found from this link.*');
     }
     if (!isNewsletterJid(channelJid)) return reply('❌ Invalid newsletter JID. Format: 120363403408693274@newsletter');
     const reactions = parseReactions(reactionArgs.length ? reactionArgs : ['❤️', '😍', '😳', '🥰']);

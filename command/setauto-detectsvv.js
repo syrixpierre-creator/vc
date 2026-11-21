@@ -10,7 +10,7 @@ function isOwner(m) {
 async function setAutoDetectVvCommand(sock, m, args) {
   const chatId = m.key.remoteJid;
   if (!isOwner(m)) {
-    return sock.sendMessage(chatId, { text: '❌ Sirf bot owner `.setdetectvv` mode change kar sakta hai.' }, { quoted: m });
+    return sock.sendMessage(chatId, { text: '🚫 *You are not authorized to use this command!*' }, { quoted: m });
   }
 
   const option = String(args[0] || '').toLowerCase();
@@ -18,12 +18,12 @@ async function setAutoDetectVvCommand(sock, m, args) {
   if (option === 'private' || option === 'on') {
     setAutoDetectMode(chatId, 'private');
     return sock.sendMessage(chatId, {
-      text: '✅ Auto ViewOnce detection *private* mode mein ON hai.\nIs group/DM mein aane wali ViewOnce image, video ya audio sirf connected bot number par recover hogi.'
+      text: '✅ *Auto ViewOnce detect ENABLED* (private)'
     }, { quoted: m });
   }
   if (option === 'off') {
     setAutoDetectMode(chatId, null);
-    return sock.sendMessage(chatId, { text: '✅ Auto ViewOnce detection OFF ho gaya.' }, { quoted: m });
+    return sock.sendMessage(chatId, { text: '✅ *Auto ViewOnce detect DISABLED*' }, { quoted: m });
   }
   if (option === 'status' || !option) {
     return sock.sendMessage(chatId, {
@@ -31,7 +31,7 @@ async function setAutoDetectVvCommand(sock, m, args) {
     }, { quoted: m });
   }
   return sock.sendMessage(chatId, {
-    text: '❌ Sirf private mode available hai. Use: `.setdetectvv on`, `.setdetectvv private`, `.setdetectvv status`, ya `.setdetectvv off`.'
+    text: '❌ *Invalid option!*\n\nAvailable options:\n- on\n- off\n- status'
   }, { quoted: m });
 }
 

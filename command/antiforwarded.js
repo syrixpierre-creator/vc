@@ -76,7 +76,7 @@ cmd({ on: 'body' }, async (conn, m, store, { from, sender, isGroup }) => {
             return;
         await conn.sendMessage(from, { delete: m.key });
         await conn.sendMessage(from, {
-            text: `⚠️ @${String(sender).split('@')[0]} ka forwarded ${info.type.replace('Message', '')} message delete kar diya gaya.\n\n_Admins forwarded messages bhej sakte hain._`,
+            text: `⚠️ @${String(sender).split('@')[0]} forwarded messages are not allowed here.`,
             mentions: [sender]
         });
     }
@@ -89,6 +89,6 @@ cmd({ pattern: 'antiforwarded', aliases: ['noforward', 'forwardguard'], category
     if (!isGroup)
         return reply('❌ *This command can only be used in groups!*');
     if (!isAdmin)
-        return reply('❌ Sirf group admins is protection ko check kar sakte hain.');
-    return reply('✅ Anti-forwarded protection active hai. Normal users ke forwarded messages auto-delete honge; admins exempt hain.');
+        return reply('🚫 *Only group admins can use this command.*');
+    return reply('✅ *Anti-forward is active.*');
 });

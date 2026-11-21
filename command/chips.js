@@ -71,7 +71,7 @@ module.exports = {
         const cost = n * COINS_PER_CHIP;
         const { user: ecoUser } = economy.getUser(sender);
         if ((ecoUser.coins || 0) < cost) {
-          await reply('❌ Coins kam hain. ' + n + ' chips ke liye ' + cost.toLocaleString('en-IN') + ' coins chahiye. Wallet: ' + (ecoUser.coins || 0));
+          await reply('❌ Coins kam hain. ' + n + ' chips for ' + cost.toLocaleString('en-IN') + ' coins chahiye. Wallet: ' + (ecoUser.coins || 0));
           return;
         }
         economy.addCoins(sender, -cost);
@@ -105,7 +105,7 @@ module.exports = {
     {
       command: 'resetchips',
       aliases: ['clearchips'],
-      description: 'Kisi ke chips reset karo (owner-only).',
+      description: 'Reset someone chips (owner only).',
       category: 'owner',
       handler: async (sock, message, args, context) => {
         const chatId = message.key.remoteJid;
@@ -132,7 +132,7 @@ module.exports = {
         const { user } = getUser(sender);
         const tx = (user.tx || []).slice(-10).reverse();
         if (!tx.length) {
-          await sock.sendMessage(chatId, { text: 'ℹ️ Abhi koi chips transaction nahi hai.' }, { quoted: message });
+          await sock.sendMessage(chatId, { text: '❌ *No chips transactions yet.*' }, { quoted: message });
           return;
         }
         const lines = tx.map((t, i) => (i + 1) + '. ' + t.type + ' ' + (t.amount > 0 ? '+' : '') + t.amount + ' chips' + (t.note ? ' (' + t.note + ')' : '') + ' — ' + new Date(t.at).toLocaleDateString('en-IN'));

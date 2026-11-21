@@ -38,23 +38,15 @@ const Fruatre = async (m, { conn, usedPrefix, args, command }) => {
 
   // Handle perintah tanpa argumen atau dengan argumen 'help'
   if (!args[0] || args[0] === "help") {
-    const message = `* JUDI BOLA⚽*
+    const message = `❌ *Invalid option!*
 
-• ${usedPrefix}jb create (buat room)
-• ${usedPrefix}jb join (player join, taruhan 1000000)
-• ${usedPrefix}jb player (daftar pemain yang bergabung)
-• ${usedPrefix}jb mulai (mulai game)
-• ${usedPrefix}jb vote 1/2 (vote klub pilihan)
-• ${usedPrefix}jb delete (hapus sesi room game)
-
-Buatkan sebuah permainan tebak pertandingan bola, contoh: 1 Braga vs 2 Lazio
-
-Untuk pilihan, gunakan ${usedPrefix}jb vote 1 atau 2
-
-Minimal player yang bergabung untuk memulai game adalah 2 pemain.
-
-Taruhan: 1000000
-Hadiah: 900000000000`;
+Available options:
+- create
+- join
+- player
+- mulai
+- vote 1/2
+- delete`;
     await conn.sendMessage(m.chat, {
       text: message
     });
@@ -74,30 +66,30 @@ Hadiah: 900000000000`;
         clubs: [],
         bank: 0 // Inisialisasi bank untuk taruhan
       };
-      m.reply('Room berhasil dibuat. Pemain sekarang bisa bergabung.');
+      m.reply('✅ *Room created.* Players can join now.');
       break;
 
     case 'join':
       // Logika agar pemain bergabung ke room
       if (!conn.jbRooms[m.chat]) {
-        return m.reply('Belum ada room yang dibuat. Gunakan .jb create untuk membuat room.');
+        return m.reply('❌ *No room yet.* Create one with .jb create');
       }
       if (conn.jbRooms[m.chat].gameStarted) {
-        return m.reply('Game sudah dimulai. Tidak bisa bergabung sekarang.');
+        return m.reply('❌ *The game has already started.*');
       }
       if (conn.jbRooms[m.chat].players.find(p => p.id === m.sender)) {
-        return m.reply('Anda sudah bergabung di room.');
+        return m.reply('❌ *You already joined.*');
       }
       const playerName = m.pushName || conn.getName(m.sender);
       conn.jbRooms[m.chat].players.push({ id: m.sender, name: playerName });
       conn.jbRooms[m.chat].bank += 1000000; // Tambahkan taruhan ke bank
-      m.reply(`Anda berhasil bergabung di room. Anda telah memasang taruhan sebesar 1000000. Total taruhan: ${conn.jbRooms[m.chat].bank}`);
+      m.reply(`✅ *You joined the room.* Bet: 1000000. Total: ${conn.jbRooms[m.chat].bank}`);
       break;
 
     case 'player':
       // Logika untuk daftar pemain yang bergabung
       if (!conn.jbRooms[m.chat]) {
-        return m.reply('Belum ada room yang dibuat. Gunakan .jb create untuk membuat room.');
+        return m.reply('❌ *No room yet.* Create one with .jb create');
       }
       const players = conn.jbRooms[m.chat].players;
       m.reply(`Pemain yang bergabung: \n${players.map(p => `${p.name} (${p.id})`).join('\n')}`);
@@ -106,7 +98,7 @@ Hadiah: 900000000000`;
     case 'mulai':
       // Logika untuk memulai game
       if (!conn.jbRooms[m.chat]) {
-        return m.reply('Belum ada room yang dibuat. Gunakan .jb create untuk membuat room.');
+        return m.reply('❌ *No room yet.* Create one with .jb create');
       }
       if (conn.jbRooms[m.chat].players.length < 2) {
         return m.reply('Minimal 2 pemain untuk memulai game.');
@@ -114,25 +106,25 @@ Hadiah: 900000000000`;
       shuffleArray(clubs);
       conn.jbRooms[m.chat].clubs = [clubs[0], clubs[1]];
       conn.jbRooms[m.chat].gameStarted = true;
-      m.reply(`Game dimulai! Pertandingan: 1 ${clubs[0]} vs 2 ${clubs[1]}. Silakan vote klub pilihan Anda.`);
+      m.reply(`⚽ *Game started!* 1 ${clubs[0]} vs 2 ${clubs[1]}. Vote your club.`);
       break;
 
     case 'vote':
       // Logika untuk vote
       if (!conn.jbRooms[m.chat]) {
-        return m.reply('Belum ada room yang dibuat. Gunakan .jb create untuk membuat room.');
+        return m.reply('❌ *No room yet.* Create one with .jb create');
       }
       if (!conn.jbRooms[m.chat].gameStarted) {
-        return m.reply('Game belum dimulai. Gunakan .jb mulai untuk memulai game.');
+        return m.reply('❌ *The game has not started.* Start with .jb mulai');
       }
       if (!args[1] || !['1', '2'].includes(args[1])) {
-        return m.reply('Pilihan tidak valid. Gunakan .jb vote 1 atau 2.');
+        return m.reply('❌ *Invalid choice.* Use .jb vote 1 or 2');
       }
       const vote = args[1];
       const currentRoom = conn.jbRooms[m.chat];
       const player = currentRoom.players.find(p => p.id === m.sender);
       if (!player) {
-        return m.reply('Anda belum bergabung dalam room.');
+        return m.reply('❌ *You have not joined the room.*');
       }
       conn.jbVotes[m.sender] = vote;
       m.reply(`Anda memilih klub nomor ${vote}.`);
@@ -144,7 +136,7 @@ Hadiah: 900000000000`;
 
         // Jeda 25 detik
         setTimeout(() => {
-          m.reply('Pertandingan telah dimulai. Mohon tunggu sampai pertandingan selesai...');
+          m.reply('⏳ The match has started. Please wait...');
 
           // Jeda untuk simulasi pertandingan
           setTimeout(() => {
@@ -153,7 +145,7 @@ Hadiah: 900000000000`;
             const winningClub = currentRoom.clubs[winnerVote - 1];
             const winners = currentRoom.players.filter(player => conn.jbVotes[player.id] === winnerVote);
 
-            m.reply(`Pertandingan telah selesai.\nPemenang adalah ${winningClub}.\nPemain yang memilih ${winningClub}:\n${winners.map(w => w.name).join('\n')}\n\nSelamat kepada para pemenang mendapatkan 900000000000.`);
+            m.reply(`⚽ *Match finished.*\nWinner: ${winningClub}\n\nPlayers who chose ${winningClub}:\n${winners.map(w => w.name).join('\n')}`);
 
             // Bersihkan room dan votes setelah pertandingan selesai
             delete conn.jbRooms[m.chat];
@@ -166,7 +158,7 @@ Hadiah: 900000000000`;
     case 'delete':
       // Logika untuk menghapus room
       if (!conn.jbRooms[m.chat]) {
-        return m.reply('Belum ada room yang dibuat.');
+        return m.reply('❌ *No room yet.*');
       }
       delete conn.jbRooms[m.chat];
       delete conn.jbVotes[m.chat];
@@ -174,7 +166,7 @@ Hadiah: 900000000000`;
       break;
 
     default:
-      m.reply('Perintah tidak dikenal. Gunakan .jb help untuk melihat daftar perintah.');
+      m.reply('❌ *Unknown command.*');
   }
 };
 

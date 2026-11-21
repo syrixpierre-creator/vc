@@ -25,7 +25,7 @@ const sudoMod = require('./sudo');
 let ffmpegPath = 'ffmpeg';
 try { ffmpegPath = require('./_xjx/utils/ffmpegPath'); } catch (_) {}
 
-const FAIL = '❌ API abhi jawab nahi de rahi. Thodi der baad try karo.';
+const FAIL = '❌ *API is not responding. Try again later.*';
 
 function make(cmd, aliases, desc, usage, run) {
   return {
@@ -84,7 +84,7 @@ module.exports = {
     // .v2sticker - video -> animated sticker (ffmpeg, sticker-alt.js pattern)
     {
       command: 'v2sticker', aliases: ['v2s'], category: 'advtools',
-      description: 'Video ko animated sticker banao (reply to video)',
+      description: 'Make an animated sticker from a video (reply to video)',
       usage: '.v2sticker (video pe reply)',
       async handler(sock, message, args, context = {}) {
         const chatId = context.chatId || message.key.remoteJid;
@@ -110,12 +110,12 @@ module.exports = {
           try { fs.unlinkSync(tempInput); fs.unlinkSync(tempOutput); } catch (_) {}
         } catch (error) {
           console.error('v2sticker error:', error.message);
-          await sock.sendMessage(chatId, { text: '❌ Animated sticker nahi ban paya. Chhota video (6 sec) try karo.' }, { quoted: message });
+          await sock.sendMessage(chatId, { text: '❌ *Failed to make animated sticker.* Try a short video (6 sec).' }, { quoted: message });
         }
       },
     },
 
-    make('checkstore', ['storeinfo'], 'Anti-delete store ki status dekho', '.checkstore [optional]', async (sock, chatId, message, input, args, reply) => {
+    make('checkstore', ['storeinfo'], 'Show anti-delete store status', '.checkstore [optional]', async (sock, chatId, message, input, args, reply) => {
       return reply(`📦 *ANTI-DELETE STORE*\n\n${antidelete.statusText()}`);
     }),
 
@@ -124,7 +124,7 @@ module.exports = {
       return reply(`🧹 *Store cleared:* ${n} messages removed.`);
     }),
 
-    make('sessioninfo', ['sessinfo'], 'Bot session ki info dekho', '.sessioninfo [optional]', async (sock, chatId, message, input, args, reply) => {
+    make('sessioninfo', ['sessinfo'], 'Show bot session info', '.sessioninfo [optional]', async (sock, chatId, message, input, args, reply) => {
       const v = require('../package.json').version;
       const up = process.uptime();
       const h = Math.floor(up / 3600), m = Math.floor((up % 3600) / 60), s = Math.floor(up % 60);
@@ -137,7 +137,7 @@ module.exports = {
       return reply(`🌐 *Language Codes* (use with .translate / .ptranslate)\n\n${list}`);
     }),
 
-    make('detectlang', ['detect', 'langdetect'], 'Text ki language detect karo', '.detectlang <text>', async (sock, chatId, message, input, args, reply) => {
+    make('detectlang', ['detect', 'langdetect'], 'Detect the language of a text', '.detectlang <text>', async (sock, chatId, message, input, args, reply) => {
       const r = await axios.get('https://translate.googleapis.com/translate_a/single', {
         params: { client: 'gtx', sl: 'auto', tl: 'en', dt: 't', q: input }, timeout: 15000,
         validateStatus: (s) => s < 500,
@@ -165,7 +165,7 @@ module.exports = {
 
     ...GFX.map(([name, style], i) => make('gfx' + (i + 1), [], `GFX logo style ${i + 1}: ${name}`, `.gfx${i + 1} <text> [optional]`, async (sock, chatId, message, input) => {
       const text = (input || 'QUEEN AKUMA').slice(0, 60);
-      await sock.sendMessage(chatId, { text: `🎨 ${name} logo ban raha hai…` }, { quoted: message }).catch(() => {});
+      await sock.sendMessage(chatId, { text: `🎨 Making ${name} logo…` }, { quoted: message }).catch(() => {});
       const buf = await pub.pollinationsImage(`${style} design of the text "${text}", centered, dark background, high quality, no watermark`);
       if (!buf) return sock.sendMessage(chatId, { text: FAIL }, { quoted: message });
       await sock.sendMessage(chatId, { image: buf, caption: `🎨 *${name} GFX*\n"${text}"` }, { quoted: message });
@@ -174,7 +174,7 @@ module.exports = {
     // .app / .application - .apk ke aliases (apkCommand generic parse karta hai)
     {
       command: 'app', aliases: ['application'], category: 'advtools',
-      description: 'APK download karo (app name se)', usage: '.app <app name>',
+      description: 'Download an APK by app name', usage: '.app <app name>',
       async handler(sock, message, args, context = {}) {
         const chatId = context.chatId || message.key.remoteJid;
         await apkCommand(sock, chatId, message);
@@ -197,8 +197,8 @@ module.exports = {
       },
     },
 
-    make('sudohelp', ['sudocmds'], 'Sudo commands ki help dekho', '.sudohelp [optional]', async (sock, chatId, message, input, args, reply) => {
-      return reply(`👑 *SUDO COMMANDS* (owner only)\n\n• \`.sudo add @user\` — sudo add karo\n• \`.sudo del @user\` — sudo remove karo\n• \`.sudo list\` — sudo list dekho\n• \`.addsudo @user\` — shortcut add\n• \`.delsudo @user\` — shortcut remove`);
+    make('sudohelp', ['sudocmds'], 'Show sudo commands help', '.sudohelp [optional]', async (sock, chatId, message, input, args, reply) => {
+      return reply(`📌 *Usage:* .sudo add|del|list @user`);
     }),
   ]
 };

@@ -20,7 +20,7 @@ module.exports = {
           const out = Buffer.from(input.replace(/\s/g, ''), 'base64').toString('utf8');
           await reply('🔓 *Decoded:*\n' + out);
         } catch (e) {
-          await reply('❌ Decode nahi ho paya — sahi base64 do.');
+          await reply('❌ *Invalid base64.*');
         }
       }
     },
@@ -34,7 +34,7 @@ module.exports = {
         const reply = (text) => sock.sendMessage(chatId, { text }, { quoted: message });
         const input = (args || []).join(' ').replace(/\s/g, '');
         if (!/^[01]+$/.test(input) || input.length % 8 !== 0) {
-          await reply('❌ Sahi binary do (8-bit groups, sirf 0/1).\nExample: *.dbinary 01101000 01101001*');
+          await reply('📌 *Usage:* .dbinary <8-bit binary groups>');
           return;
         }
         let out = '';
@@ -75,14 +75,14 @@ module.exports = {
     {
       command: 'timenow',
       aliases: ['now', 'timeist'],
-      description: 'Abhi ka time dikhao (IST + UTC).',
+      description: 'Show the current time (IST + UTC).',
       category: 'tools',
       handler: async (sock, message, args, context) => {
         const chatId = message.key.remoteJid;
         const now = new Date();
         const ist = now.toLocaleString('en-IN', { timeZone: 'Asia/Kolkata', dateStyle: 'full', timeStyle: 'medium' });
         const utc = now.toISOString().replace('T', ' ').slice(0, 19) + ' UTC';
-        await sock.sendMessage(chatId, { text: '🕐 *Abhi ka time*\n\n🇮🇳 IST: ' + ist + '\n🌍 UTC: ' + utc }, { quoted: message });
+        await sock.sendMessage(chatId, { text: '🕐 *Current time*\n\n🇮🇳 IST: ' + ist + '\n🌍 UTC: ' + utc }, { quoted: message });
       }
     },
     {

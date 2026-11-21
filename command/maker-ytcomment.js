@@ -3,11 +3,7 @@ const axios = ((__i)=>__i&&__i.default?__i.default:__i)(require('axios'));
 
 let handler = async (m, { conn, text, usedPrefix, command }) => {
     if (!text) {
-        return m.reply(`Contoh penggunaan:
-${usedPrefix + command} username|komentar
-
-Contoh:
-${usedPrefix + command} Hilman|Halo hilman`)
+        return m.reply(`📌 *Usage:* ${usedPrefix + command} <username>|<comment>`)
     }
 
     let [username, komentar] = text.split('|')

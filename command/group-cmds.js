@@ -127,7 +127,7 @@ async function handleWarning(conn, msg, groupMetadata) {
         if (newWarnings === 1) {
             // First Warning
             await conn.sendMessage(groupJid, {
-                text: `⚠️ *WARNING 1/2*\n\n@${userJid.split('@')[0]},\n\n🚫 Ye ek *Family Group* hai.\n\nIs group mein *romantic/Adult stickers, images, videos aur messages* allowed nahi hain.\n\nMeharbani karke aisi cheezein na bhejen.\n\n*Agar dubara kiya toh group se remove kar diya jayega.*\n\n🗑️ *Offending content deleted.*\n\n\n> 🚀 Powered By QUEEN AKUMA ❤️`,
+                text: `⚠️ *WARNING 1/2*\n\n@${userJid.split('@')[0]}, adult content is not allowed in this group.\nNext time you will be removed.`,
                 mentions: [userJid]
             });
         }

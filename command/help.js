@@ -34,7 +34,7 @@ function categorize(cmd) {
 function buildHelpPages(prefix) {
   const map = commandHandler.commands;
   if (!map || typeof map.values !== 'function') {
-    return ['❌ Command list load nahi hui.'];
+    return ['❌ *Failed to load the command list.*'];
   }
   const byCat = new Map();
   for (const cmd of map.values()) {
@@ -109,7 +109,7 @@ module.exports = {
   command: 'help',
   aliases: ['helps', 'detailhelp', 'cmdhelp'],
   category: 'main',
-  description: 'Detailed help — har command kya karti hai (menu style)',
+  description: 'Detailed help for each command',
   usage: '.help | .help <command>',
   async handler(sock, message, args, context = {}) {
     const chatId = context.chatId || message.key.remoteJid;
@@ -120,7 +120,7 @@ module.exports = {
       const one = singleHelp(prefix, q);
       if (!one) {
         return sock.sendMessage(chatId, {
-          text: `❌ Command *${prefix}${q}* nahi mili.\nFull list: \`${prefix}help\``
+          text: `❌ *Command ${prefix}${q} not found.*`
         }, { quoted: message });
       }
       return sock.sendMessage(chatId, { text: one }, { quoted: message });
@@ -139,7 +139,7 @@ module.exports = {
     }
     if (pages.length > max) {
       await sock.sendMessage(chatId, {
-        text: `… aur bhi commands hain.\n\`${prefix}help <name>\` se detail, \`${prefix}menu\` short list.`
+        text: `… and more commands.`
       });
     }
   }

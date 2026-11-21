@@ -23,7 +23,7 @@ cmd({
         const res = await api.get(apiUrl);
         const json = res.data;
         if (!json.status || !json.data || json.data.length === 0) {
-            return reply("❌ *Media nahi mili!*");
+            return reply("❌ *No media found!*");
         }
         const caption = `📸 *INSTAGRAM DOWNLOADER*\n\n⚡ *${botConfig.CAPTION || "Powered by QUEEN AKUMA"}*`;
         for (let media of json.data) {
@@ -50,7 +50,7 @@ cmd({
     }
     catch (err) {
         console.error("Insta Error:", err);
-        reply("❌ *Error aa gaya! Baad mein try karo*");
+        reply("❌ *An error occurred! Try again later.*");
     }
 });
 cmd({
@@ -71,7 +71,7 @@ cmd({
         const res = await api.get(apiUrl);
         const data = res.data;
         if (!Array.isArray(data) || !data[0] || !data[0].status) {
-            return reply("❌ *Media nahi mili!*");
+            return reply("❌ *No media found!*");
         }
         const media = data[0];
         const caption = `📸 *INSTAGRAM DOWNLOADER V2*\n\n⚡ *${botConfig.CAPTION || "Powered by QUEEN AKUMA"}*`;
@@ -89,6 +89,6 @@ cmd({
     }
     catch (err) {
         console.error("Insta2 Error:", err);
-        reply("❌ *Error aa gaya! Baad mein try karo*");
+        reply("❌ *An error occurred! Try again later.*");
     }
 });

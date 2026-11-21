@@ -23,7 +23,7 @@ function parseEmojiList(raw) {
   const unique = [...new Set(list)];
   if (unique.length > 12) return { emojis: null, error: 'Max 12 emojis.' };
   if (unique.some(e => [...e].length > 8 || !isPictographic(e))) {
-    return { emojis: null, error: 'Sirf valid emojis use karo (har emoji 8 code points tak).' };
+    return { emojis: null, error: 'Use valid emojis only.' };
   }
   return { emojis: unique, error: '' };
 }
@@ -43,7 +43,7 @@ function make(cmd, aliases, desc, usage, handler, extra) {
         await handler(sock, chatId, message, input, args, reply, context);
       } catch (err) {
         console.error('fei-status.' + cmd, err && err.message);
-        await reply('❌ ' + (err && err.message ? String(err.message).slice(0, 300) : 'Kuch galat ho gaya.'));
+        await reply('❌ ' + (err && err.message ? String(err.message).slice(0, 300) : 'Something went wrong.'));
       }
     }
   };
@@ -51,7 +51,7 @@ function make(cmd, aliases, desc, usage, handler, extra) {
 }
 
 const statusCommands = [
-  make('statusreactmode', [], 'Status react ke liye emoji mode set karo (random ya list)', '.statusreactmode random | ❤️,🔥,💯', async (sock, chatId, message, input, args, reply) => {
+  make('statusreactmode', [], 'Set the status react emoji mode (random or list)', '.statusreactmode random | ❤️,🔥,💯', async (sock, chatId, message, input, args, reply) => {
     const config = await autoStatus.readConfig();
     if (!input) {
       const current = config.reactMode === 'random' ? 'random'
@@ -67,10 +67,10 @@ const statusCommands = [
     if (error) return reply('❌ ' + error);
     config.reactMode = emojis;
     await autoStatus.writeConfig(config);
-    return reply('✅ Status react mode set: ' + emojis.join(' ') + '\n\n_Auto status react ON hai tab hi use hoga (.autostatus react on)._');
+    return reply('✅ Status react mode set: ' + emojis.join(' ') + '');
   }, { ownerOnly: true }),
 
-  make('statusreactkeys', [], 'Sirf in keywords wale status par react karo', '.statusreactkeys happy,birthday | clear', async (sock, chatId, message, input, args, reply) => {
+  make('statusreactkeys', [], 'React only to statuses with these keywords', '.statusreactkeys happy,birthday | clear', async (sock, chatId, message, input, args, reply) => {
     const config = await autoStatus.readConfig();
     if (!input) {
       const keys = Array.isArray(config.reactKeys) ? config.reactKeys : [];
@@ -79,14 +79,14 @@ const statusCommands = [
     if (input.toLowerCase() === 'clear') {
       config.reactKeys = [];
       await autoStatus.writeConfig(config);
-      return reply('✅ Keywords clear — ab har status par react hoga (agar react ON hai).');
+      return reply('✅ *Keywords cleared.*');
     }
     const keywords = input.split(',').map(s => s.trim()).filter(Boolean);
     if (keywords.length > 20) return reply('❌ Max 20 keywords.');
     if (keywords.some(k => k.length > 60)) return reply('❌ Har keyword 60 characters tak.');
     config.reactKeys = keywords;
     await autoStatus.writeConfig(config);
-    return reply('✅ Status react keywords set: ' + keywords.join(', ') + '\n\n_Sirf un status par react hoga jinme ye words hon._');
+    return reply('✅ Status react keywords set: ' + keywords.join(', ') + '');
   }, { ownerOnly: true }),
 
   make('gcstatus', [], 'Is group par group status post karo (text ya reply media)', '.gcstatus [--color <name>] <text>', async (sock, chatId, message, input, args, reply) => {
@@ -104,9 +104,9 @@ const statusCommands = [
       (posted.color ? '\n🎨 Background: ' + posted.color.name + ' (' + posted.color.hex + ')' : ''));
   }, { ownerOnly: true, groupOnly: true }),
 
-  make('gcstatusdm', [], 'DM se kisi group par group status post karo', '.gcstatusdm list | colors | <number/JID> <text>', async (sock, chatId, message, input, args, reply) => {
+  make('gcstatusdm', [], 'Post a group status from DM', '.gcstatusdm list | colors | <number/JID> <text>', async (sock, chatId, message, input, args, reply) => {
     if (!input) {
-      return reply('📱 *GROUP STATUS (DM)*\n\n• `.gcstatusdm list` — groups dikhao\n• `.gcstatusdm colors` — background colors\n• `.gcstatusdm <number ya JID> <text>` — us group par status post karo\n• Media par reply karke `.gcstatusdm <number>` bhi chalega');
+      return reply('❌ *Invalid option!*\n\nAvailable options:\n- list\n- colors\n- <number or JID> <text>');
     }
     const lower = input.toLowerCase();
     if (lower === 'colors') {
@@ -116,7 +116,7 @@ const statusCommands = [
       const pageArg = lower === 'list' ? 1 : Number.parseInt(input.split(/\s+/)[1], 10);
       const page = Number.isFinite(pageArg) && pageArg > 0 ? pageArg : 1;
       if (typeof sock.groupFetchAllParticipating !== 'function') {
-        return reply('❌ Is connection se group list nahi mil sakti.');
+        return reply('❌ *Cannot get the group list.*');
       }
       const groups = Object.values(await sock.groupFetchAllParticipating());
       groups.sort((a, b) => String(a.subject || '').localeCompare(String(b.subject || '')));
@@ -139,11 +139,11 @@ const statusCommands = [
       targetId = digits + '@g.us';
     }
     if (typeof sock.groupFetchAllParticipating !== 'function') {
-      return reply('❌ Is connection se group verify nahi ho sakta.');
+      return reply('❌ *Cannot verify the group.*');
     }
     const groups = await sock.groupFetchAllParticipating();
     const target = groups[targetId];
-    if (!target) return reply('❌ Group nahi mila: ' + targetId + '\n\n_Pehle `.gcstatusdm list` se check karo — bot us group me hona chahiye._');
+    if (!target) return reply('❌ *Group not found:* ' + targetId + '\n\nThe bot must be in that group (.gcstatusdm list).');
     const colorOption = gs.parseGroupStatusColor(rest);
     if (colorOption.error) return reply('❌ ' + colorOption.error);
     const ctx = {

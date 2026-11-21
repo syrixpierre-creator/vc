@@ -31,20 +31,20 @@ async function jimpQuote(avatarBuf, name, text) {
 module.exports = {
   command: 'quotely',
   aliases: ['q', 'quote'],
-  description: 'Quoted message se quote sticker banao.',
+  description: 'Make a quote sticker from a quoted message.',
   category: 'fun',
   handler: async (sock, message, args, context) => {
     const chatId = message.key.remoteJid;
     const reply = (text) => sock.sendMessage(chatId, { text }, { quoted: message });
     const q = quotedMsg(message);
     if (!q) {
-      await reply('❌ Pehle kisi message pe reply karo, phir *.quotely* chalao.');
+      await reply('📌 *Usage:* reply to a message with .quotely');
       return;
     }
     const qText = q.conversation || (q.extendedTextMessage && q.extendedTextMessage.text) ||
       (q.imageMessage && q.imageMessage.caption) || (q.videoMessage && q.videoMessage.caption) || '';
     if (!qText) {
-      await reply('❌ Quoted message me koi text nahi hai.');
+      await reply('❌ *The quoted message has no text.*');
       return;
     }
     const sender = quotedSender(message) || message.key.participant || message.key.remoteJid;

@@ -41,7 +41,7 @@ async function scrapeMediafire(url) {
   const html = String(res.data || '');
   const dl = html.match(/href="(https:\/\/download\d+\.mediafire\.com[^"]+)"/) ||
              html.match(/"(https:\/\/download\d+\.mediafire\.com[^"]+)"/);
-  if (!dl) throw new Error('Download link nahi mila (file hata di gayi ho sakti hai)');
+  if (!dl) throw new Error('Download link not found (the file may be deleted)');
   const nameMatch = html.match(/<div class="filename">([^<]+)<\/div>/) ||
                     html.match(/class="dl-btn-label[^"]*">([^<]+)<\/span>/);
   const sizeMatch = html.match(/([0-9][0-9.,]*\s*(?:KB|MB|GB))/i);
@@ -55,7 +55,7 @@ async function scrapeMediafire(url) {
 async function apiMediafire(url) {
   const res = await axios.get('https://raganork-network.vercel.app/api/mediafire?url=' + encodeURIComponent(url), { timeout: 25000 });
   const d = res.data || {};
-  if (!d.link) throw new Error('API se link nahi mila');
+  if (!d.link) throw new Error('No link from the API');
   return { url: d.link, filename: d.title || 'mediafire-file', sizeStr: d.size || '' };
 }
 
@@ -63,7 +63,7 @@ module.exports = {
   command: 'mediafire',
   aliases: ['mfire', 'mf', 'mfdl'],
   category: 'download',
-  description: 'MediaFire link se direct file download karo.',
+  description: 'Download a file from a MediaFire link.',
   usage: '.mediafire <mediafire link>',
   async handler(sock, message, args, context = {}) {
     const chatId = context.chatId || message.key.remoteJid;
@@ -78,7 +78,7 @@ module.exports = {
     try { info = await scrapeMediafire(url); }
     catch (e) { lastErr = e; try { info = await apiMediafire(url); } catch (e2) { lastErr = e2; } }
     if (!info) {
-      await reply('❌ MediaFire download nahi ho paya: ' + String((lastErr && lastErr.message) || lastErr).slice(0, 150));
+      await reply('❌ *MediaFire download failed:* ' + String((lastErr && lastErr.message) || lastErr).slice(0, 150));
       return;
     }
     const sizeBytes = parseSize(info.sizeStr);
@@ -86,7 +86,7 @@ module.exports = {
       (info.sizeStr ? '\n📦 *Size:* ' + info.sizeStr : '') +
       '\n🔗 *Link:* ' + info.url;
     if (sizeBytes && sizeBytes > MAX_SEND) {
-      await reply(caption + '\n\n⚠️ File 100MB se bada hai, isliye sirf link de raha hoon — khud download kar lo.');
+      await reply(caption + '\n\n⚠️ File is bigger than 100MB, here is the link.');
       return;
     }
     try {
@@ -95,7 +95,7 @@ module.exports = {
         fileName: info.filename, caption
       }, { quoted: message });
     } catch (e) {
-      await reply(caption + '\n\n⚠️ File seedha nahi bhej paya, upar wala link use karo.');
+      await reply(caption + '\n\n⚠️ Could not send the file, use the link above.');
     }
   }
 };

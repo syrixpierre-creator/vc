@@ -22,9 +22,9 @@ const HOST_CMDS = {
 const menu =
   '📤 *Upload — Multi-Host*\n\n' +
   '• `.upfile` — auto fallback chain (Catbox → Qu.ax → Uguu → Pomf2 → Tmpfiles → Pixhost → Litterbox → X0.at)\n' +
-  '• `.upfast` — 3 hosts parallel race, jo pehle de wo jeete\n' +
+  '• `.upfast` — races 3 hosts, the fastest wins\n' +
   '• `.upcatbox` `.upquax` `.upuguu` `.uppomf` `.uptmpfiles` `.uppixhost` `.uplitterbox` `.upx0at` — ek host chuno\n\n' +
-  '📌 Kisi bhi media par reply karke bhejo, ya media ke saath caption me likho.';
+  '📌 *Usage:* reply to any media';
 
 async function getMedia(message) {
   const m = message.message || {};
@@ -64,7 +64,7 @@ module.exports = {
       const host = res.host || res.service || invoked;
       return reply(`✅ *Uploaded* (${host})\n\n🔗 ${res.url}`);
     } catch (e) {
-      return reply('❌ Upload fail ho gaya: ' + (e.message || e));
+      return reply('❌ *Upload failed:* ' + (e.message || e));
     }
   },
 };

@@ -16,7 +16,7 @@ module.exports = {
     const reply = (t) => sock.sendMessage(chatId, { text: t }, { quoted: message });
     const q = (args || []).join(' ').trim();
     if (!q) {
-      await reply('🤖 *AIx*\n\nUsage: `.aix Bharat ki rajdhani kya hai?`');
+      await reply('📌 *Usage:* .aix <question>');
       return;
     }
     const res = await geminiText(q, { timeoutMs: 30000 });

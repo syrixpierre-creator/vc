@@ -24,11 +24,9 @@ const handler = async (m, { text }) => {
     const hasil = data.directUrl
 
     await m.reply(
-`✅ *Bypass Berhasil*
+`✅ *Bypass done*
 
-📌 Type: ${data.type || '-'}
-🔗 Direct URL:
-${hasil}`
+🔗 ${hasil}`
     )
 
   } catch (err) {

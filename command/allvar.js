@@ -13,7 +13,7 @@ function guard(senderJid, reply) {
 module.exports = { commands: [
   {
     command: 'allvar', aliases: ['vars', 'allvars'], category: 'owner',
-    description: 'Saare vars dekho', usage: '.allvar',
+    description: 'Show all vars', usage: '.allvar',
     async handler(sock, message, args, context = {}) {
       const chatId = context.chatId || message.key.remoteJid;
       const senderJid = message.key.participant || message.key.remoteJid;
@@ -21,13 +21,13 @@ module.exports = { commands: [
       if (!guard(senderJid, reply)) return;
       const d = vars.all();
       const keys = Object.keys(d);
-      if (!keys.length) return reply('📦 Koi var set nahi hai.\nSet karo: `.setvar KEY=value`');
+      if (!keys.length) return reply('📦 *No var set.*\n📌 *Usage:* .setvar KEY=value');
       return reply(`📦 *Bot Vars (${keys.length}):*\n\n${keys.map((k) => `• *${k}* = ${d[k]}`).join('\n')}`);
     },
   },
   {
     command: 'getvar', aliases: ['getenv', 'varget'], category: 'owner',
-    description: 'Ek var ki value dekho', usage: '.getvar KEY',
+    description: 'Show the value of a var', usage: '.getvar KEY',
     async handler(sock, message, args, context = {}) {
       const chatId = context.chatId || message.key.remoteJid;
       const senderJid = message.key.participant || message.key.remoteJid;
@@ -36,7 +36,7 @@ module.exports = { commands: [
       const key = (args[0] || '').trim();
       if (!key) return reply('❌ Usage: `.getvar KEY`');
       const v = vars.get(key);
-      if (v === undefined) return reply(`❌ Var *${key.toUpperCase()}* nahi mila.\nSab dekho: \`.allvar\``);
+      if (v === undefined) return reply(`❌ *Var ${key.toUpperCase()} not found.*`);
       return reply(`📦 *${key.toUpperCase()}* = ${v}`);
     },
   },
@@ -50,7 +50,7 @@ module.exports = { commands: [
       if (!guard(senderJid, reply)) return;
       const key = (args[0] || '').trim();
       if (!key) return reply('❌ Usage: `.delvar KEY`');
-      return reply(vars.del(key) ? `✅ Var *${key.toUpperCase()}* delete kar diya.` : `❌ Var *${key.toUpperCase()}* nahi mila.`);
+      return reply(vars.del(key) ? `✅ Var *${key.toUpperCase()}* delete kar diya.` : `❌ *Var ${key.toUpperCase()} not found.*`);
     },
   },
 ] };

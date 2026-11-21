@@ -17,14 +17,14 @@ module.exports = {
   command: 'remini',
   aliases: ['enhance'],
   category: 'tools',
-  description: 'Photo enhance karo (local Jimp 2x + sharpen — AI nahi).',
+  description: 'Enhance a photo (local 2x + sharpen).',
   usage: '.remini (photo pe reply karke)',
   async handler(sock, message, args, context = {}) {
     const chatId = context.chatId || message.key.remoteJid;
     const reply = (t) => sock.sendMessage(chatId, { text: t }, { quoted: message });
     const media = await getMedia(message, ['image']);
     if (!media) {
-      await reply('📸 *Remini — Photo Enhance*\n\nKisi photo pe reply karke *.remini* chalao.\n\n_Note: ye local Jimp enhance hai (2x + sharpen) — AI Remini service dead hai, isliye AI enhance nahi milta._');
+      await reply('📌 *Usage:* reply to a photo with .remini');
       return;
     }
     try {
@@ -39,7 +39,7 @@ module.exports = {
         caption: '✨ *Photo Enhanced*\n' + img.width + 'x' + img.height + ' → ' + w + 'x' + h + '\n_Local Jimp enhance — AI Remini nahi._'
       }, { quoted: message });
     } catch (e) {
-      await reply('❌ Enhance nahi ho paya: ' + String(e.message || e).slice(0, 120));
+      await reply('❌ *Enhance failed:* ' + String(e.message || e).slice(0, 120));
     }
   }
 };

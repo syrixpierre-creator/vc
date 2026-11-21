@@ -104,18 +104,7 @@ async function fakeWafat({ fotourl, nama, lahir, wafat }) {
 
 let handler = async (m, { conn, text }) => {
   if (!text) {
-    throw `
-Contoh penggunaan:
-
-• Reply foto
-.fakewafat Nama|1995|2026
-
-• Pakai URL
-.fakewafat https://contoh.com/foto.jpg|Nama|1995|2026
-
-• Mention user
-.fakewafat @user Nama|1995|2026
-`.trim()
+    throw `📌 *Usage:* reply to a photo with .fakewafat <name>|<birth year>|<death year>`.trim()
   }
 
   let fotourl

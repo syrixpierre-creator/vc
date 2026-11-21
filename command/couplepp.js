@@ -22,7 +22,7 @@ module.exports = {
       await sock.sendMessage(chatId, { image: { url: pick.male }, caption: '👦 Couple PP (male)' }, { quoted: message });
       await sock.sendMessage(chatId, { image: { url: pick.female }, caption: '👧 Couple PP (female)' }, { quoted: message });
     } catch (e) {
-      await reply('❌ Couple PP nahi mile: ' + String(e.message || e).slice(0, 120) + '\nGitHub list down ho sakti hai, thodi der baad try karo.');
+      await reply('❌ Couple PP nahi mile: ' + String(e.message || e).slice(0, 120) + '\nTry again later.');
     }
   }
 };

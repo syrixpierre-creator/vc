@@ -35,7 +35,7 @@ module.exports = {
           const info = await sock.groupGetInviteInfo(code);
           otherJid = info.id;
         } catch {
-          return reply('❌ Invite link se group nahi mila / bot us group me nahi hai.');
+          return reply('❌ *Group not found from invite link, or the bot is not in that group.*');
         }
       } else {
         return reply('❌ Valid group JID chahiye (xxxx@g.us)');
@@ -50,7 +50,7 @@ module.exports = {
       const common = meta2.participants.filter(p => set1.has(p.id));
 
       if (!common.length) {
-        return reply(`📭 *${meta1.subject}* aur *${meta2.subject}* me koi common member nahi.`);
+        return reply(`❌ *No common members between ${meta1.subject} and ${meta2.subject}.*`);
       }
 
       let msg = `👥 *Common Members*\n\n`;
@@ -68,7 +68,7 @@ module.exports = {
       await sock.sendMessage(chatId, { text: msg, mentions }, { quoted: message });
     } catch (e) {
       console.error('[common]', e);
-      return reply('❌ Error: Bot dono groups me admin/member hona chahiye aur JID sahi hona chahiye.\n' + e.message);
+      return reply('❌ *Error:* the bot must be in both groups.\n' + e.message);
     }
   }
 };

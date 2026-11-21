@@ -47,16 +47,16 @@ module.exports = {
       if (/^\d+$/.test(String(x))) days = parseInt(x, 10);
     }
     if (!num || num.length < 10) {
-      await reply('👑 *Add Premium*\n\nUsage: `.addprem 919876543210 [days]`\nya user ko mention/reply karke bhejo.');
+      await reply('📌 *Usage:* .addprem <number> [days]');
       return;
     }
     const list = load();
     if (list.some((e) => digits(jidOf(e)) === num)) {
-      await reply('ℹ️ +' + num + ' pehle se premium hai.\nList: `.cekprem`');
+      await reply('ℹ️ +' + num + ' is already premium.');
       return;
     }
     list.push({ jid: num + '@s.whatsapp.net', since: new Date().toISOString(), days });
     save(list);
-    await reply('✅ *Premium add hua*\n\n📱 +' + num + (days ? '\n⏳ ' + days + ' din ke liye' : '\n⏳ Lifetime') + '\nTotal premium users: ' + list.length);
+    await reply('✅ *Premium add hua*\n\n📱 +' + num + (days ? '\n⏳ ' + days + ' days' : '\n⏳ Lifetime') + '\nTotal premium users: ' + list.length);
   },
 };

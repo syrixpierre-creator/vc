@@ -72,5 +72,5 @@ global.pantun = [
 'Ke restoran membeli makan Perginya bersama sang istri Command Tuhan ayo kerjakan Larangan Tuhan ayo jauhi',
 'Pulau Sumatra pulau Kalimantan Pulau Bali pulau Sumba Shalat lima waktu ayo tegakkan Tiang agama nan utama',
 'Membeli beras ke Mang Duloh Membeli semen ke Mang Omat Iman dan takwa kepada Allah Kunci bahagia dunia akhirat',
-'Beli bensin satu tangki Bensi dibeli oleh Mak Rosa Bersihkan hati dari dengki Sucikan raga dari dosa'
+'Buy a tank of fuel, clean your heart from envy, keep your body away from sin.'
 ]

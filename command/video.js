@@ -19,7 +19,7 @@ module.exports = {
     try {
       const res = await youtubeVideo(url);
       if (!res || !res.download) {
-        return sock.sendMessage(chatId, { text: '❌ Video nahi mila / API busy.' }, { quoted: message });
+        return sock.sendMessage(chatId, { text: '❌ *Video not found / API busy.*' }, { quoted: message });
       }
       await sock.sendMessage(chatId, {
         video: { url: res.download },

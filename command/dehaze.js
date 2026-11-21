@@ -30,7 +30,7 @@ module.exports = {
         const reply = (text) => sock.sendMessage(chatId, { text }, { quoted: message });
         const media = await getMedia(message, ['image']);
         if (!media) {
-          await reply('❌ Pehle kisi photo pe reply karo, phir *.dehaze* chalao.');
+          await reply('📌 *Usage:* reply to a photo with .dehaze');
           return;
         }
         try {
@@ -39,7 +39,7 @@ module.exports = {
           const out = await img.getBuffer('image/jpeg');
           await sock.sendMessage(chatId, { image: out, caption: '✨ Dehazed photo' }, { quoted: message });
         } catch (e) {
-          await reply('❌ Dehaze nahi ho paya: ' + String(e.message || e).slice(0, 120));
+          await reply('❌ *Dehaze failed:* ' + String(e.message || e).slice(0, 120));
         }
       }
     },
@@ -58,7 +58,7 @@ module.exports = {
         }
         const media = await getMedia(message, ['image']);
         if (!media) {
-          await reply('❌ Pehle kisi photo pe reply karo, phir *.recolor ' + style + '* chalao.');
+          await reply('📌 *Usage:* reply to a photo with .recolor ' + style + '* chalao.');
           return;
         }
         try {
@@ -67,7 +67,7 @@ module.exports = {
           const out = await img.getBuffer('image/jpeg');
           await sock.sendMessage(chatId, { image: out, caption: '🎨 Recolor: ' + style + ' (' + rc.desc + ')' }, { quoted: message });
         } catch (e) {
-          await reply('❌ Recolor nahi ho paya: ' + String(e.message || e).slice(0, 120));
+          await reply('❌ *Recolor failed:* ' + String(e.message || e).slice(0, 120));
         }
       }
     }

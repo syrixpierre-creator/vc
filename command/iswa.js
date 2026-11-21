@@ -14,7 +14,7 @@ module.exports = {
     {
       command: 'iswa',
       aliases: ['checkwa', 'isonwa'],
-      description: 'Number WhatsApp par registered hai ya nahi + bio dikhao.',
+      description: 'Check if a number is on WhatsApp + show bio.',
       category: 'tools',
       handler: async (sock, message, args, context) => {
         const chatId = message.key.remoteJid;
@@ -29,7 +29,7 @@ module.exports = {
           const res = await sock.onWhatsApp(jid);
           const found = res && res[0];
           if (!found || !found.exists) {
-            await reply('❌ *' + num + '* WhatsApp par registered *nahi* hai.');
+            await reply('❌ *' + num + '* is *not* on WhatsApp.');
             return;
           }
           let bio = '';
@@ -39,7 +39,7 @@ module.exports = {
           } catch (e) {}
           await reply('✅ *' + num + '* WhatsApp par hai.\n📱 JID: ' + found.jid + (bio ? '\n💬 Bio: ' + bio : ''));
         } catch (e) {
-          await reply('❌ Check nahi ho paya: ' + String(e.message || e).slice(0, 120));
+          await reply('❌ *Check failed:* ' + String(e.message || e).slice(0, 120));
         }
       }
     },
@@ -65,11 +65,11 @@ module.exports = {
         const sNum = parseInt(start.slice(p) || '0', 10);
         const eNum = parseInt(end.slice(p) || '0', 10);
         if (isNaN(sNum) || isNaN(eNum) || eNum < sNum || (eNum - sNum + 1) > 20) {
-          await reply('❌ Range galat hai. End >= start hona chahiye aur max 20 numbers.');
+          await reply('❌ *Invalid range.* Max 20 numbers.');
           return;
         }
         const pad = start.slice(p).length;
-        await reply('⏳ ' + (eNum - sNum + 1) + ' numbers check ho rahe hain...');
+        await reply('⏳ ' + (eNum - sNum + 1) + ' numbers checking...');
         const lines = [];
         for (let i = sNum; i <= eNum; i++) {
           const num = prefix + String(i).padStart(pad, '0');

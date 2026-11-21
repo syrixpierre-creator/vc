@@ -11,15 +11,12 @@ let handler = async (m, { conn, args }) => {
 
 	global.db.data.users[m.sender].exp += bonus;
 
-	let hasil = `
-* 🎲 TEBAK ANGKA *
+	let hasil = `🎲 *GUESS THE NUMBER*
 
-🎯 Angka Kamu : *${angkaUser}*
-🤖 Angka Bot  : *${angkaBot}*
+🎯 Your number: *${angkaUser}*
+🤖 Bot number: *${angkaBot}*
 
-${tebakanBenar ? '✅ Tebakanmu **BENAR!**' : '❌ Tebakanmu **SALAH!**'}
-🎁 Kamu mendapatkan *+${bonus} XP!*
-`.trim();
+${tebakanBenar ? '✅ *Correct!*' : '❌ *Wrong!*'}`.trim();
 
 	conn.reply(m.chat, hasil, m);
 };

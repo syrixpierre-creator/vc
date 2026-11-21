@@ -26,9 +26,9 @@ module.exports = {
     if (!name) return reply('❌ Usage: .savescrape <name>\nExample: .savescrape y2mate (reply to code)');
     const quoted = message.message?.extendedTextMessage?.contextInfo?.quotedMessage;
     const code = quoted?.conversation || quoted?.extendedTextMessage?.text || '';
-    if (!code) return reply('❌ Code nahi mila. Kisi code message par reply karke bhejo.');
+    if (!code) return reply('📌 *Usage:* reply to a code message');
     const err = syntaxError(code, name + '.js', { sourceType: 'module', allowAwaitOutsideFunction: true });
-    if (err) return reply('❌ Syntax error, save nahi hua:\n' + String(err.message).slice(0, 800));
+    if (err) return reply('❌ *Syntax error, not saved:*\n' + String(err.message).slice(0, 800));
     const dir = path.join(process.cwd(), 'lib', 'scrape');
     fs.mkdirSync(dir, { recursive: true });
     const fp = path.join(dir, name + '.js');

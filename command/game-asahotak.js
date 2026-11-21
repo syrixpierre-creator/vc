@@ -13,6 +13,6 @@ module.exports = {
   usage: '.asahotak',
   async handler(sock, message, args, context = {}) {
     try { await quiz.start(sock, message, 'asahotak'); }
-    catch (e) { await sock.sendMessage(context.chatId || message.key.remoteJid, { text: '❌ Game start nahi hua: ' + (e.message || e) }, { quoted: message }); }
+    catch (e) { await sock.sendMessage(context.chatId || message.key.remoteJid, { text: '❌ *Failed to start the game:* ' + (e.message || e) }, { quoted: message }); }
   }
 };

@@ -69,24 +69,24 @@ module.exports = {
     if (sub === 'status') {
       const myMode = modeFor(data, chatId);
       const enabled = Object.values(data.chats).filter((m) => m !== 'off').length;
-      return reply(`✏️ *Anti-Edit — ${isGroup ? 'is Group' : 'is DM'}*\n\nIs chat ka mode: *${myMode.toUpperCase()}*\nDefault (naye chats): *${(data.default || 'off').toUpperCase()}*\nTotal enabled chats: *${enabled}*\n\n\`.antiedit on\` — report isi chat me\n\`.antiedit indm\` — report owner ke DM me\n\`.antiedit off\` — band karo`);
+      return reply(`✅ *Anti-Edit: ${myMode.toUpperCase()}*\n\nAvailable options:\n- on\n- indm\n- off`);
     }
     if (sub === 'default') {
       let owner = false;
       try { const isOwner = require('../lib/isOwner'); owner = !!(isOwner.isOwnerOnly && isOwner.isOwnerOnly(senderJid)); } catch (_) {}
-      if (!owner) return reply('❌ `.antiedit default` sirf owner kar sakta hai.');
+      if (!owner) return reply('🚫 *You are not authorized to use this command!*');
       const mode = map[(args[1] || '').toLowerCase()];
       if (!mode) return reply('❌ Usage: `.antiedit default on|indm|off`');
       data.default = mode;
       db.save(NAME);
-      return reply(`✅ Default mode set: *${mode.toUpperCase()}* (jis chat me alag se set nahi hai, wahan ye lagega)`);
+      return reply(`✅ *Default mode set to: ${mode.toUpperCase()}*`);
     }
     if (!map[sub]) {
       const myMode = modeFor(data, chatId);
-      return reply(`✏️ *Anti-Edit:* ${myMode.toUpperCase()} (${isGroup ? 'is Group' : 'is DM'} ka alag setup)\n\n.antiedit on / inchat — report isi chat me\n.antiedit indm — report owner ke DM me\n.antiedit off — is chat ke liye band\n.antiedit status — status dekho`);
+      return reply(`✅ *Anti-Edit: ${myMode.toUpperCase()}*\n\nAvailable options:\n- on\n- indm\n- off`);
     }
     if (!(await isOwnerOrAdmin(sock, chatId, senderJid, isGroup))) {
-      return reply(isGroup ? '❌ `.antiedit` sirf group admin ya owner set kar sakta hai.' : '❌ DM me `.antiedit` sirf owner set kar sakta hai.');
+      return reply(isGroup ? '🚫 *You are not authorized to use this command!*' : '🚫 *You are not authorized to use this command!*');
     }
     const mode = map[sub];
     if (mode === 'off') {
@@ -97,7 +97,7 @@ module.exports = {
       data.chats[chatId] = mode;
     }
     db.save(NAME);
-    return reply(`✏️ Anti-Edit ${isGroup ? 'is group' : 'is DM'} ke liye *${mode.toUpperCase()}* kar diya.${mode === 'off' ? '' : '\n\nAb koi message edit karega to original dikh jayega.'}`);
+    return reply(`✅ *Anti-Edit ${mode === 'off' ? 'DISABLED' : 'ENABLED'}*`);
   },
 
   async onMessage(sock, message, ctx) {

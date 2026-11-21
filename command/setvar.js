@@ -8,12 +8,12 @@ function isOwner(senderJid) {
 }
 module.exports = {
   command: 'setvar', aliases: ['setenv', 'varset'], category: 'owner',
-  description: 'Bot var set karo (WhatsApp se)', usage: '.setvar BOT_NAME=QUEEN AKUMA',
+  description: 'Set a bot var (from WhatsApp)', usage: '.setvar BOT_NAME=QUEEN AKUMA',
   async handler(sock, message, args, context = {}) {
     const chatId = context.chatId || message.key.remoteJid;
     const senderJid = message.key.participant || message.key.remoteJid;
     const reply = (t) => sock.sendMessage(chatId, { text: t }, { quoted: message });
-    if (!isOwner(senderJid)) return reply('❌ `.setvar` sirf owner kar sakta hai.');
+    if (!isOwner(senderJid)) return reply('🚫 *You are not authorized to use this command!*');
     const text = (args || []).join(' ').trim();
     const m = text.match(/^([A-Za-z0-9_]+)\s*=\s*(.+)$/);
     if (!m) return reply('❌ Usage: `.setvar KEY=value`\nExample: `.setvar BOT_NAME=QUEEN AKUMA`');

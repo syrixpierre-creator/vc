@@ -9,7 +9,7 @@ const axios = require('axios');
 async function fromPopcat(name) {
   const res = await axios.get('https://api.popcat.xyz/subreddit/' + encodeURIComponent(name), { timeout: 15000 });
   const d = res.data || {};
-  if (!d.name) throw new Error('Subreddit nahi mila');
+  if (!d.name) throw new Error('Subreddit not found');
   return {
     name: d.name, title: d.title, members: d.members, active: d.active_users,
     desc: d.description, nsfw: d.nsfw, url: d.url || ('https://www.reddit.com/r/' + name + '/')
@@ -22,7 +22,7 @@ async function fromReddit(name) {
     headers: { 'User-Agent': 'QUEEN-AKUMA/3.5.0' }
   });
   const d = (res.data && res.data.data) || {};
-  if (!d.display_name) throw new Error('Subreddit nahi mila');
+  if (!d.display_name) throw new Error('Subreddit not found');
   return {
     name: d.display_name, title: d.title, members: d.subscribers, active: d.active_user_count,
     desc: d.public_description, nsfw: d.over18, url: 'https://www.reddit.com' + (d.url || ('/r/' + name + '/'))
@@ -46,7 +46,7 @@ module.exports = {
     try { info = await fromPopcat(name); }
     catch (e) { lastErr = e; try { info = await fromReddit(name); } catch (e2) { lastErr = e2; } }
     if (!info) {
-      await reply('❌ Subreddit nahi mila: *r/' + name + '* — ' + String((lastErr && lastErr.message) || lastErr).slice(0, 100));
+      await reply('❌ *Subreddit not found:* *r/' + name + '* — ' + String((lastErr && lastErr.message) || lastErr).slice(0, 100));
       return;
     }
     await reply('🔶 *r/' + info.name + '*\n\n' +

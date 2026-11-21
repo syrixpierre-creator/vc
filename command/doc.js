@@ -18,7 +18,7 @@ function extFor(kind, mime) {
 module.exports = {
   command: 'doc',
   aliases: ['todoc', 'makedoc'],
-  description: 'Kisi bhi message ko document banao.',
+  description: 'Turn any message into a document.',
   category: 'tools',
   handler: async (sock, message, args, context) => {
     const chatId = message.key.remoteJid;
@@ -47,7 +47,7 @@ module.exports = {
       : (message.message && (message.message.conversation || (message.message.extendedTextMessage && message.message.extendedTextMessage.text)) || '');
     const body = text || (args || []).join(' ');
     if (!body) {
-      await reply('❌ Pehle kisi message (text/photo/video/audio) pe reply karo, phir *.doc* chalao.');
+      await reply('📌 *Usage:* reply to a message with .doc');
       return;
     }
     const fname = (args[0] || 'QUEEN-AKUMA-message') + '.txt';

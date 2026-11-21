@@ -38,7 +38,7 @@ cmd({
     filename: __filename
 }, async (conn, mek, m, { from, q, reply }) => {
     try {
-        if (!q) return reply("❌ Movie ka naam likho\nMisal: .subtitle My Fault London 2025");
+        if (!q) return reply("📌 *Usage:* .subtitle <movie name>");
 
         await conn.sendMessage(from, { react: { text: "⏳", key: mek.key } });
 
@@ -53,7 +53,7 @@ cmd({
 
         if (!results || results.length === 0) {
             await conn.sendMessage(from, { react: { text: "❌", key: mek.key } });
-            return reply(`❌ Koi subtitle nahi mila: *${q}*`);
+            return reply(`❌ *No subtitle found:* ${q}`);
         }
 
         // Sabse zyada downloads wala lo
@@ -77,7 +77,7 @@ cmd({
 
         if (!preferred) {
             await conn.sendMessage(from, { react: { text: "❌", key: mek.key } });
-            return reply("❌ Download link nahi mili.");
+            return reply("❌ *Download link not found.*");
         }
 
         const lang = links["Urdu"] ? "Urdu" : links["English"] ? "English" : Object.keys(links)[0];

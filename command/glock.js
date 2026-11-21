@@ -19,12 +19,12 @@ module.exports = {
     try {
       if (invoked === 'gunlock') {
         await sock.groupSettingUpdate(chatId, 'unlocked');
-        return reply('🔓 Group info unlock ho gayi — ab sab members name/description edit kar sakte hain.');
+        return reply('🔓 *Group info unlocked*');
       }
       await sock.groupSettingUpdate(chatId, 'locked');
-      return reply('🔒 Group info lock ho gayi — ab sirf admins name/description edit kar sakte hain.');
+      return reply('🔒 *Group info locked*');
     } catch (e) {
-      return reply('❌ Setting update nahi ho payi: ' + (e.message || e));
+      return reply('❌ *Failed to update setting:* ' + (e.message || e));
     }
   },
 };

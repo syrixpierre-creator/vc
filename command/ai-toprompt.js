@@ -73,11 +73,7 @@ const handler = async (m, { conn, text }) => {
       if (!res.ok) throw 'URL image invalid.'
       buffer = Buffer.from(await res.arrayBuffer())
     } else {
-      throw `Reply gambar atau kirim URL gambar.
-
-Contoh:
-.imageprompt
-.imageprompt https://example.com/image.jpg`
+      throw `📌 *Usage:* reply to an image or .imageprompt <image url>`
     }
 
     await m.reply('⏳ Currently menganalisis image...')

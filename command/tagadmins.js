@@ -15,7 +15,7 @@ module.exports = {
     let metadata = null;
     try { metadata = await sock.groupMetadata(chatId); } catch (_) {}
     const admins = (metadata?.participants || []).filter((p) => p.admin).map((p) => p.id);
-    if (!admins.length) return sock.sendMessage(chatId, { text: '👑 Is group me koi admin nahi mila.' }, { quoted: message });
+    if (!admins.length) return sock.sendMessage(chatId, { text: '❌ *No admins found in this group.*' }, { quoted: message });
     const list = admins.map((a) => `@${a.split('@')[0]}`).join(' ');
     return sock.sendMessage(chatId, {
       text: `👑 *Group Admins*${text ? `\n\n${text}` : ''}\n\n${list}`,

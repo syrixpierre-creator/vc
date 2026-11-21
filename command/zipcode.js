@@ -9,7 +9,7 @@ const axios = require('axios');
 async function fromPostalPin(pin) {
   const res = await axios.get('https://api.postalpincode.in/pincode/' + pin, { timeout: 15000 });
   const d = (res.data && res.data[0]) || {};
-  if (d.Status !== 'Success' || !d.PostOffice || !d.PostOffice.length) throw new Error('PIN nahi mila');
+  if (d.Status !== 'Success' || !d.PostOffice || !d.PostOffice.length) throw new Error('PIN not found');
   return d.PostOffice.map((p) => ({
     name: p.Name, district: p.District, state: p.State, division: p.Division, block: p.Block
   }));
@@ -18,7 +18,7 @@ async function fromPostalPin(pin) {
 async function fromZippopotam(pin) {
   const res = await axios.get('https://api.zippopotam.us/in/' + pin, { timeout: 15000 });
   const d = res.data || {};
-  if (!d.places || !d.places.length) throw new Error('PIN nahi mila');
+  if (!d.places || !d.places.length) throw new Error('PIN not found');
   return d.places.map((p) => ({
     name: p['place name'], district: '', state: p.state, division: '', block: ''
   }));
@@ -41,7 +41,7 @@ module.exports = {
     try { offices = await fromPostalPin(pin); }
     catch (e) { lastErr = e; try { offices = await fromZippopotam(pin); } catch (e2) { lastErr = e2; } }
     if (!offices) {
-      await reply('❌ PIN ' + pin + ' nahi mila: ' + String((lastErr && lastErr.message) || lastErr).slice(0, 100));
+      await reply('❌ PIN ' + pin + ' not found: ' + String((lastErr && lastErr.message) || lastErr).slice(0, 100));
       return;
     }
     const lines = offices.slice(0, 8).map((o, i) =>

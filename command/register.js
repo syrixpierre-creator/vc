@@ -43,13 +43,13 @@ module.exports = {
           return;
         }
         if (store[k]) {
-          await reply('✅ Tum pehle se registered ho!\n\n👤 Naam: ' + store[k].name + '\n🎂 Umar: ' + store[k].age + '\n🔑 Serial: ' + store[k].serial + '\n📅 ' + store[k].at);
+          await reply('✅ *You are already registered!*\n\n👤 Name: ' + store[k].name + '\n🎂 Umar: ' + store[k].age + '\n🔑 Serial: ' + store[k].serial + '\n📅 ' + store[k].at);
           return;
         }
         const serial = serialFor(sender);
         store[k] = { name, age, serial, at: new Date().toISOString().slice(0, 10) };
         save(store);
-        await reply('✅ *Registration ho gayi!*\n\n👤 Naam: ' + name + '\n🎂 Umar: ' + age + '\n🔑 Serial Number: *' + serial + '*\n\nSerial sambhaal ke rakho — .sn se kabhi bhi dekh sakte ho.');
+        await reply('✅ *Registration ho gayi!*\n\n👤 Naam: ' + name + '\n🎂 Umar: ' + age + '\n🔑 Serial Number: *' + serial + '*\n\nSee your serial anytime with .sn');
       }
     },
     {
@@ -64,7 +64,7 @@ module.exports = {
         const k = key(sender);
         const store = load();
         if (!store[k]) {
-          await reply('❌ Tum registered nahi ho. Pehle *.register <naam> <umar>* karo.');
+          await reply('❌ *You are not registered.*\n📌 *Usage:* .register <name> <age>');
           return;
         }
         await reply('🔑 *Tumhara Serial*\n\n👤 ' + store[k].name + '\n🔑 Serial: *' + store[k].serial + '*');

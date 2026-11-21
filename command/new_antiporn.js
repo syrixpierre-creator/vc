@@ -30,13 +30,13 @@ module.exports = {
       }
       setOn(chatId, arg === 'on');
       await sock.sendMessage(chatId, { text: arg === 'on'
-        ? '🔞 *Anti-Porn ON*\n\nAdult links (porn sites) group me auto delete honge.\nNote: sirf LINKS block hote hain — image/video detection ke liye Sightengine API keys chahiye, jo set nahi hain.'
+        ? '✅ *Anti-Porn ENABLED*'
         : '🔞 *Anti-Porn OFF*\n\nAdult link protection band kar diya.' }, { quoted: message });
       return;
     }
     // status (sab dekh sakte hain)
     const on = isOn(chatId);
-    await sock.sendMessage(chatId, { text: `🔞 *ANTI PORN PROTECTION*\n📊 Status: ${on ? '✅ ON' : '❌ OFF'}\n\n• Adult-domain links auto delete hote hain (bina API key)\n• Image/video detection: NOT SET (Sightengine keys chahiye)\n\nUse: \`.antiporn on\` / \`.antiporn off\`` }, { quoted: message });
+    await sock.sendMessage(chatId, { text: `✅ *Anti-Porn: ${on ? 'ON' : 'OFF'}*\n\nAvailable options:\n- on\n- off` }, { quoted: message });
   },
   async onMessage(sock, message, ctx) { return onMessage(sock, message, ctx); },
 };

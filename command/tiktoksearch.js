@@ -21,7 +21,7 @@ module.exports = {
         timeout: 25000
       });
       const vids = (res.data && res.data.data && res.data.data.videos) || [];
-      if (!vids.length) return reply('❌ Kuch nahi mila. Dobara try karo.');
+      if (!vids.length) return reply('❌ *Nothing found. Try again.*');
       const lines = vids.slice(0, 5).map((v, i) => {
         const author = (v.author && v.author.nickname) || (v.author && v.author.unique_id) || 'TikTok';
         return `${i + 1}. *${(v.title || 'TikTok video').slice(0, 80)}*\n   👤 ${author} ❤️ ${v.digg_count || 0}\n   https://www.tiktok.com/@${(v.author && v.author.unique_id) || ''}/video/${v.video_id || ''}`;

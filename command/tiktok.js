@@ -22,7 +22,7 @@ module.exports = {
       const res = await downloadAny(url);
       if (!res || !res.mediaUrl) {
         return sock.sendMessage(chatId, {
-          text: '❌ TikTok video nahi mila. Link public hona chahiye.'
+          text: '❌ *TikTok video not found.* The link must be public.'
         }, { quoted: message });
       }
       await sock.sendMessage(chatId, {

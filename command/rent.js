@@ -29,13 +29,13 @@ module.exports = {
         let name = '';
         try { const meta = await sock.groupMetadata(chatId); name = meta.subject || ''; } catch (e) {}
         const r = rentLib.setRent(chatId, ms, context.senderId, name);
-        await reply('✅ *Rent set ho gaya!*\n\n👥 Group: ' + (name || chatId) + '\n⏰ Expires: ' + new Date(r.expiresAt).toLocaleString('en-IN', { timeZone: 'Asia/Kolkata' }) + '\n⏳ Remaining: ' + rentLib.fmtRemaining(ms) + '\n\nTime khatam hote hi bot group se auto-leave kar dega.');
+        await reply('✅ *Rent set!*\n\n👥 Group: ' + (name || chatId) + '\n⏰ Expires: ' + new Date(r.expiresAt).toLocaleString('en-IN', { timeZone: 'Asia/Kolkata' }) + '\n⏳ Remaining: ' + rentLib.fmtRemaining(ms) + '\n\nTime khatam hote hi bot group se auto-leave kar dega.');
       }
     },
     {
       command: 'cekexpired',
       aliases: ['checkexpired', 'rentstatus'],
-      description: 'Group ki rent expiry dekho.',
+      description: 'Show the rent expiry of the group.',
       category: 'group',
       groupOnly: true,
       handler: async (sock, message, args, context) => {
@@ -43,7 +43,7 @@ module.exports = {
         const reply = (text) => sock.sendMessage(chatId, { text }, { quoted: message });
         const r = rentLib.getRent(chatId);
         if (!r) {
-          await reply('ℹ️ Is group par koi rent set nahi hai (unlimited).');
+          await reply('❌ *No rent set on this group (unlimited).*');
           return;
         }
         const left = r.expiresAt - Date.now();
@@ -53,7 +53,7 @@ module.exports = {
     {
       command: 'listexpired',
       aliases: ['listrent', 'rents'],
-      description: 'Saare rented groups dekho (owner-only).',
+      description: 'Show all rented groups (owner only).',
       category: 'owner',
       handler: async (sock, message, args, context) => {
         const chatId = message.key.remoteJid;
@@ -63,7 +63,7 @@ module.exports = {
         const all = rentLib.listRent();
         const entries = Object.entries(all);
         if (!entries.length) {
-          await reply('ℹ️ Koi rented group nahi hai.');
+          await reply('❌ *No rented groups.*');
           return;
         }
         const lines = entries.map(([jid, r], i) => {

@@ -34,7 +34,7 @@ function rentLine(e, i) {
     s += '\n   💰 Price: ' + rentLib.fmtPrice(r.price);
     s += '\n   📅 Expires: ' + rentLib.fmtDateIST(r.expiresAt) + (r.expiresAt ? ' (' + rentLib.fmtRemaining(left) + ')' : ' — unlimited');
   } else {
-    s += '\n   💰 Rent record nahi hai — .rentadd se add karo';
+    s += '\n   💰 No rent record';
   }
   return s;
 }
@@ -44,7 +44,7 @@ module.exports = {
     {
       command: 'rentlist',
       aliases: ['renters', 'myrenters'],
-      description: 'Rent par diye gaye saare bots ki list (owner-only).',
+      description: 'List of all rented bots (owner only).',
       category: 'owner',
       handler: async (sock, message, args, context) => {
         const chatId = message.key.remoteJid;
@@ -52,7 +52,7 @@ module.exports = {
         if (!isOwner(context)) { await ownerOnlyReply(reply); return; }
         const list = rentLib.listAllClones();
         if (!list.length) {
-          await reply('ℹ️ Abhi kisi ko bot rent par nahi diya hai.\n\nRent dene ke liye: *.rentadd <number> <30d> [price] [naam]*\nExample: *.rentadd 919876543210 30d 499 Ramesh*');
+          await reply('❌ *No rented bots yet.*\n📌 *Usage:* .rentadd <number> <30d> [price] [name]');
           return;
         }
         const active = list.filter((e) => e.rent);
@@ -63,7 +63,7 @@ module.exports = {
         msg += '🟢 Online: ' + online + '  •  ⏰ 7 din me expire: ' + expiring + '\n\n';
         msg += list.map((e, i) => rentLine(e, i)).join('\n\n');
         if (noRecord.length) {
-          msg += '\n\n⚠️ *Bina rent record ke ' + noRecord.length + ' clone hai* — in par .rentadd se rent set karo, warna expiry track nahi hogi.';
+          msg += '\n\n⚠️ *Bina rent record ke ' + noRecord.length + ' clones* without rent record.';
         }
         msg += '\n\nCommands: .rentadd / .rentremove / .rentinfo / .rentextend / .rentexpiring / .rentexpired / .rentstats';
         const mentions = list.map((e) => e.number + '@s.whatsapp.net');
@@ -82,7 +82,7 @@ module.exports = {
         const num = rentLib.normNumber((args || [])[0]);
         const durStr = (args || [])[1];
         if (!num || num.length < 10 || !durStr) {
-          await reply('❌ Usage: *.rentadd <number> <duration> [price] [naam]*\n\nExample: *.rentadd 919876543210 30d 499 Ramesh*\nDuration: 30d (days), 24h (hours), 60m (minutes).\nPrice aur naam optional hain — bina price ke bhi add kar sakte ho.');
+          await reply('📌 *Usage:* .rentadd <number> <duration> [price] [name]');
           return;
         }
         const ms = rentLib.parseDuration(durStr);
@@ -94,27 +94,27 @@ module.exports = {
         else { name = rest.join(' '); }
         const existing = rentLib.getRecord(num);
         if (existing) {
-          await reply('ℹ️ @' + num + ' par pehle se rent active hai (expires: ' + rentLib.fmtDateIST(existing.expiresAt) + ').\nTime badhane ke liye *.rentextend ' + num + ' ' + durStr + '* use karo, ya pehle *.rentremove ' + num + '* karo.', { mentions: [num + '@s.whatsapp.net'] });
+          await reply('ℹ️ @' + num + ' already has an active rent (expires: ' + rentLib.fmtDateIST(existing.expiresAt) + ').\nTo add time use .rentextend ' + num + ' ' + durStr + '* or first .rentremove ' + num + '* karo.', { mentions: [num + '@s.whatsapp.net'] });
           return;
         }
         const rec = rentLib.setRent(num, { durationMs: ms, price: price, renterName: name, source: 'rentadd' });
-        await reply('✅ *Rent add ho gaya!*\n\n👤 Renter: @' + num + (name ? ' (' + name + ')' : '') + '\n💰 Price: ' + rentLib.fmtPrice(price) + '\n📅 Started: ' + rentLib.fmtDateIST(rec.startedAt) + '\n⏰ Expires: ' + rentLib.fmtDateIST(rec.expiresAt) + ' (' + rentLib.fmtRemaining(ms) + ')\n\nTime khatam hote hi clone auto-stop ho jayega. List dekhne ke liye *.rentlist*.', { mentions: [num + '@s.whatsapp.net'] });
+        await reply('✅ *Rent added!*\n\n👤 Renter: @' + num + (name ? ' (' + name + ')' : '') + '\n💰 Price: ' + rentLib.fmtPrice(price) + '\n📅 Started: ' + rentLib.fmtDateIST(rec.startedAt) + '\n⏰ Expires: ' + rentLib.fmtDateIST(rec.expiresAt) + ' (' + rentLib.fmtRemaining(ms) + ')\n\nThe clone stops when the time ends. List: .rentlist', { mentions: [num + '@s.whatsapp.net'] });
       }
     },
     {
       command: 'rentremove',
       aliases: ['removerent'],
-      description: 'Rent hatao + clone stop karo (owner-only).',
+      description: 'Remove a rent and stop the clone (owner only).',
       category: 'owner',
       handler: async (sock, message, args, context) => {
         const chatId = message.key.remoteJid;
         const reply = (t, extra) => sock.sendMessage(chatId, Object.assign({ text: t }, extra || {}), { quoted: message });
         if (!isOwner(context)) { await ownerOnlyReply(reply); return; }
         const input = (args || [])[0];
-        if (!input) { await reply('❌ Usage: *.rentremove <number ya list number>*\nExample: *.rentremove 919876543210* ya *.rentremove 1*\nPehle *.rentlist* se number dekho.'); return; }
+        if (!input) { await reply('📌 *Usage:* .rentremove <number or list index>'); return; }
         const list = rentLib.listAllClones();
         const target = rentLib.resolveTarget(input, list);
-        if (!target) { await reply('❌ Ye number/index list me nahi mila. Pehle *.rentlist* dekho.'); return; }
+        if (!target) { await reply('❌ *Not found in the list.* See .rentlist'); return; }
         // Online clone hai to stop karo.
         let stopped = false;
         try {
@@ -135,14 +135,14 @@ module.exports = {
           if (dir && fs.existsSync(dir)) fs.rmSync(dir, { recursive: true, force: true });
         } catch (e) {}
         const rec = rentLib.removeRent(target.number);
-        await reply('✅ *Rent remove ho gaya*\n\n👤 @' + target.number + (target.name ? ' (' + target.name + ')' : '') + '\n🔌 Clone: ' + (stopped ? 'stop kar diya gaya' : 'pehle se offline tha') + '\n📜 Record history me save hai — *.rentexpired* se purana hisaab dekho.', { mentions: [target.number + '@s.whatsapp.net'] });
+        await reply('✅ *Rent removed*\n\n👤 @' + target.number + (target.name ? ' (' + target.name + ')' : '') + '\n🔌 Clone: ' + (stopped ? 'stopped' : 'already offline') + '\n📜 Saved in history: .rentexpired', { mentions: [target.number + '@s.whatsapp.net'] });
         return rec;
       }
     },
     {
       command: 'rentinfo',
       aliases: ['rentdetail'],
-      description: 'Ek renter ki poori detail dekho (owner-only).',
+      description: 'Show the full detail of a renter (owner only).',
       category: 'owner',
       handler: async (sock, message, args, context) => {
         const chatId = message.key.remoteJid;
@@ -152,7 +152,7 @@ module.exports = {
         if (!input) { await reply('❌ Usage: *.rentinfo <number ya list number>*'); return; }
         const list = rentLib.listAllClones();
         const target = rentLib.resolveTarget(input, list);
-        if (!target) { await reply('❌ Ye number/index list me nahi mila. Pehle *.rentlist* dekho.'); return; }
+        if (!target) { await reply('❌ *Not found in the list.* See .rentlist'); return; }
         const r = target.rent || rentLib.getRecord(target.number);
         let msg = '👤 *RENT DETAIL*\n\nNumber: @' + target.number + '\n';
         if (target.name) msg += 'Naam: ' + target.name + '\n';
@@ -164,7 +164,7 @@ module.exports = {
           msg += '⏳ Remaining: ' + rentLib.fmtRemaining(r.expiresAt ? r.expiresAt - Date.now() : null) + '\n';
           if (r.notes) msg += '📝 Notes: ' + r.notes + '\n';
         } else {
-          msg += '\n⚠️ Is par koi rent record nahi hai.\nAdd karo: *.rentadd ' + target.number + ' 30d [price] [naam]*';
+          msg += '\n⚠️ No rent record.\nAdd: .rentadd ' + target.number + ' 30d [price] [naam]*';
         }
         await reply(msg, { mentions: [target.number + '@s.whatsapp.net'] });
       }
@@ -185,9 +185,9 @@ module.exports = {
         if (!ms) { await reply('❌ Duration galat hai. Example: *7d*, *30d*, *24h*.'); return; }
         const list = rentLib.listAllClones();
         const target = rentLib.resolveTarget(input, list);
-        if (!target || !rentLib.getRecord(target.number)) { await reply('❌ Is number par koi active rent nahi hai. Pehle *.rentadd* se rent set karo.'); return; }
+        if (!target || !rentLib.getRecord(target.number)) { await reply('❌ *No active rent on this number.*'); return; }
         const rec = rentLib.extendRent(target.number, ms);
-        await reply('✅ *Rent extend ho gaya!*\n\n👤 @' + target.number + (target.name ? ' (' + target.name + ')' : '') + '\n⏰ Nayi expiry: ' + rentLib.fmtDateIST(rec.expiresAt) + ' (' + rentLib.fmtRemaining(rec.expiresAt - Date.now()) + ' bacha hai)', { mentions: [target.number + '@s.whatsapp.net'] });
+        await reply('✅ *Rent extended!*\n\n👤 @' + target.number + (target.name ? ' (' + target.name + ')' : '') + '\n⏰ Nayi expiry: ' + rentLib.fmtDateIST(rec.expiresAt) + ' (' + rentLib.fmtRemaining(rec.expiresAt - Date.now()) + ' bacha hai)', { mentions: [target.number + '@s.whatsapp.net'] });
       }
     },
     {
@@ -205,7 +205,7 @@ module.exports = {
         const list = rentLib.listRecords()
           .filter((r) => r.expiresAt && r.expiresAt > now && r.expiresAt - now <= days * 86400000)
           .sort((a, b) => a.expiresAt - b.expiresAt);
-        if (!list.length) { await reply('✅ Agle ' + days + ' din me koi rent expire nahi ho raha.'); return; }
+        if (!list.length) { await reply('✅ Agle ' + days + ' days: no rent expiring.'); return; }
         let msg = '⏰ *EXPIRING IN ' + days + ' DAYS* (' + list.length + ')\n\n';
         msg += list.map((r, i) => (i + 1) + '. @' + r.number + (r.renterName ? ' (' + r.renterName + ')' : '') + '\n   Expires: ' + rentLib.fmtDateIST(r.expiresAt) + ' (' + rentLib.fmtRemaining(r.expiresAt - now) + ')\n   Price: ' + rentLib.fmtPrice(r.price)).join('\n\n');
         const mentions = list.map((r) => r.number + '@s.whatsapp.net');
@@ -222,7 +222,7 @@ module.exports = {
         const reply = (t, extra) => sock.sendMessage(chatId, Object.assign({ text: t }, extra || {}), { quoted: message });
         if (!isOwner(context)) { await ownerOnlyReply(reply); return; }
         const hist = rentLib.listHistory().slice(0, 20);
-        if (!hist.length) { await reply('ℹ️ Abhi tak koi rent expire ya remove nahi hua hai.'); return; }
+        if (!hist.length) { await reply('❌ *No expired or removed rents yet.*'); return; }
         let msg = '📜 *RENT HISTORY* (' + rentLib.listHistory().length + ')\n\n';
         msg += hist.map((r, i) => (i + 1) + '. @' + r.number + (r.renterName ? ' (' + r.renterName + ')' : '') + '\n   Status: ' + (r.status || 'closed') + '\n   Closed: ' + rentLib.fmtDateIST(r.closedAt) + '\n   Price: ' + rentLib.fmtPrice(r.price)).join('\n\n');
         const mentions = hist.map((r) => r.number + '@s.whatsapp.net');
@@ -258,7 +258,7 @@ module.exports = {
         msg += '💰 Active rent total: ₹' + activeTotal + '\n';
         msg += '💰 History total: ₹' + histTotal + '\n';
         msg += '💰 Grand total: ₹' + (activeTotal + histTotal) + '\n\n';
-        msg += 'List ke liye: *.rentlist*';
+        msg += 'List: .rentlist';
         await reply(msg);
       }
     }

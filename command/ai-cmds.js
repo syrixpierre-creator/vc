@@ -52,6 +52,6 @@ cmd({
             await conn.sendMessage(m.chat, { react: { text: "❌", key: mek.key } });
         }
         catch (_) { }
-        return reply("❌ AI server se connection fail ho gaya.");
+        return reply("❌ *Failed to connect to the AI server.*");
     }
 });

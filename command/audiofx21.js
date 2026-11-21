@@ -39,7 +39,7 @@ const FX_NAMES = Object.keys(FX21);
 const menu =
   '🎧 *Audio FX — 21 Effects*\n\n' +
   FX_NAMES.map((n) => `• *${n}*`).join('  ') +
-  '\n\n📌 *Usage:*\nAudio / voice note par reply karke effect ka naam bhejo.\nExample: *.reverb*  ya  *.lofi*';
+  '\n\n📌 *Usage:* reply to an audio with .reverb';
 
 async function getAudio(message) {
   const m = message.message || {};
@@ -72,7 +72,7 @@ module.exports = {
     const input = path.join(tmp, `fx21_in_${Date.now()}.ogg`);
     const output = path.join(tmp, `fx21_out_${Date.now()}.ogg`);
     try { fs.writeFileSync(input, audioBuffer); } catch (_) {
-      return sock.sendMessage(chatId, { text: '❌ Audio save nahi ho paya.' }, { quoted: message });
+      return sock.sendMessage(chatId, { text: '❌ *Failed to save audio.*' }, { quoted: message });
     }
     let ffmpegBin = 'ffmpeg';
     try { ffmpegBin = require('@ffmpeg-installer/ffmpeg').path; } catch (_) {}
@@ -80,7 +80,7 @@ module.exports = {
       try { fs.unlinkSync(input); } catch (_) {}
       if (err || !fs.existsSync(output)) {
         try { fs.unlinkSync(output); } catch (_) {}
-        return sock.sendMessage(chatId, { text: `❌ *${invoked}* effect apply nahi ho paya.` }, { quoted: message }).catch(() => {});
+        return sock.sendMessage(chatId, { text: `❌ *Failed to apply ${invoked} effect.*` }, { quoted: message }).catch(() => {});
       }
       try {
         const out = fs.readFileSync(output);

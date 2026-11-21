@@ -22,7 +22,7 @@ async function jimpCode(code) {
 module.exports = {
   command: 'carbon',
   aliases: ['codeimg', 'codeshot'],
-  description: 'Code se pretty image banao: .carbon <code>',
+  description: 'Make a pretty image from code: .carbon <code>',
   category: 'tools',
   handler: async (sock, message, args, context) => {
     const chatId = message.key.remoteJid;

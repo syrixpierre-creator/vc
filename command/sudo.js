@@ -51,7 +51,7 @@ module.exports = {
           chatId,
           {
             text:
-              '📋 *SUDO LIST*\n\n_Empty — koi sudo user nahi._\n\nAdd:\n`.sudo add @user`\n`.sudo add 91xxxxxxxxxx`'
+              '❌ *Sudo list is empty.*\n📌 *Usage:* .sudo add @user'
           },
           { quoted: message }
         );
@@ -80,7 +80,7 @@ module.exports = {
       const count = await clearAllSudo();
       return sock.sendMessage(
         chatId,
-        { text: count > 0 ? `✅ *${count} sudo number(s) removed.*\nAb koi sudo user nahi hai.` : '📋 Sudo list pehle se hi empty hai — koi number nahi tha.' },
+        { text: count > 0 ? `✅ *${count} sudo number(s) removed.*` : '❌ *Sudo list is already empty.*' },
         { quoted: message }
       );
     }
@@ -90,7 +90,7 @@ module.exports = {
         chatId,
         {
           text:
-            ' *SUDO MANAGER* \n\n 📝 *Usage:*\n ▢ `.sudo add <@tag/reply/num>`\n ▢ `.sudo del <@tag/reply/num>`\n ▢ `.sudo list`\n ▢ `.sudo clear` — saare sudo hatao\n\n'
+            '📌 *Usage:* .sudo add|del|list|clear <@user|number>\n\n'
         },
         { quoted: message }
       );
@@ -123,7 +123,7 @@ module.exports = {
       const removed = await removeSudo(target);
       return sock.sendMessage(
         chatId,
-        { text: removed ? `✅ Sudo *removed*\n\`${cleanJid(target) || target}\`` : `⚠️ Number sudo list me nahi mila:\n\`${cleanJid(target) || target}\`\nList dekhne ke liye: \`.sudo list\`` },
+        { text: removed ? `✅ Sudo *removed*\n\`${cleanJid(target) || target}\`` : `❌ *Number not in the sudo list:* ${cleanJid(target) || target}` },
         { quoted: message }
       );
     }

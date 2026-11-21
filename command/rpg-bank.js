@@ -34,11 +34,11 @@ module.exports = {
 
     const show = () => {
       const cur = currencies.getUser(sender);
-      const curLine = Object.entries(cur).filter(([, v]) => v > 0).map(([k, v]) => k + ': ' + fmt(v)).join(' • ') || 'koi currency nahi';
+      const curLine = Object.entries(cur).filter(([, v]) => v > 0).map(([k, v]) => k + ': ' + fmt(v)).join(' • ') || 'no currency';
       return '🏦 *Bank*\n\n' +
         '👛 Wallet: ' + fmt(user.coins) + ' coins\n' +
         '🏦 Bank: ' + fmt(user.bank) + ' / ' + fmt(cap) + ' coins\n' +
-        '📈 Level: ' + level + ' (capacity level se badhti hai)\n' +
+        '📈 Level: ' + level + ' (capacity grows with level)\n' +
         '💎 Currencies: ' + curLine + '\n\n' +
         'Commands: *.bank deposit <n>* • *.bank withdraw <n>* • *.bank bonus* (har 6 ghante)';
     };
@@ -46,7 +46,7 @@ module.exports = {
     if (!sub) { await reply(show()); return; }
     if (sub === 'deposit' || sub === 'dep') {
       if (!n || n <= 0) { await reply('❌ Amount do. Example: *.bank deposit 500*'); return; }
-      if ((user.coins || 0) < n) { await reply('❌ Wallet me itne coins nahi hain. Wallet: ' + fmt(user.coins)); return; }
+      if ((user.coins || 0) < n) { await reply('❌ *Not enough coins in wallet.* Wallet: ' + fmt(user.coins)); return; }
       if ((user.bank || 0) + n > cap) {
         await reply('❌ Bank capacity full ho jayegi! Capacity: ' + fmt(cap) + ', bank me hai: ' + fmt(user.bank) + '. Max deposit: ' + fmt(cap - (user.bank || 0)) + '.\nLevel badhao (.level) — capacity badhegi.');
         return;
@@ -58,10 +58,10 @@ module.exports = {
     }
     if (sub === 'withdraw' || sub === 'wd') {
       if (!n || n <= 0) { await reply('❌ Amount do. Example: *.bank withdraw 500*'); return; }
-      if ((user.bank || 0) < n) { await reply('❌ Bank me itne coins nahi hain. Bank: ' + fmt(user.bank)); return; }
+      if ((user.bank || 0) < n) { await reply('❌ *Not enough coins in bank.* Bank: ' + fmt(user.bank)); return; }
       const newBank = economy.setBank(sender, (user.bank || 0) - n, null);
       const wallet = economy.addCoins(sender, n);
-      await reply('✅ *' + fmt(n) + ' coins* bank se nikal liye.\n👛 Wallet: ' + fmt(wallet) + '  •  🏦 Bank: ' + fmt(newBank));
+      await reply('✅ *' + fmt(n) + ' coins* withdrawn.\n👛 Wallet: ' + fmt(wallet) + '  •  🏦 Bank: ' + fmt(newBank));
       return;
     }
     if (sub === 'bonus') {
@@ -69,13 +69,13 @@ module.exports = {
       const left = BONUS_COOLDOWN - (now - (user.lastBonus || 0));
       if (left > 0) {
         const h = Math.floor(left / 3600000), m = Math.floor((left % 3600000) / 60000);
-        await reply('⏳ Bonus abhi ready nahi hai. Agla bonus: ' + h + 'h ' + m + 'm baad.');
+        await reply('⏳ *Bonus not ready.* Next bonus: ' + h + 'h ' + m + 'm baad.');
         return;
       }
       const bonus = 100 + level * 20;
       const space = cap - (user.bank || 0);
       const got = Math.min(bonus, Math.max(0, space));
-      if (got <= 0) { await reply('❌ Bank full hai — bonus lene ke liye pehle withdraw karo.'); return; }
+      if (got <= 0) { await reply('❌ *Bank is full.* Withdraw first.'); return; }
       const newBank = economy.setBank(sender, (user.bank || 0) + got, now);
       await reply('🎁 *Timed Bonus!* +' + fmt(got) + ' coins bank me aaye.\n🏦 Bank: ' + fmt(newBank) + ' / ' + fmt(cap) + '\n⏰ Agla bonus 6 ghante baad.');
       return;

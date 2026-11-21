@@ -14,7 +14,7 @@ module.exports = {
     const chatId = context.chatId || message.key.remoteJid;
     const list = quiz.listActive().filter((g) => g.chat === chatId);
     if (!list.length) {
-      await sock.sendMessage(chatId, { text: `🎮 *Quiz Games*\n\nIs chat me koi game active nahi hai.\n\nStart karo:\n• .tebakgambar — guess the picture\n• .tebakan — riddle\n• .tebaktebakan — joke riddle\n• .tebaklirik — guess the song\n• .tebakmakanan — guess the food\n• .susunkata — unscramble word\n• .caklontong — cak lontong riddle\n• .family100 — survey game\n• .asahotak — brain teaser\n• .lengkapikalimat — fill the blank\n\nJawab plain text me likho. Hint: .hint • Menyerah: .nyerah` }, { quoted: message });
+      await sock.sendMessage(chatId, { text: `❌ *No game active in this chat.*\n\nAvailable games:\n- .tebakgambar\n- .tebakan\n- .tebaktebakan\n- .tebaklirik\n- .tebakmakanan\n- .susunkata\n- .caklontong\n- .family100\n- .asahotak\n- .lengkapikalimat` }, { quoted: message });
       return;
     }
     await sock.sendMessage(chatId, { text: `🎮 *Active game:* ${list.map((g) => g.title).join(', ')}\n\nJawab plain text me likho.\n💡 Hint: .hint  •  🏳️ Menyerah: .nyerah` }, { quoted: message });

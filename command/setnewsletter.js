@@ -23,14 +23,14 @@ module.exports = {
     }
     try {
       const info = await sock.newsletterMetadata('invite', code);
-      if (!info || !info.id) return reply('❌ Channel JID resolve nahi ho paya. Pehle bot account se channel follow karo.');
+      if (!info || !info.id) return reply('❌ *Channel not found.* Follow the channel with the bot account first.');
       try {
         fs.mkdirSync(path.dirname(STORE), { recursive: true });
         fs.writeFileSync(STORE, JSON.stringify({ jid: info.id, name: info.name || '', code, savedAt: Date.now() }, null, 2));
       } catch (_) {}
       return reply(`✅ *Channel JID resolved and saved!*\n\n📢 *Name:* ${info.name || 'Unknown'}\n🆔 *JID:* \`${info.id}\``);
     } catch (e) {
-      return reply('❌ Error: ' + (e.message || e) + '\n\nPehle bot se channel follow karo, phir try karo.');
+      return reply('❌ Error: ' + (e.message || e) + '\n\nFollow the channel with the bot first, then try again.');
     }
   },
 };

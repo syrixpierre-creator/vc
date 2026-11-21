@@ -53,7 +53,7 @@ async function tovideo(sock, message, args, context) {
       await sock.sendMessage(chatId, { video: fs.readFileSync(outPath), caption: '🎬 *Video*\nSticker → Video • QUEEN AKUMA', gifPlayback: true }, { quoted: message });
     }
   } catch (e) {
-    await reply('❌ Video convert nahi ho paya: ' + String(e.message || e).slice(0, 120));
+    await reply('❌ *Video convert failed:* ' + String(e.message || e).slice(0, 120));
   } finally {
     cleanup(inPath, outPath);
   }
@@ -79,7 +79,7 @@ async function tomp3(sock, message, args, context) {
     const fs = require('fs');
     await sock.sendMessage(chatId, { audio: fs.readFileSync(outPath), mimetype: 'audio/mpeg', fileName: 'audio.mp3' }, { quoted: message });
   } catch (e) {
-    await reply('❌ MP3 convert nahi ho paya: ' + String(e.message || e).slice(0, 120));
+    await reply('❌ *MP3 convert failed:* ' + String(e.message || e).slice(0, 120));
   } finally {
     cleanup(inPath, outPath);
   }

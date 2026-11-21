@@ -49,7 +49,7 @@ module.exports = {
     }
     const short = (await shortIsGd(url)) || (await shortTiny(url));
     if (!short) {
-      await reply('❌ Short URL nahi ban payi — net check karo ya thodi der baad try karo.');
+      await reply('❌ *Failed to make short URL. Try again later.*');
       return;
     }
     await reply('🔗 *Short URL*\n\n' + short + '\n\nOriginal: ' + url);

@@ -34,7 +34,7 @@ async function tweetDl(sock, message, args, context) {
     const res = await axios.get('https://api.fxtwitter.com/status/' + id, { timeout: 20000 });
     const tw = res.data && res.data.tweet;
     if (!tw) {
-      await reply('❌ Tweet nahi mila — link check karo, ya tweet private/deleted ho sakta hai.');
+      await reply('❌ *Tweet not found.* Check the link.');
       return;
     }
     const author = tw.author ? ('@' + tw.author.screen_name + (tw.author.name ? ' (' + tw.author.name + ')' : '')) : '';
@@ -57,12 +57,12 @@ async function tweetDl(sock, message, args, context) {
       if (text) await reply('🐦 ' + author + '\n\n' + text);
       return;
     }
-    if (text) { await reply('🐦 ' + author + '\n\n' + text + '\n\n_(Is tweet me koi media nahi hai.)_'); return; }
-    await reply('❌ Is tweet se kuch download nahi ho paya.');
+    if (text) { await reply('🐦 ' + author + '\n\n' + text + '\n\n_(No media in this tweet.)_'); return; }
+    await reply('❌ *Nothing to download from this tweet.*');
   } catch (e) {
     const status = e.response && e.response.status;
-    if (status === 404) await reply('❌ Tweet nahi mila — link check karo, ya tweet private/deleted ho sakta hai.');
-    else await reply('❌ Twitter download nahi ho paya: ' + String(e.message || e).slice(0, 120));
+    if (status === 404) await reply('❌ *Tweet not found.* Check the link.');
+    else await reply('❌ *Twitter download failed:* ' + String(e.message || e).slice(0, 120));
   }
 }
 

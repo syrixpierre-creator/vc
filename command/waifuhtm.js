@@ -39,13 +39,9 @@ let handler = async (m, { conn, args, command }) => {
 
   try {
     if (command == 'waifufilterlist') {
-      const listText = `🎨 *Daftar Filter Penghitaman Waifu:*\n\n${FILTERS.map(f => `• ${f}`).join('\n')}
+      const listText = `🎨 *Available filters:*\n\n${FILTERS.map(f => `• ${f}`).join('\n')}
 
-📌 *Cara pakai:*
-1. Reply gambar waifu-nya
-2. Ketik *.waifuhtm [filter]*
-
-*Contoh:* .waifuhtm Hitam`
+📌 *Usage:* reply to an image with .waifuhtm <filter>`
 
       await conn.reply(m.chat, listText, m)
       await conn.sendMessage(m.chat, { react: { text: '✅', key: m.key }})

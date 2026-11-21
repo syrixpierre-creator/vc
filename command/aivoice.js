@@ -36,10 +36,10 @@ module.exports = {
     const langMatch = q.match(/\s+--lang\s+([a-z]{2})$/i);
     if (langMatch) { lang = langMatch[1].toLowerCase(); q = q.slice(0, langMatch.index).trim(); }
     if (!q) {
-      await reply('❌ Sawal do.\nExample: *.aivoice What is photosynthesis?*\nHindi me jawab ke liye: *.aivoice Photosynthesis kya hai? --lang hi*');
+      await reply('📌 *Usage:* .aivoice <question>');
       return;
     }
-    await reply('⏳ AI soch raha hai, phir voice note bhejta hoon...');
+    await reply('⏳ Thinking...');
     const res = await geminiText(q, { maxTokens: 600, temperature: 0.7 });
     if (!res.ok) {
       await reply(res.error || '❌ AI jawab nahi de paya.');

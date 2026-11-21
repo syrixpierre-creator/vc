@@ -13,8 +13,8 @@ const INFO = {
   pconly: 'PC only — bot sirf DM (private chat) me kaam karega, groups me band.',
   gconly: 'GC only — bot sirf groups me kaam karega, DM me band.',
   swonly: 'SW only — bot sirf status par kaam karega, group/DM band.',
-  nyimak: 'Lurk mode — bot messages padhta hai par koi jawab nahi deta.',
-  restrict: 'Restrict — group me sirf admins bot commands chala sakte hain.',
+  nyimak: 'Lurk mode: the bot reads messages but does not reply.',
+  restrict: 'Restrict: only group admins can use bot commands.',
 };
 
 module.exports = {

@@ -9,30 +9,30 @@
  */
 const TRUTHS = [
   'Tumhara sabse embarrassing moment kya tha? 😳',
-  'Tumne kabhi kisi ka secret bataya hai? Kiska? 🤫',
-  'Tumhara crush kaun hai? Naam batao! 😏',
-  'Tumne kabhi jhooth bolke kisi ko fasaya hai? 😅',
-  'Tumhari sabse badi khwahish kya hai? ✨',
+  'Have you ever told someone secret? Whose? 🤫',
+  'Who is your crush? Tell the name! 😏',
+  'Have you ever trapped someone with a lie? 😅',
+  'What is your biggest wish? ✨',
   'Tum kabhi class me sote hue pakde gaye ho? 😴',
-  'Tumhara phone ka wallpaper kya hai aur kyun? 📱',
-  'Tumne kabhi khana chhup ke khaya hai? 😂',
+  'What is your phone wallpaper and why? 📱',
+  'Have you ever eaten food secretly? 😂',
   'Tumhara sabse ajeeb sapna kya tha? 🌙',
   'Tum kis cheez se sabse zyada darte ho? 😨',
-  'Tumne kabhi kisi ko bina bataye uska khana khaya hai? 🍕',
-  'Agar tum ek din ke liye invisible hote, to kya karte? 👻',
+  'Have you ever eaten someone food without telling them? 🍕',
+  'If you were invisible for a day, what would you do? 👻',
 ];
 const DARES = [
-  'Apni DP 1 ghante ke liye cartoon wali lagao! 😂',
-  'Group me "Main sabse smart hoon" likh ke bhejo! 😎',
+  'Put a cartoon profile picture for 1 hour! 😂',
+  'Send "I am the smartest" in the group! 😎',
   'Apni favourite gaane ki 2 lines yahin gao (likh ke)! 🎤',
-  'Apne best friend ko "I love you" message bhejo aur screenshot dikhao! 😜',
-  'Apna naam 5 minute ke liye "Bewakoof No.1" rakh lo! 🤣',
+  'Send "I love you" to your best friend and show the screenshot! 😜',
+  'Change your name to "Fool No.1" for 5 minutes! 🤣',
   'Group me ek shayari sunao! ✍️',
-  'Apne phone ka sabse purana photo group me bhejo! 📸',
-  'Ek minute tak sirf emoji me baat karo! 😶',
-  'Apne crush ko ek achha sa message bhejo! 💌',
-  'Apni aawaz me ek voice note bhejo — "Main ek bandar hoon" 🐒',
-  'Apne dushman ki tareef me 2 lines likho! 😇',
+  'Send the oldest photo on your phone to the group! 📸',
+  'Talk only in emojis for one minute! 😶',
+  'Send a nice message to your crush! 💌',
+  'Send a voice note saying "I am a monkey" 🐒',
+  'Write 2 lines praising your enemy! 😇',
   'Kal subah jaldi uth ke good morning message bhejna! 🌅',
 ];
 
@@ -56,9 +56,9 @@ module.exports = {
       return;
     }
     if (Math.random() < 0.5) {
-      await reply('❓ *Truth*\n\n' + pick(TRUTHS) + '\n\n_Aur chahiye to `.tod truth` ya `.tod dare` likho._');
+      await reply('❓ *Truth*\n\n' + pick(TRUTHS) + '\n\n_More: .tod truth or .tod dare_');
     } else {
-      await reply('🔥 *Dare*\n\n' + pick(DARES) + '\n\n_Aur chahiye to `.tod truth` ya `.tod dare` likho._');
+      await reply('🔥 *Dare*\n\n' + pick(DARES) + '\n\n_More: .tod truth or .tod dare_');
     }
   },
 };

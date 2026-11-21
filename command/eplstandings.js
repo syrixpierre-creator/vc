@@ -32,7 +32,7 @@ module.exports = {
     let season = '2026-2027';
     if (!table) { table = await fetchTable('2025-2026'); season = '2025-2026'; }
     if (!table) {
-      await reply('❌ EPL table abhi nahi mil payi — net check karo ya thodi der baad try karo.');
+      await reply('❌ *Failed to get the EPL table. Try again later.*');
       return;
     }
     const top = table.slice(0, 10).map((r) => {

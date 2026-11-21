@@ -24,35 +24,35 @@ function aiCmd(command, aliases, usage, promptFn, opts = {}) {
   };
 }
 
-const HI = 'Jawab Hinglish me do (Hindi-English mix, Roman script), short aur interesting.';
+const HI = 'Answer in simple English, short and interesting.';
 
 module.exports = { commands: [
-  aiCmd('sher', [], 'Shayari sunao', (q) => `Ek khoobsurat shayari likho — topic/mood: "${q}". 2-4 lines, emotional aur yaadgar. ${HI}`, { hint: '<mood/topic>' }),
-  aiCmd('kahani', [], 'Ek line se poori kahani', (q) => `Is line se ek chhoti kahani likho (150-250 words): "${q}". Kahani me shuruaat, twist aur end ho. ${HI}`, { hint: '<ek line>' }),
-  aiCmd('email', [], 'Formal email likho', (q) => `Ek professional formal email likho — purpose: "${q}". Subject line, proper greeting, body aur closing ke saath. English me likho.`, { hint: '<purpose>' }),
-  aiCmd('debate', [], 'Debate ka winner decide karo', (q) => `Do logo ke beech debate hai. Dono ke points ye hain: "${q}". Dono ke points ka analysis karo, kaun sa side strong hai, aur winner declare karo with reason. ${HI}`, { hint: '<side1 vs side2>' }),
-  aiCmd('interview', [], 'Mock interview questions', (q) => `Role "${q}" ke liye ek mock interview banao: 5 tough interview questions, har ek ke saath ek ideal short answer. ${HI}`, { hint: '<job role>' }),
-  aiCmd('fitness', [], 'Workout + diet plan', (q) => `Ek simple workout + diet plan banao — goal/details: "${q}". Ghar par karne layak exercises, Indian khana, aur ek week ka plan. ${HI}`, { hint: '<goal, weight>' }),
-  aiCmd('codeai', [], 'Code likho/explain/fix karo', (q) => `Coding help chahiye: "${q}". Agar code likhna hai to clean code do, agar explain karna hai to simple Hinglish me samjhao, agar bug hai to fix karo. Code blocks ke saath.`, { hint: '<code ya sawal>' }),
-  aiCmd('quizgen', [], 'Kisi bhi topic par quiz', (q) => `Topic "${q}" par 5 multiple-choice quiz questions banao. Har question ke 4 options (A-D) aur end me answer key. Questions interesting aur medium difficulty ke hon. ${HI}`, { hint: '<topic>' }),
-  aiCmd('factcheck', [], 'Kisi daawe ki sachchai check karo', (q) => `Is daawe/claim ki fact-check karo: "${q}". Sach hai, jhooth hai, ya misleading — clear verdict do, aur 2-3 lines me reason/sahi jaankari do. Agar sure nahi ho to "confirm nahi kar sakta" likho. ${HI}`, { hint: '<claim>' }),
-  aiCmd('rashifal', [], 'Daily horoscope', (q) => `Rashi/sign "${q}" ka aaj ka horoscope batao: love, career, health aur lucky number/color. Fun aur positive tone me. ${HI}`, { hint: '<rashi ya birth date>' }),
-  aiCmd('lovecalc', [], 'AI love compatibility', (q) => `Do naam hain: "${q}". Inki love compatibility ka fun analysis karo: percentage, strengths, ek funny tip. Romantic aur halka-phulka tone. ${HI}`, { hint: '<naam1 aur naam2>' }),
-  aiCmd('roastbattle', [], 'Do logo ki roast battle', (q) => `Roast battle hai — participants: "${q}". Dono ke liye ek-ek funny roast likho (halki-phulki, offensive nahi), phir winner declare karo aur kyun. ${HI}`, { hint: '<@user1 @user2>' }),
-  aiCmd('songfind', [], 'Lyrics se gaana pehchano', (q) => `Ye lyrics kis gaane ke hain: "${q}"? Gaane ka naam, singer, film/album batao. Agar sure nahi ho to best guess + similar gaane suggest karo.`, { hint: '<lyrics ki lines>' }),
-  aiCmd('mathsolve', [], 'Maths step-by-step solution', (q) => `Ye maths ka sawal step-by-step solve karo: "${q}". Har step clear likho, final answer highlight karo. Hinglish me samjhao.`, { hint: '<sawal>' }),
+  aiCmd('sher', [], 'Shayari sunao', (q) => `Write a beautiful short poem. Topic/mood: "${q}". 2-4 lines, emotional and memorable. ${HI}`, { hint: '<mood/topic>' }),
+  aiCmd('kahani', [], 'Ek line se poori kahani', (q) => `Write a short story (150-250 words) from this line: "${q}". It must have a beginning, a twist and an ending. ${HI}`, { hint: '<ek line>' }),
+  aiCmd('email', [], 'Formal email likho', (q) => `Write a professional formal email. Purpose: "${q}". Include a subject line, proper greeting, body and closing. Write in English.`, { hint: '<purpose>' }),
+  aiCmd('debate', [], 'Decide the winner of a debate', (q) => `There is a debate between two people. Their points: "${q}". Analyse both sides, say which side is stronger, and declare a winner with the reason. ${HI}`, { hint: '<side1 vs side2>' }),
+  aiCmd('interview', [], 'Mock interview questions', (q) => `Create a mock interview for the role "${q}": 5 tough interview questions, each with a short ideal answer. ${HI}`, { hint: '<job role>' }),
+  aiCmd('fitness', [], 'Workout + diet plan', (q) => `Create a simple workout and diet plan. Goal/details: "${q}". Home exercises, simple meals, and a one week plan. ${HI}`, { hint: '<goal, weight>' }),
+  aiCmd('codeai', [], 'Write, explain or fix code', (q) => `Coding help needed: "${q}". If code is needed, give clean code; if an explanation is needed, explain simply in English; if there is a bug, fix it. Use code blocks.`, { hint: '<code ya sawal>' }),
+  aiCmd('quizgen', [], 'Kisi bhi topic par quiz', (q) => `Create 5 multiple-choice quiz questions on the topic "${q}". Each question has 4 options (A-D), and give the answer key at the end. Medium difficulty. ${HI}`, { hint: '<topic>' }),
+  aiCmd('factcheck', [], 'Check if a claim is true', (q) => `Fact-check this claim: "${q}". Is it true, false, or misleading? Give a clear verdict and the reason in 2-3 lines. If you are not sure, say "cannot confirm". ${HI}`, { hint: '<claim>' }),
+  aiCmd('rashifal', [], 'Daily horoscope', (q) => `Give today's horoscope for the sign "${q}": love, career, health and lucky number/color. Fun and positive tone. ${HI}`, { hint: '<rashi ya birth date>' }),
+  aiCmd('lovecalc', [], 'AI love compatibility', (q) => `Two names: "${q}". Do a fun love compatibility analysis: percentage, strengths, one funny tip. Light romantic tone. ${HI}`, { hint: '<naam1 aur naam2>' }),
+  aiCmd('roastbattle', [], 'Do logo ki roast battle', (q) => `Roast battle, participants: "${q}". Write one light, funny (not offensive) roast for each, then declare a winner and why. ${HI}`, { hint: '<@user1 @user2>' }),
+  aiCmd('songfind', [], 'Lyrics se gaana pehchano', (q) => `Which song are these lyrics from: "${q}"? Give the song name, singer and film/album. If not sure, give your best guess and similar songs.`, { hint: '<lyrics ki lines>' }),
+  aiCmd('mathsolve', [], 'Maths step-by-step solution', (q) => `Solve this math problem step by step: "${q}". Write each step clearly and highlight the final answer. Explain in English.`, { hint: '<sawal>' }),
   {
     command: 'aistick',
     aliases: ['aisticker2'],
     category: 'ai',
-    description: 'Prompt se AI sticker banao',
+    description: 'Make an AI sticker from a prompt',
     usage: '.aistick <prompt>',
     async handler(sock, message, args, context = {}) {
       const chatId = context.chatId || message.key.remoteJid;
       const reply = (t) => sock.sendMessage(chatId, { text: t }, { quoted: message });
       const q = (args || []).join(' ').trim();
       if (!q) return reply('❌ Usage: `.aistick <prompt>`\nExample: `.aistick cute cat with sunglasses`');
-      await sock.sendMessage(chatId, { text: '🎨 AI sticker bana raha hoon...' }, { quoted: message });
+      await sock.sendMessage(chatId, { text: '🎨 Making AI sticker...' }, { quoted: message });
       const img = await pollinationsImage(q, { width: 512, height: 512 });
       if (!img.ok) return reply('❌ ' + img.error);
       try {
@@ -60,7 +60,7 @@ module.exports = { commands: [
         const webp = await sticker5(img.buffer, null, 'QUEEN AKUMA', 'INCONNU BOY SENSEI');
         return sock.sendMessage(chatId, { sticker: webp }, { quoted: message });
       } catch (e) {
-        return sock.sendMessage(chatId, { image: img.buffer, caption: '🎨 *AI Sticker* — sticker convert nahi hua, image bhej di.' }, { quoted: message });
+        return sock.sendMessage(chatId, { image: img.buffer, caption: '🎨 *AI Sticker* — could not convert to sticker, sent the image.' }, { quoted: message });
       }
     },
   },
@@ -68,7 +68,7 @@ module.exports = { commands: [
     command: 'imageedit',
     aliases: ['aiedit'],
     category: 'ai',
-    description: 'Photo + prompt se AI edit karo',
+    description: 'Edit a photo with AI using a prompt',
     usage: '.imageedit <prompt> (photo par reply karo)',
     async handler(sock, message, args, context = {}) {
       const chatId = context.chatId || message.key.remoteJid;
@@ -76,11 +76,11 @@ module.exports = { commands: [
       const q = (args || []).join(' ').trim();
       const quoted = message.message?.extendedTextMessage?.contextInfo?.quotedMessage;
       const imgMsg = quoted?.imageMessage || message.message?.imageMessage;
-      if (!imgMsg) return reply('❌ Pehle ek photo bhejo ya photo par reply karke likho: `.imageedit anime style banao`');
-      if (!q) return reply('❌ Prompt bhi likho: `.imageedit background badlo`');
+      if (!imgMsg) return reply('📌 *Usage:* reply to a photo with .imageedit <prompt>');
+      if (!q) return reply('📌 *Usage:* .imageedit <prompt>');
       const key = process.env.GEMINI_API_KEY || '';
-      if (!key) return reply('❌ *GEMINI_API_KEY nahi hai.* `.env` me set karo.');
-      await sock.sendMessage(chatId, { text: '🎨 Photo edit ho rahi hai...' }, { quoted: message });
+      if (!key) return reply('❌ *GEMINI_API_KEY is missing.* Set it in `.env`.');
+      await sock.sendMessage(chatId, { text: '🎨 Editing photo...' }, { quoted: message });
       try {
         const { downloadMediaMessage } = require('@whiskeysockets/baileys');
         const buf = await downloadMediaMessage({ key: message.key, message: { imageMessage: imgMsg } }, 'buffer', {}, { logger: { level: 'silent' } });
@@ -92,10 +92,10 @@ module.exports = { commands: [
           body: JSON.stringify({ contents: [{ parts: [{ text: q }, { inline_data: { mime_type: 'image/jpeg', data: b64 } }] }], generationConfig: { responseModalities: ['TEXT', 'IMAGE'] } }),
           signal: ctrl.signal,
         }).finally(() => clearTimeout(t));
-        if (!res.ok) return reply(`❌ Image edit fail (HTTP ${res.status}). Ye model tumhari key/region par available nahi ho sakta.`);
+        if (!res.ok) return reply(`❌ *Image edit failed* (HTTP ${res.status}).`);
         const data = await res.json();
         const part = (data?.candidates?.[0]?.content?.parts || []).find((p) => p.inlineData && p.inlineData.data);
-        if (!part) return reply('❌ Edited photo nahi mili. Prompt badal kar dobara try karo.');
+        if (!part) return reply('❌ *No edited photo received.* Try another prompt.');
         const out = Buffer.from(part.inlineData.data, 'base64');
         return sock.sendMessage(chatId, { image: out, caption: `🎨 *AI Edit:* ${q}` }, { quoted: message });
       } catch (e) {
@@ -107,7 +107,7 @@ module.exports = { commands: [
     command: 'anuvad',
     aliases: ['trans2'],
     category: 'ai',
-    description: 'Kisi bhi bhasha me translate karo',
+    description: 'Translate to any language',
     usage: '.anuvad <hi|en> <text>',
     async handler(sock, message, args, context = {}) {
       const chatId = context.chatId || message.key.remoteJid;
@@ -118,7 +118,7 @@ module.exports = { commands: [
       try {
         const { translateMyMemory } = require('../lib/publicApis');
         const out = await translateMyMemory(q, to);
-        if (!out) return reply('❌ Translate nahi ho paya. Dobara try karo.');
+        if (!out) return reply('❌ *Translation failed. Try again.*');
         return reply(`🌐 *Translate (${to.toUpperCase()})*\n\n${out}`);
       } catch (e) {
         return reply('❌ Translate error: ' + String(e.message || e).slice(0, 120));
@@ -172,9 +172,9 @@ module.exports = { commands: [
       const reply = (t) => sock.sendMessage(chatId, { text: t }, { quoted: message });
       if (!chatId.endsWith('@g.us')) return reply('❌ *This command can only be used in groups!*');
       const msgs = getGroupMessages(chatId);
-      if (msgs.length < 5) return reply(`❌ Abhi group me sirf ${msgs.length} messages track hue hain. Thodi baat-cheet ke baad dobara try karo (kam se kam 5 chahiye).`);
+      if (msgs.length < 5) return reply(`❌ *Only ${msgs.length} messages tracked in this group.* Try again later (at least 5 needed).`);
       const convo = msgs.map((m) => `${m.sender}: ${m.text}`).join('\n');
-      const r = await geminiText(`Ye ek WhatsApp group ki recent baat-cheet hai. Iska short summary banao Hinglish me: main topics kya the, kaun sabse active tha, group ka mood kaisa tha. 6-8 lines me.\n\n${convo}`);
+      const r = await geminiText(`This is a recent WhatsApp group conversation. Write a short summary in English: main topics, who was most active, and the mood of the group. 6-8 lines.\n\n${convo}`);
       if (!r.ok) return reply(r.error);
       return reply(`📝 *Group Summary*\n\n${r.text.slice(0, 3500)}`);
     },
@@ -183,7 +183,7 @@ module.exports = { commands: [
     command: 'aimemory',
     aliases: ['memory2'],
     category: 'ai',
-    description: 'Bot kya yaad rakhta hai — dekho/save karo',
+    description: 'See or save what the bot remembers',
     usage: '.aimemory <fact> | .aimemory | .aimemory forget',
     async handler(sock, message, args, context = {}) {
       const chatId = context.chatId || message.key.remoteJid;
@@ -192,15 +192,15 @@ module.exports = { commands: [
       const q = (args || []).join(' ').trim();
       if (!q) {
         const facts = aiMemory.getFacts(senderJid);
-        if (!facts.length) return reply('🧠 *AI Memory*\n\nAbhi tumhare baare me kuch yaad nahi hai.\nSave karo: `.aimemory mera naam Inconnu hai` ya `.aimemory mujhe cricket pasand hai`');
-        return reply(`🧠 *AI Memory — tumhare baare me:*\n\n${facts.map((f, i) => `${i + 1}. ${f}`).join('\n')}\n\nBhoolne ke liye: \`.aimemory forget\``);
+        if (!facts.length) return reply('🧠 *AI Memory*\n\nNothing saved about you yet.\n📌 *Usage:* .aimemory <fact about you>');
+        return reply(`🧠 *AI Memory:*\n\n${facts.map((f, i) => `${i + 1}. ${f}`).join('\n')}\n\nForget: .aimemory forget`);
       }
       if (q.toLowerCase() === 'forget') {
         aiMemory.forget(senderJid);
-        return reply('🧠 Sab bhool gaya! Tumhare baare me kuch yaad nahi rahega.');
+        return reply('🧠 *Memory cleared.*');
       }
       aiMemory.remember(senderJid, q);
-      return reply(`🧠 Yaad rakh liya: "${q}"\n\nAb .demonai se baat karo to ye yaad rahega.`);
+      return reply(`🧠 *Saved:* "${q}"`);
     },
   },
 ] };

@@ -95,7 +95,7 @@ function caesar(text, key, encode) {
 
 function vigenere(text, key, encode) {
     const k = String(key).replace(/[^A-Za-z]/g, '').toUpperCase();
-    if (!k) throw new Error('Vigenere key me kam se kam ek letter chahiye.');
+    if (!k) throw new Error('Vigenere key needs at least one letter.');
     let ki = 0;
     return [...text].map((ch) => {
         if (!/[A-Za-z]/.test(ch)) return ch;
@@ -107,7 +107,7 @@ function vigenere(text, key, encode) {
 
 function xorCipher(text, key, encode) {
     const kb = Buffer.from(String(key), 'utf8');
-    if (!kb.length) throw new Error('XOR key khaali nahi ho sakti.');
+    if (!kb.length) throw new Error('XOR key cannot be empty.');
     if (encode) {
         const tb = Buffer.from(text, 'utf8');
         const out = Buffer.alloc(tb.length);
@@ -116,7 +116,7 @@ function xorCipher(text, key, encode) {
     }
     const clean = text.replace(/\s+/g, '');
     if (!/^[0-9a-fA-F]+$/.test(clean) || clean.length % 2 !== 0) {
-        throw new Error('XOR decode ke liye hex string chahiye.');
+        throw new Error('XOR decode needs a hex string.');
     }
     const tb = Buffer.from(clean, 'hex');
     const out = Buffer.alloc(tb.length);

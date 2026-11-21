@@ -23,7 +23,7 @@ module.exports = {
       const chunks = [];
       for await (const c of stream) chunks.push(c);
       const buf = Buffer.concat(chunks);
-      if (!buf.length) return reply('❌ Sticker download nahi hua. Dobara try karo.');
+      if (!buf.length) return reply('❌ *Failed to download the sticker. Try again.*');
       const img = await converter.convertStickerToImage(buf);
       await sock.sendMessage(chatId, { image: img, caption: '✅ Sticker → Image' }, { quoted: message });
     } catch (e) {

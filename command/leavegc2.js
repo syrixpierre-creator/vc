@@ -19,7 +19,7 @@ module.exports = {
       return reply('❌ Groups list nahi mil payi: ' + (e.message || e));
     }
     const list = Object.values(groups || {});
-    if (!list.length) return reply('📋 Bot kisi bhi group me nahi hai.');
+    if (!list.length) return reply('❌ *The bot is not in any group.*');
     const n = parseInt(args[0], 10);
     if (!isNaN(n) && n >= 1 && n <= list.length) {
       const g = list[n - 1];
@@ -27,10 +27,10 @@ module.exports = {
         await sock.groupLeave(g.id);
         return reply(`👋 Group se leave kar diya: *${g.subject || g.id}*`);
       } catch (e) {
-        return reply('❌ Leave nahi ho paya: ' + (e.message || e));
+        return reply('❌ *Failed to leave:* ' + (e.message || e));
       }
     }
     const lines = list.slice(0, 50).map((g, i) => `${i + 1}. ${g.subject || g.id} (${(g.participants || []).length} members)`).join('\n');
-    return reply(`📋 *Bot Groups* (${list.length})\n\n${lines}\n\n_Leave karne ke liye: \`.leavegc2 <number>\`_`);
+    return reply(`📋 *Bot groups* (${list.length})\n\n${lines}\n\n📌 *Usage:* .leavegc2 <number>`);
   },
 };

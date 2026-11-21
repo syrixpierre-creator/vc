@@ -694,7 +694,7 @@ module.exports = {
       const chatId = context.chatId || message.key.remoteJid;
       const { allFonts } = require('../lib/fonts');
       const list = allFonts.map((f, i) => (i + 1) + '. ' + f.name + ' — .font' + (i + 1) + ' Hello').join('\n');
-      await sock.sendMessage(chatId, { text: '✍️ *QUEEN AKUMA Text Styles — 40 Fonts*\n\n' + list + '\n\nTip: .textstyles <text> — saare styles ek saath dekho!' }, { quoted: message });
+      await sock.sendMessage(chatId, { text: '✍️ *QUEEN AKUMA Text Styles — 40 Fonts*\n\n' + list + '' }, { quoted: message });
     }
   }
   ]

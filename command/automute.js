@@ -42,7 +42,7 @@ module.exports = {
     }
     const hm = am.parseHM(args);
     if (!hm) {
-      return reply(`❌ Wrong format!\n\n\`.${invoked} 22 00\` (10 PM ke liye)\n\`.${invoked} 06 00\` (6 AM ke liye)\n\`.${invoked} off\` (band karne ke liye)`);
+      return reply(`📌 *Usage:* .${invoked} 22 00  (or .${invoked} off)`);
     }
     if (invoked === 'automute') { c.muteH = hm.h; c.muteM = hm.m; }
     else { c.unmuteH = hm.h; c.unmuteM = hm.m; }

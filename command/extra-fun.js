@@ -40,7 +40,7 @@ module.exports = {
       else { a = (context.senderId || message.key.participant || '').split('@')[0]; b = parts[0]; }
     }
     if (!a || !b) {
-      await reply('💞 *Compatibility*\n\nUsage: `.compatibility Rahul | Priya`\nya do logo ko mention karo: `.compatibility @a @b`');
+      await reply('📌 *Usage:* .compatibility <name> | <name>');
       return;
     }
     const pct = (hashStr(a.toLowerCase() + '♥' + b.toLowerCase()) % 100) + 1;
@@ -48,7 +48,7 @@ module.exports = {
     const bar = ''.repeat(filled) + ''.repeat(10 - filled);
     let line;
     if (pct < 25) line = 'Bas dost hi theek ho 😅';
-    else if (pct < 50) line = 'Kuch to baat hai... try kar sakte ho 🙂';
+    else if (pct < 50) line = 'There is something... you can try 🙂';
     else if (pct < 75) line = 'Achhi jodi hai! 💕';
     else if (pct < 90) line = 'Perfect match! 💖 Shaadi pakki samjho 😄';
     else line = 'MADE FOR EACH OTHER! 💍❤️';

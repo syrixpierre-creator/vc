@@ -23,7 +23,7 @@ cmd({
         const res = await api.get(apiUrl);
         const data = res.data;
         if (!data || data.status !== true || !data.videoUrl) {
-            return reply("❌ *Media nahi mili!*");
+            return reply("❌ *No media found!*");
         }
         const caption = `*SNACK•VIDEO DL*\n\n© *${botConfig.CAPTION || "Powered by QUEEN AKUMA"}*`;
         await conn.sendMessage(from, {
@@ -34,6 +34,6 @@ cmd({
     }
     catch (err) {
         console.error("SnackDL Error:", err);
-        reply("❌ *Error aa gaya! Baad mein try karo*");
+        reply("❌ *An error occurred! Try again later.*");
     }
 });

@@ -50,13 +50,13 @@ module.exports = {
         const st = loadState();
         if (sub === 'on' || sub === 'enable') {
           st[chatId] = true; saveState(st);
-          await reply('✅ BGM ON ho gaya. Triggers: ' + Object.keys(BGM_LIST).join(', '));
+          await reply('✅ *BGM ENABLED* Triggers: ' + Object.keys(BGM_LIST).join(', '));
         } else if (sub === 'off' || sub === 'disable') {
           delete st[chatId]; saveState(st);
-          await reply('✅ BGM OFF ho gaya.');
+          await reply('✅ *BGM DISABLED*');
         } else {
           const on = !!st[chatId];
-          await reply('🎵 *BGM Settings*\nStatus: *' + (on ? 'ON' : 'OFF') + '*\n\n*.bgm on* / *.bgm off* se toggle karo.\n\nTriggers: ' + Object.keys(BGM_LIST).join(', '));
+          await reply('🎵 *BGM Settings*\nStatus: *' + (on ? 'ON' : 'OFF') + '*\n\nAvailable options:\n- on\n- off\n\nTriggers: ' + Object.keys(BGM_LIST).join(', '));
         }
       }
     },
@@ -82,13 +82,13 @@ module.exports = {
           else if (own.kind === 'audio' && quoted.kind === 'video') { audioBuf = own.buffer; videoBuf = quoted.buffer; }
         }
         if (!videoBuf || !audioBuf) {
-          await reply('❌ Usage: video bhejte waqt audio pe reply karo (ya audio bhejte waqt video pe reply karo) aur *.videomusic* likho.\nOptions: --vol 0-100 (default 30), --replace (original audio hata ke sirf BGM).');
+          await reply('📌 *Usage:* reply to an audio/video with .videomusic');
           return;
         }
         const vIn = writeTmp(videoBuf, 'mp4');
         const aIn = writeTmp(audioBuf, 'mp3');
         const outPath = vIn + '.bgm.mp4';
-        await reply(sock, message, '⏳ BGM mix ho raha hai...');
+        await reply(sock, message, '⏳ Mixing BGM...');
         const mixArgs = ['-y', '-i', vIn, '-i', aIn, '-filter_complex',
           '[1:a]volume=' + (vol / 100) + '[a1];[0:a][a1]amix=inputs=2:duration=first:dropout_transition=0[aout]',
           '-map', '0:v', '-map', '[aout]', '-c:v', 'copy', '-c:a', 'aac', '-shortest', outPath];
@@ -102,7 +102,7 @@ module.exports = {
           }
           await sock.sendMessage(chatId, { video: fs.readFileSync(outPath), caption: '🎵 BGM mix ready' }, { quoted: message });
         } catch (e) {
-          await reply('❌ BGM mix nahi ho paya: ' + String(e.message || e).slice(0, 150));
+          await reply('❌ *BGM mix failed:* ' + String(e.message || e).slice(0, 150));
         } finally { cleanup(vIn, aIn, outPath); }
       }
     }

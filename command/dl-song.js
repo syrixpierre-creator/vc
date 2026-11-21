@@ -250,7 +250,7 @@ cmd({
     try {
         const botConfig = userConfig;
 
-        if (!args[0]) return reply("❌ Song name ya YouTube link do!\n\nExample:\n.song Tu Hai Kahan\n.song https://youtu.be/xxxx");
+        if (!args[0]) return reply("📌 *Usage:* .song <name or YouTube link>");
 
         await conn.sendMessage(from, { react: { text: "⏳", key: m.key } });
 

@@ -20,7 +20,7 @@ function extractId(url) {
 async function infoApi(id) {
   const res = await axios.get('https://pixeldrain.com/api/file/' + id + '/info', { timeout: 15000, headers: { 'User-Agent': UA } });
   const d = res.data || {};
-  if (d.success === false || !d.id) throw new Error(d.value || 'File nahi mili');
+  if (d.success === false || !d.id) throw new Error(d.value || 'File not found');
   return { id: d.id, name: d.name, mime: d.mime_type, size: d.size };
 }
 
@@ -29,10 +29,10 @@ async function scrapePage(url) {
   const $ = cheerio.load(String(res.data || ''));
   const scriptData = $('script').eq(0).html() || '';
   const jsonData = /window\.viewer_data\s*=\s*({.*?});/.exec(scriptData);
-  if (!jsonData) throw new Error('Page se file info nahi mili');
+  if (!jsonData) throw new Error('No file info on the page');
   const viewerData = JSON.parse(jsonData[1]);
   const f = viewerData.api_response;
-  if (!f || !f.id) throw new Error('File nahi mili');
+  if (!f || !f.id) throw new Error('File not found');
   return { id: f.id, name: f.name, mime: f.mime_type, size: f.size };
 }
 
@@ -40,7 +40,7 @@ module.exports = {
   command: 'pixeldrain',
   aliases: ['pddl', 'pd'],
   category: 'download',
-  description: 'Pixeldrain link se file download karo.',
+  description: 'Download a file from a Pixeldrain link.',
   usage: '.pixeldrain <pixeldrain link>',
   async handler(sock, message, args, context = {}) {
     const chatId = context.chatId || message.key.remoteJid;
@@ -56,11 +56,11 @@ module.exports = {
     try { info = await infoApi(id); }
     catch (e) { lastErr = e; try { info = await scrapePage(url); } catch (e2) { lastErr = e2; } }
     if (!info) {
-      await reply('❌ Pixeldrain download nahi ho paya: ' + String((lastErr && lastErr.message) || lastErr).slice(0, 150));
+      await reply('❌ *Pixeldrain download failed:* ' + String((lastErr && lastErr.message) || lastErr).slice(0, 150));
       return;
     }
     if (info.size && info.size > MAX_FILE) {
-      await reply('⛔ File bahut badi hai (' + (info.size / (1024 * 1024)).toFixed(1) + ' MB). 300MB se zyada wali file nahi bhejta.');
+      await reply('⛔ File bahut badi hai (' + (info.size / (1024 * 1024)).toFixed(1) + ' MB). Files bigger than 300MB are not sent.');
       return;
     }
     const dlUrl = 'https://pixeldrain.com/api/file/' + info.id + '?download';
@@ -77,7 +77,7 @@ module.exports = {
         await sock.sendMessage(chatId, { document: { url: dlUrl }, mimetype: info.mime || 'application/octet-stream', fileName: info.name || 'file', caption }, { quoted: message });
       }
     } catch (e) {
-      await reply(caption + '\n🔗 *Link:* ' + dlUrl + '\n\n⚠️ File seedha nahi bhej paya, link se download kar lo.');
+      await reply(caption + '\n🔗 *Link:* ' + dlUrl + '\n\n⚠️ Could not send the file, use the link.');
     }
   }
 };

@@ -33,7 +33,7 @@ module.exports = {
     const all = (store.messages && Array.isArray(store.messages[chatId])) ? store.messages[chatId] : [];
     const items = all.filter((m) => m && m.key && m.key.id !== message.key.id).slice(-n);
     if (!items.length) {
-      await reply('📜 *Chat History*\n\nIs chat ki koi history store me nahi hai.\nBot ke chalu hone ke baad ke messages yahan dikhte hain (max 70).');
+      await reply('📜 *Chat History*\n\nNo history saved for this chat yet.');
       return;
     }
     const lines = items.map((m) => {

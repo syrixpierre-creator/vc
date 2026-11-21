@@ -18,7 +18,7 @@ module.exports = {
     const question = parts[0];
     const options = parts.slice(1);
     if (!question || options.length < 2) {
-      await reply('❌ Usage: *.wapoll Sawal? | Option 1 | Option 2*\nKam se kam 2 options chahiye (max 12).');
+      await reply('📌 *Usage:* .wapoll <question> | <option> | <option>');
       return;
     }
     if (options.length > 12) {

@@ -17,9 +17,9 @@ module.exports = {
     const chatId = context.chatId || message.key.remoteJid;
     const q = (args || []).join(' ').trim();
     const reply = (t) => sock.sendMessage(chatId, { text: t }, { quoted: message });
-    if (!q) return reply('❌ Sawal likho.\nExample: *.muslimai Roza kab farz hua?*');
+    if (!q) return reply('📌 *Usage:* .muslimai <question>');
     const res = await geminiText('Answer as a knowledgeable, respectful Islamic assistant. Be brief and accurate, cite Quran/Hadith references when relevant. Answer in the same language as the question:\n\n' + q, { maxTokens: 1200, temperature: 0.3 });
-    if (!res.ok) return reply(res.error || '❌ AI se jawab nahi mila. Thodi der baad try karo.');
+    if (!res.ok) return reply(res.error || '❌ *No answer from the AI. Try again later.*');
     return reply('🕌 *Muslim AI*' + (res.via === 'pollinations' ? ' (Pollinations)' : '') + '\n\n' + res.text.slice(0, 3500));
   }
 };

@@ -21,17 +21,17 @@ module.exports = {
     const first = String((args || [])[0] || '').toLowerCase();
     if (first === 'encode' || first === 'e' || first === 'enc') {
       const text = (args || []).slice(1).join(' ');
-      if (!text) { await reply('❌ Encode karne ke liye text do.'); return; }
+      if (!text) { await reply('📌 *Usage:* .base64 encode <text>'); return; }
       await reply('🔒 *Base64:*\n' + Buffer.from(text, 'utf8').toString('base64'));
       return;
     }
     if (first === 'decode' || first === 'd' || first === 'dec') {
       const b64 = (args || []).slice(1).join(' ').replace(/\s/g, '');
-      if (!b64) { await reply('❌ Decode karne ke liye base64 do.'); return; }
+      if (!b64) { await reply('📌 *Usage:* .base64 decode <base64>'); return; }
       try {
         await reply('🔓 *Decoded:*\n' + Buffer.from(b64, 'base64').toString('utf8'));
       } catch (e) {
-        await reply('❌ Decode nahi ho paya — sahi base64 do.');
+        await reply('❌ *Invalid base64.*');
       }
       return;
     }

@@ -35,11 +35,11 @@ module.exports = {
     if (!d || !m || !y) return reply('❌ Date samajh nahi aayi.\n*Example :* 1998-01-01');
     const birthDate = new Date(y, m - 1, d);
     if (birthDate.getFullYear() !== y || birthDate.getMonth() !== m - 1 || birthDate.getDate() !== d) {
-      return reply('❌ Galat date hai. Sahi date likho.\n*Example :* 1998-01-01');
+      return reply('❌ *Invalid date!*\nExample: 1998-01-01');
     }
     const currentDate = new Date();
-    if (birthDate > currentDate) return reply('❌ Date of birth future me nahi ho sakti!');
-    if (y < 1900) return reply('❌ Year 1900 se pehle ka nahi ho sakta.');
+    if (birthDate > currentDate) return reply('❌ *Date of birth cannot be in the future!*');
+    if (y < 1900) return reply('❌ *Year cannot be before 1900.*');
 
     // Accurate calendar age (years/months/days with borrow)
     let years = currentDate.getFullYear() - y;

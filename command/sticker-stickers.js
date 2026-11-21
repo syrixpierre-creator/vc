@@ -11,7 +11,7 @@ module.exports = {
   command: 'stickergif',
   aliases: [],
   category: 'sticker',
-  description: 'Sticker ko GIF banao: sticker pe reply karke .stickergif',
+  description: 'Turn a sticker into a GIF: reply to a sticker with .stickergif',
   usage: '.stickergif (sticker pe reply karke)',
   async handler(sock, message, args, context = {}) {
     const chatId = context.chatId || message.key.remoteJid;

@@ -32,7 +32,7 @@ module.exports = {
     if (sub === 'on') {
       data.enabled = true;
       db.save(NAME);
-      return reply('✅ *Anti-PM ON*\nAb sirf allowed numbers ke PM accept honge.');
+      return reply('✅ *Anti-PM ENABLED*');
     }
     if (sub === 'off') {
       data.enabled = false;
@@ -40,7 +40,7 @@ module.exports = {
       return reply('❌ Anti-PM OFF.');
     }
     if (sub === 'list') {
-      if (!data.allowed.length) return reply('📭 Koi allowed number nahi.');
+      if (!data.allowed.length) return reply('📭 *No allowed numbers.*');
       return reply(`📋 *Allowed Numbers (${data.allowed.length}):*\n` + data.allowed.map(n => `• ${n}`).join('\n'));
     }
     if (sub === 'allow') {

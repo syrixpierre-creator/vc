@@ -18,7 +18,7 @@ let handler = async (m, { conn, text, usedPrefix, command }) => {
 
   if (!text) {
     return conn.sendMessage(m.chat, {
-      text: `ℹ️ Cara pakai:\nReply foto lalu ketik:\n${usedPrefix + command} Bahlil`
+      text: `📌 *Usage:* reply to a photo with ${usedPrefix + command} <name>`
     }, { quoted: global.fkontak })
   }
 

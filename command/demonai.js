@@ -23,7 +23,7 @@ function geminiAsk(key, question, timeout = 25000) {
           const j = JSON.parse(d);
           const text = j?.candidates?.[0]?.content?.parts?.map((p) => p.text || '').join('');
           if (text) return resolve(text);
-          reject(new Error((j && j.error && j.error.message) || 'Gemini se jawab nahi mila'));
+          reject(new Error((j && j.error && j.error.message) || 'No answer from Gemini'));
         } catch (e) { reject(e); }
       });
     });
@@ -44,7 +44,7 @@ module.exports = {
     const chatId = context.chatId || message.key.remoteJid;
     const reply = (t) => sock.sendMessage(chatId, { text: t }, { quoted: message });
     const q = (args || []).join(' ').trim();
-    if (!q) return reply('🤖 *QUEEN AKUMA AI*\n\nUsage: .demonai <question>\nExample: .demonai India ki rajdhani kya hai?');
+    if (!q) return reply('📌 *Usage:* .demonai <question>');
     const senderJid = message.key.participant || message.key.remoteJid;
     // v3.3.0 AI Memory — user ke facts prompt me, aur naye facts yaad rakho
     let memCtx = '';
@@ -68,7 +68,7 @@ module.exports = {
         try { const { call } = require('../lib/eliteApi'); const d = await call('gemini', q); ans = d.result || d.response || d; } catch {}
       }
       if (ans) return reply('🤖 *QUEEN AKUMA AI*\n\n' + String(ans).slice(0, 3500));
-      return reply('❌ *QUEEN AKUMA AI setup nahi hai.*\n\n1. https://aistudio.google.com/app/apikey se FREE Gemini key lo\n2. `.env` me daalo: `GEMINI_API_KEY=...`\n3. Bot restart karo\n\nTab tak `.ai <sawal>` try karo.');
+      return reply('❌ *GEMINI_API_KEY is missing.* Set it in .env and restart the bot.');
     } catch (e) {
       return reply('❌ QUEEN AKUMA AI error: ' + String((e && e.message) || e).slice(0, 300));
     }

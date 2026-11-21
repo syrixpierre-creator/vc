@@ -95,7 +95,7 @@ module.exports = {
           '❌ Song download fail.\n\n' +
           '• Try another name\n' +
           '• Or `.play` with exact Spotify/YT link\n' +
-          '• API temporarily busy ho sakti hai'
+          '• The API may be busy'
       }, { quoted: message });
     } catch (err) {
       console.error('[play]', err.message);

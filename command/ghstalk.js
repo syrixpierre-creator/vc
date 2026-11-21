@@ -32,7 +32,7 @@ module.exports = {
           await reply('🔥 *GitHub Trending (last 7 days)*' + (lang ? ' — ' + (args || [])[0] : '') + '\n\n' + lines.join('\n\n'));
         } catch (e) {
           const status = e.response && e.response.status;
-          if (status === 403) await reply('❌ GitHub rate limit (bina key ke 60 req/hour). Thodi der baad try karo.');
+          if (status === 403) await reply('❌ *GitHub rate limit reached. Try again later.*');
           else await reply('❌ Trending nahi mile: ' + String(e.message || e).slice(0, 120));
         }
       }
@@ -64,9 +64,9 @@ module.exports = {
             '🔗 ' + (d.html_url || ('https://github.com/' + user)));
         } catch (e) {
           const status = e.response && e.response.status;
-          if (status === 404) await reply('❌ GitHub user nahi mila: *' + user + '*');
-          else if (status === 403) await reply('❌ GitHub rate limit (bina key ke 60 req/hour). Thodi der baad try karo.');
-          else await reply('❌ Profile nahi mili: ' + String(e.message || e).slice(0, 120));
+          if (status === 404) await reply('❌ *GitHub user not found:* *' + user + '*');
+          else if (status === 403) await reply('❌ *GitHub rate limit reached. Try again later.*');
+          else await reply('❌ *Profile not found:* ' + String(e.message || e).slice(0, 120));
         }
       }
     }

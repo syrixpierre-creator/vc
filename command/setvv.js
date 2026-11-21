@@ -37,19 +37,19 @@ module.exports = {
     const sender = senderDigits(message, context);
     const isOwner = !!message.key.fromMe || (ownerNumber && sender.includes(ownerNumber));
     if (!isOwner) {
-      return reply('❌ Sirf bot owner `.setvv` mode change kar sakta hai.');
+      return reply('🚫 *You are not authorized to use this command!*');
     }
 
     const option = String(args[0] || '').toLowerCase();
     const current = getViewOnceMode(chatId);
     if (option === 'public' || option === 'private') {
       setViewOnceMode(chatId, option);
-      const destination = option === 'public' ? 'isi group chat' : 'sirf bot ke private number';
-      return reply(`✅ ViewOnce mode *${option}* set ho gaya.\nRecovered image, video ya audio ${destination} send hoga.`);
+      const destination = option === 'public' ? 'isi group chat' : 'the bot private number';
+      return reply(`✅ *ViewOnce mode set to: ${option}*`);
     }
     if (option === 'off') {
       setViewOnceMode(chatId, null);
-      return reply('✅ ViewOnce mode off. Ab `.vv` is group mein kaam nahi karega.');
+      return reply('✅ *ViewOnce mode DISABLED*');
     }
     if (option === 'status' || !option) {
       return reply(`ℹ️ ViewOnce mode: *${current || 'not set'}*\nUse: \`.setvv public | private | off\``);

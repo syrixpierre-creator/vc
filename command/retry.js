@@ -17,12 +17,12 @@ module.exports = {
     const ci = message.message && message.message.extendedTextMessage && message.message.extendedTextMessage.contextInfo;
     const qm = ci && ci.quotedMessage;
     if (!qm) {
-      await reply('❌ Pehle kisi command wale message pe reply karo, phir *.retry* chalao.');
+      await reply('📌 *Usage:* reply to a command message with .retry');
       return;
     }
     const qText = qm.conversation || (qm.extendedTextMessage && qm.extendedTextMessage.text) || '';
     if (!qText.trim().startsWith('.')) {
-      await reply('❌ Quoted message me koi command nahi hai (command . se shuru hona chahiye).');
+      await reply('❌ *No command in the quoted message.*');
       return;
     }
     const parts = qText.trim().slice(1).split(/\s+/);
@@ -30,11 +30,11 @@ module.exports = {
     const qArgs = parts.slice(1);
     const loaded = loadEntry(name);
     if (!loaded || !loaded.found) {
-      await reply('❌ Command nahi mila: *.' + name + '*');
+      await reply('❌ *Command not found:* *.' + name + '*');
       return;
     }
     if (loaded.error || !loaded.entry || typeof loaded.entry.handler !== 'function') {
-      await reply('❌ Command load nahi ho paya: *.' + name + '* — ' + String(loaded.error || 'no handler').slice(0, 100));
+      await reply('❌ *Command not loaded:* *.' + name + '* — ' + String(loaded.error || 'no handler').slice(0, 100));
       return;
     }
     // Synthetic message — jaise user ne command abhi bheja ho
@@ -51,7 +51,7 @@ module.exports = {
     try {
       await loaded.entry.handler(sock, fakeMsg, qArgs, fakeCtx);
     } catch (e) {
-      await reply('❌ Retry fail ho gaya: *.' + name + '* — ' + String(e.message || e).slice(0, 150));
+      await reply('❌ *Retry failed:* *.' + name + '* — ' + String(e.message || e).slice(0, 150));
     }
   }
 };

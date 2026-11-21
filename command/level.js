@@ -83,7 +83,7 @@ module.exports = {
         const chatId = message.key.remoteJid;
         const board = xpLib.leaderboard(10);
         if (!board.length) {
-          await sock.sendMessage(chatId, { text: '📊 Abhi kisi ke paas XP nahi hai. Message bhejo aur XP kamao!' }, { quoted: message });
+          await sock.sendMessage(chatId, { text: '📊 *Nobody has XP yet.*' }, { quoted: message });
           return;
         }
         const medals = ['🥇', '🥈', '🥉'];
@@ -108,7 +108,7 @@ module.exports = {
         const chatId = message.key.remoteJid;
         const p = xpLib.progress(sender);
         try {
-          await sock.sendMessage(chatId, { text: '🎉 *LEVEL UP!* 🎉\n\n👤 ' + String(sender).split('@')[0] + ' ab *Level ' + res.newLevel + '* par hai!\n🏅 Role: ' + p.role + '\n⭐ Agle level ke liye ' + p.need + ' XP chahiye.' });
+          await sock.sendMessage(chatId, { text: '🎉 *LEVEL UP!* 🎉\n\n👤 ' + String(sender).split('@')[0] + ' ab *Level ' + res.newLevel + '* par hai!\n🏅 Role: ' + p.role + '\n⭐ Next level: ' + p.need + ' XP chahiye.' });
         } catch (e) {}
       }
     } catch (e) {}

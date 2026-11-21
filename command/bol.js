@@ -8,7 +8,7 @@ module.exports = {
   command: 'bol',
   aliases: [],
   category: 'tools',
-  description: 'Text ko voice note banao',
+  description: 'Turn text into a voice note',
   usage: '.bol <text>',
   async handler(sock, message, args, context = {}) {
     const chatId = context.chatId || message.key.remoteJid;

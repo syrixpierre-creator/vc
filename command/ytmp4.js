@@ -76,7 +76,7 @@ module.exports = {
       } catch (_) {}
     }
     if (!media) {
-      return sock.sendMessage(chatId, { text: '❌ Video nahi mila (saari APIs fail/slow).' }, { quoted: message });
+      return sock.sendMessage(chatId, { text: '❌ *Video not found.*' }, { quoted: message });
     }
     try {
       await sock.sendMessage(chatId, {

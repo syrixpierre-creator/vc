@@ -32,7 +32,7 @@ module.exports = {
         const reply = (t) => sock.sendMessage(chatId, { text: t }, { quoted: message });
         const target = normalizeUrl((args || [])[0]);
         if (!target) {
-            await reply('📸 *WEBSITE SCREENSHOT*\n\nUsage: *.ss <url>*\n\nExamples:\n• .ss https://google.com\n• .ss github.com\n\nNote: http:// ya https:// nahi diya to https:// maan liya jayega.');
+            await reply('📌 *Usage:* .ss <url>');
             return;
         }
         await sock.sendMessage(chatId, { react: { text: '📸', key: message.key } }).catch(() => {});
@@ -44,7 +44,7 @@ module.exports = {
             });
             const ct = String((res.headers && res.headers['content-type']) || '');
             if (!ct.startsWith('image/') || !res.data || res.data.length < 1000) {
-                await reply('⚠️ Screenshot nahi ban paya — site ne block kiya ho sakta hai. Koi aur URL try karo.');
+                await reply('❌ *Screenshot failed.* Try another URL.');
                 return;
             }
             await sock.sendMessage(chatId, {
@@ -53,7 +53,7 @@ module.exports = {
             }, { quoted: message });
             await sock.sendMessage(chatId, { react: { text: '✅', key: message.key } }).catch(() => {});
         } catch (err) {
-            await reply('⚠️ Screenshot failed: ' + String(err.message || err).slice(0, 120) + '\nThodi der baad try karo ya koi aur URL do.');
+            await reply('⚠️ Screenshot failed: ' + String(err.message || err).slice(0, 120) + '\nTry again later or use another URL.');
         }
     }
 };

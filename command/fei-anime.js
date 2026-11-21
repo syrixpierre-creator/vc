@@ -11,7 +11,7 @@
  */
 const fei = require('../lib/feiApi');
 
-const FAIL = '❌ API abhi jawab nahi de rahi. Thodi der baad try karo.';
+const FAIL = '❌ *API is not responding. Try again later.*';
 
 function safeHttpsUrl(value) {
   try {
@@ -139,7 +139,7 @@ async function findAnimeMedia(search, type, extra) {
   const query = 'query($s: String, $t: MediaType) { Media(search: $s, type: $t, isAdult: false, ' +
     'genre_not_in: ["Hentai", "Ecchi"]) { ' + MEDIA_FIELDS + ' ' + (extra || '') + ' } }';
   const data = await fei.anilistQuery(query, { s: search, t: type || 'ANIME' });
-  if (!data.Media || data.Media.isAdult) throw new Error('Us naam se koi suitable anime/manga nahi mila.');
+  if (!data.Media || data.Media.isAdult) throw new Error('No anime/manga found with that name.');
   return data.Media;
 }
 
@@ -153,13 +153,13 @@ async function mediaList(kind, sort, per, page, extra) {
   const items = ((data.Page && data.Page.media) || []).filter(item =>
     item && !item.isAdult && !(item.genres || []).some(g => ['Hentai', 'Ecchi'].indexOf(g) !== -1)
   );
-  if (!items.length) throw new Error('Koi matching anime/manga nahi mila.');
+  if (!items.length) throw new Error('No matching anime/manga found.');
   return items;
 }
 
 async function findCharacter(search) {
   const data = await fei.anilistQuery('query($s: String) { Character(search: $s) { ' + CHAR_FIELDS + ' } }', { s: search });
-  if (!data.Character) throw new Error('Us naam ka character nahi mila.');
+  if (!data.Character) throw new Error('Character not found.');
   return data.Character;
 }
 
@@ -240,7 +240,7 @@ const animeInfo = [
       ' } }';
     const data = await fei.anilistQuery(query, { s: arg });
     const studio = data.Studio;
-    if (!studio) throw new Error('Us naam ka studio nahi mila.');
+    if (!studio) throw new Error('Studio not found.');
     const works = ((studio.media && studio.media.nodes) || []).filter(item => item && !item.isAdult);
     const lines = [
       '*' + cleanAnimeText(studio.name, 180) + '*',
@@ -259,7 +259,7 @@ const animeInfo = [
     const media = await findAnimeMedia(arg, 'ANIME', extra);
     const recs = media.recommendations && media.recommendations.nodes || [];
     const items = recs.map(row => row.mediaRecommendation).filter(item => item && !item.isAdult);
-    if (!items.length) throw new Error('Koi recommendation nahi mili.');
+    if (!items.length) throw new Error('No recommendation found.');
     return result('💞 RECOMMENDATIONs', 'If you liked *' + cleanAnimeText(titleName(media.title), 150) + ':*\n\n' + formatTopList(items), cover(media));
   }, { required: true, label: 'anime title' }),
   makeAnime('episodes', 'Episode list aur next air time', '.episodes <anime>', async (arg) => {
@@ -275,20 +275,20 @@ const animeInfo = [
     const extra = 'characters(sort: FAVOURITES_DESC, perPage: 10) { edges { role node { name { full } image { large } } } }';
     const media = await findAnimeMedia(arg, 'ANIME', extra);
     const edges = (media.characters && media.characters.edges) || [];
-    if (!edges.length) throw new Error('Is anime ke characters list nahi hue.');
+    if (!edges.length) throw new Error('No characters found for this anime.');
     const lines = edges.map((edge, i) => (i + 1) + '. *' + cleanAnimeText(edge.node && edge.node.name && edge.node.name.full, 120) + '* (' + pretty(edge.role) + ')');
     return result('👥 ANIME CHARACTERs', '*' + cleanAnimeText(titleName(media.title), 160) + '* cast:\n\n' + lines.join('\n'), safeHttpsUrl(edges[0].node && edges[0].node.image && edges[0].node.image.large));
   }, { required: true, label: 'anime title' }),
   makeAnime('pictures', 'Anime ki cover/banner art', '.pictures <anime>', async (arg) => {
     const media = await findAnimeMedia(arg);
     const image = safeHttpsUrl(media.bannerImage) || cover(media);
-    if (!image) throw new Error('Cover ya banner image nahi mili.');
+    if (!image) throw new Error('No cover or banner image found.');
     return result('🖼 ANIME PICTURE', '*' + cleanAnimeText(titleName(media.title), 160) + '*', image);
   }, { required: true, label: 'anime title' }),
-  makeAnime('streaming', 'Anime kahan dekh sakte ho (streaming links)', '.streaming <anime>', async (arg) => {
+  makeAnime('streaming', 'Where to watch an anime (streaming links)', '.streaming <anime>', async (arg) => {
     const media = await findAnimeMedia(arg, 'ANIME', 'externalLinks { site url type }');
     const links = (media.externalLinks || []).filter(link => link && link.type === 'STREAMING' && safeHttpsUrl(link.url));
-    if (!links.length) throw new Error('Is anime ke streaming links nahi mile.');
+    if (!links.length) throw new Error('No streaming links found for this anime.');
     return result('📡 WHERE TO WATCH', '*' + cleanAnimeText(titleName(media.title), 160) + '*\n\n' +
       links.slice(0, 8).map(link => '• *' + cleanAnimeText(link.site, 80) + '*: ' + safeHttpsUrl(link.url)).join('\n'), cover(media));
   }, { required: true, label: 'anime title' }),
@@ -296,7 +296,7 @@ const animeInfo = [
     const extra = 'reviews(limit: 1, sort: RATING_DESC) { nodes { summary body(asHtml: false) score user { name } siteUrl } }';
     const media = await findAnimeMedia(arg, 'ANIME', extra);
     const reviews = (media.reviews && media.reviews.nodes) || [];
-    if (!reviews.length) throw new Error('Is anime ka review nahi mila.');
+    if (!reviews.length) throw new Error('No review found for this anime.');
     const review = reviews[0];
     const lines = [
       '*' + cleanAnimeText(titleName(media.title), 160) + '*',
@@ -313,17 +313,17 @@ const animeInfo = [
 ];
 
 const animeLists = [
-  makeAnime('genres', 'Saare anime genres ki list', '.genres', async () => {
+  makeAnime('genres', 'List of all anime genres', '.genres', async () => {
     const data = await fei.anilistQuery('{ GenreCollection }');
     const genres = (data.GenreCollection || []).filter(g => ['hentai', 'ecchi'].indexOf(String(g).toLowerCase()) === -1).sort();
-    if (!genres.length) throw new Error('Genre list nahi mili.');
+    if (!genres.length) throw new Error('Genre list not found.');
     return result('🎭 ANIME GENREs', 'Use *.genre <name>* for a top pick.\n\n' + genres.join(', '));
   }, { progressText: 'Loading anime genres' }),
   makeAnime('genre', 'Genre se ek top anime chuno', '.genre <genre>', async (arg) => {
     const data = await fei.anilistQuery('{ GenreCollection }');
     const genres = (data.GenreCollection || []).filter(g => ['hentai', 'ecchi'].indexOf(String(g).toLowerCase()) === -1);
     const match = genres.find(g => g.toLowerCase() === arg.toLowerCase());
-    if (!match) throw new Error('Unknown genre. .genres se list dekho.');
+    if (!match) throw new Error('Unknown genre. See the list with .genres');
     const items = await mediaList('ANIME', 'SCORE_DESC', 25, Math.floor(Math.random() * 4) + 1, { genre: match });
     const media = items[Math.floor(Math.random() * items.length)];
     return result('🎭 GENRE PICK', '🎭 Genre: ' + match + '\n\n' + formatMedia(media, 450), cover(media));
@@ -378,7 +378,7 @@ const animeLists = [
     const query = 'query($p: Int) { Page(page: $p, perPage: 1) { characters(sort: FAVOURITES_DESC) { ' + CHAR_FIELDS + ' } } }';
     const data = await fei.anilistQuery(query, { p: Math.floor(Math.random() * 800) + 1 });
     const characters = (data.Page && data.Page.characters) || [];
-    if (!characters.length) throw new Error('Character nahi mila.');
+    if (!characters.length) throw new Error('Character not found.');
     const c = characters[0];
     return result('🎲 RANDOM CHARACTER', formatCharacter(c, 350), safeHttpsUrl(c.image && c.image.large));
   }, { progressText: 'Picking a random character' }),
@@ -388,7 +388,7 @@ const animeLists = [
     if (screenshot.protocol !== 'https:') throw new Error('HTTPS screenshot URL use karo.');
     const match = await fei.traceMoe(screenshot.href);
     const media = (match.anilist && typeof match.anilist === 'object') ? match.anilist : {};
-    if (media.isAdult) throw new Error('Match adult mark hua - skip kiya.');
+    if (media.isAdult) throw new Error('Adult result skipped.');
     const title = (media.title && (media.title.english || media.title.romaji)) || match.filename || 'Unknown anime';
     const sceneSeconds = Math.max(0, Math.floor(Number(match.from) || 0));
     const minutes = Math.floor(sceneSeconds / 60);
@@ -446,7 +446,7 @@ const animemenu = {
       '*Anime Info*\n' + info +
       '\n\n*Rankings & Random*\n' + lists +
       '\n\n*Anime GIFs*\n' + gifs +
-      '\n\nPehle se hain: .anime .manga .character .staff .trailer .schedule .animequote .neko');
+      '');
     await sock.sendMessage(chatId, { text }, { quoted: message });
   }
 };

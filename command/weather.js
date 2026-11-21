@@ -20,7 +20,7 @@ module.exports = {
       const w = await getWeather(city);
       await reply(formatWeather(w));
     } catch (e) {
-      await reply('❌ Weather nahi mila: ' + String((e && e.message) || e).slice(0, 200) + '\nSahi city naam likho, jaise: .weather Delhi');
+      await reply('❌ *Weather not found:* ' + String((e && e.message) || e).slice(0, 200) + '\nSahi city naam likho, jaise: .weather Delhi');
     }
   }
 };

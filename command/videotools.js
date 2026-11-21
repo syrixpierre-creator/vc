@@ -24,22 +24,22 @@ async function runVideo(sock, message, filterArgs, outExt, caption) {
   const chatId = message.key.remoteJid;
   const media = await getMedia(message, ['video']);
   if (!media) {
-    await reply(sock, message, '❌ Pehle kisi video pe reply karo, phir ye command chalao.');
+    await reply(sock, message, '📌 *Usage:* reply to a video');
     return;
   }
   if (media.buffer.length > MAX_VIDEO) {
-    await reply(sock, message, '❌ Video bahut bada hai (60MB se zyada). Chhota video bhejo.');
+    await reply(sock, message, '❌ *Video is too big (over 60MB).*');
     return;
   }
   const inPath = writeTmp(media.buffer, 'mp4');
   const outPath = inPath + '.out.' + outExt;
-  await reply(sock, message, '⏳ Video process ho raha hai, thoda wait karo...');
+  await reply(sock, message, '⏳ Processing video...');
   try {
     await ffmpeg(['-y', '-i', inPath].concat(filterArgs).concat([outPath]), 180000);
     const out = fs.readFileSync(outPath);
     await sock.sendMessage(chatId, { video: out, caption: caption || '' }, { quoted: message });
   } catch (e) {
-    await reply(sock, message, '❌ Video process nahi ho paya: ' + String(e.message || e).slice(0, 150));
+    await reply(sock, message, '❌ *Video processing failed:* ' + String(e.message || e).slice(0, 150));
   } finally {
     cleanup(inPath, outPath);
   }
@@ -53,20 +53,20 @@ async function handleAvmixSaved(sock, message, args, context) {
   const videoPath = path.join(dir, 'video.mp4');
   const m = (await getMedia(message, ['video', 'audio'])) || null;
   if (!m) {
-    await reply(sock, message, '🎬 *AVMIX*\n\nVideo + audio merge karne ke liye:\n1️⃣ Pehle audio pe reply karke *.avmix* bhejo\n2️⃣ Phir video pe reply karke *.avmix* bhejo.');
+    await reply(sock, message, '📌 *Usage:* reply to an audio with .avmix, then reply to a video with .avmix');
     return;
   }
   if (m.kind === 'audio' && fs.existsSync(videoPath)) {
     const vIn = videoPath;
     const aIn = writeTmp(m.buffer, 'mp3');
     const outPath = vIn + '.avmix.mp4';
-    await reply(sock, message, '⏳ Audio + video merge ho raha hai...');
+    await reply(sock, message, '⏳ Merging audio + video...');
     try {
       await ffmpeg(['-y', '-i', vIn, '-i', aIn, '-c:v', 'copy', '-c:a', 'aac', '-shortest', outPath], 120000);
       await sock.sendMessage(chatId, { video: fs.readFileSync(outPath) }, { quoted: message });
       cleanup(audioPath, videoPath);
     } catch (e) {
-      await reply(sock, message, '❌ Merge nahi ho paya: ' + String(e.message || e).slice(0, 150));
+      await reply(sock, message, '❌ *Merge failed:* ' + String(e.message || e).slice(0, 150));
     } finally { cleanup(aIn, outPath); }
     return;
   }
@@ -74,23 +74,23 @@ async function handleAvmixSaved(sock, message, args, context) {
     const aIn = audioPath;
     const vIn = writeTmp(m.buffer, 'mp4');
     const outPath = vIn + '.avmix.mp4';
-    await reply(sock, message, '⏳ Audio + video merge ho raha hai...');
+    await reply(sock, message, '⏳ Merging audio + video...');
     try {
       await ffmpeg(['-y', '-i', vIn, '-i', aIn, '-c:v', 'copy', '-c:a', 'aac', '-shortest', outPath], 120000);
       await sock.sendMessage(chatId, { video: fs.readFileSync(outPath) }, { quoted: message });
       cleanup(audioPath, videoPath);
     } catch (e) {
-      await reply(sock, message, '❌ Merge nahi ho paya: ' + String(e.message || e).slice(0, 150));
+      await reply(sock, message, '❌ *Merge failed:* ' + String(e.message || e).slice(0, 150));
     } finally { cleanup(vIn, outPath); }
     return;
   }
   // Kuch bhi saved nahi — save kar lo
   if (m.kind === 'audio') {
     fs.writeFileSync(audioPath, m.buffer);
-    await reply(sock, message, '✅ Audio save ho gaya. Ab video pe reply karke *.avmix* bhejo, merge ho jayega.');
+    await reply(sock, message, '✅ *Audio saved.* Now reply to a video with .avmix');
   } else {
     fs.writeFileSync(videoPath, m.buffer);
-    await reply(sock, message, '✅ Video save ho gaya. Ab audio pe reply karke *.avmix* bhejo, merge ho jayega.');
+    await reply(sock, message, '✅ *Video saved.* Now reply to an audio with .avmix');
   }
 }
 
@@ -101,17 +101,17 @@ async function handleVmix(sock, message, args, context) {
   const v2Path = path.join(dir, 'video2.mp4');
   const m = await getMedia(message, ['video']);
   if (!m) {
-    await reply(sock, message, '🎬 *VMIX*\n\nDo videos ko ek me jodne ke liye:\n1️⃣ Pehle video pe reply karke *.vmix* bhejo\n2️⃣ Phir dusre video pe reply karke *.vmix* bhejo');
+    await reply(sock, message, '📌 *Usage:* reply to a video with .vmix, then reply to another video with .vmix');
     return;
   }
   if (!fs.existsSync(v1Path)) {
     fs.writeFileSync(v1Path, m.buffer);
-    await reply(sock, message, '✅ Video 1 save ho gaya. Ab dusre video pe reply karke *.vmix* bhejo.');
+    await reply(sock, message, '✅ *Video 1 saved.* Now reply to the second video with .vmix');
     return;
   }
   fs.writeFileSync(v2Path, m.buffer);
   const outPath = path.join(dir, 'merged.mp4');
-  await reply(sock, message, '⏳ Dono videos merge ho rahe hain...');
+  await reply(sock, message, '⏳ Merging videos...');
   try {
     await ffmpeg(['-y', '-i', v1Path, '-i', v2Path, '-filter_complex',
       '[0:v]scale=640:-2,fps=30,format=yuv420p[v0];[1:v]scale=640:-2,fps=30,format=yuv420p[v1];[v0][v1]concat=n=2:v=1:a=0[outv]',
@@ -119,7 +119,7 @@ async function handleVmix(sock, message, args, context) {
     await sock.sendMessage(chatId, { video: fs.readFileSync(outPath) }, { quoted: message });
     cleanup(v1Path, v2Path);
   } catch (e) {
-    await reply(sock, message, '❌ Merge nahi ho paya: ' + String(e.message || e).slice(0, 150));
+    await reply(sock, message, '❌ *Merge failed:* ' + String(e.message || e).slice(0, 150));
   } finally { cleanup(outPath); }
 }
 
@@ -127,17 +127,17 @@ async function handleMp3crusher(sock, message, args, context) {
   const chatId = message.key.remoteJid;
   const media = await getMedia(message, ['audio', 'video']);
   if (!media) {
-    await reply(sock, message, '❌ Pehle kisi audio/video pe reply karo, phir *.mp3crusher* chalao.');
+    await reply(sock, message, '📌 *Usage:* reply to an audio/video with .mp3crusher');
     return;
   }
   const inPath = writeTmp(media.buffer, media.kind === 'video' ? 'mp4' : 'mp3');
   const outPath = inPath + '.crushed.mp3';
-  await reply(sock, message, '⏳ Audio crush ho raha hai...');
+  await reply(sock, message, '⏳ Crushing audio...');
   try {
     await ffmpeg(['-y', '-i', inPath, '-af', 'acrusher=0.1:1:64:0:log,aresample=8000', '-c:a', 'libmp3lame', '-b:a', '64k', outPath], 120000);
     await sock.sendMessage(chatId, { audio: fs.readFileSync(outPath), mimetype: 'audio/mpeg' }, { quoted: message });
   } catch (e) {
-    await reply(sock, message, '❌ Crush nahi ho paya: ' + String(e.message || e).slice(0, 150));
+    await reply(sock, message, '❌ *Crush failed:* ' + String(e.message || e).slice(0, 150));
   } finally { cleanup(inPath, outPath); }
 }
 
@@ -177,18 +177,18 @@ module.exports = {
     },
     {
       command: 'mp4image', aliases: ['phototovideo', 'imgtovideo'],
-      description: 'Photo se 5 second ka video banao.',
+      description: 'Make a 5 second video from a photo.',
       category: 'media',
       handler: async (sock, message, args, context) => {
         const chatId = message.key.remoteJid;
         const media = await getMedia(message, ['image']);
         if (!media) {
-          await reply(sock, message, '❌ Pehle kisi photo pe reply karo, phir *.mp4image* chalao.');
+          await reply(sock, message, '📌 *Usage:* reply to a photo with .mp4image');
           return;
         }
         const inPath = writeTmp(media.buffer, 'jpg');
         const outPath = inPath + '.vid.mp4';
-        await reply(sock, message, '⏳ Photo se video ban raha hai...');
+        await reply(sock, message, '⏳ Making video from photo...');
         try {
           await ffmpeg(['-y', '-loop', '1', '-t', '5', '-i', inPath, '-c:v', 'libx264', '-pix_fmt', 'yuv420p', '-r', '30', '-movflags', '+faststart', outPath], 120000);
           await sock.sendMessage(chatId, { video: fs.readFileSync(outPath), caption: '🖼️ Photo se video' }, { quoted: message });
@@ -199,13 +199,13 @@ module.exports = {
     },
     {
       command: 'mp3crusher', aliases: ['crushaudio', 'bitcrush'],
-      description: 'Audio ko lo-fi crushed (8-bit jaisa) banao.',
+      description: 'Make audio lo-fi crushed (8-bit style).',
       category: 'media',
       handler: handleMp3crusher
     },
     {
       command: 'avmix', aliases: ['audiovideomix', 'mergeav'],
-      description: 'Audio + video merge karo (two-step: pehle audio, phir video).',
+      description: 'Merge audio + video (two steps: audio first, then video).',
       category: 'media',
       handler: handleAvmixSaved
     },
@@ -217,7 +217,7 @@ module.exports = {
     },
     {
       command: 'interp', aliases: ['fps60', 'smoothvideo'],
-      description: 'Video ko 60fps smooth banao (motion interpolation).',
+      description: 'Make a video 60fps smooth (motion interpolation).',
       category: 'media',
       handler: async (sock, message, args, context) => {
         await runVideo(sock, message, ['-vf', 'minterpolate=fps=60:mi_mode=mci', '-c:v', 'libx264', '-c:a', 'aac', '-pix_fmt', 'yuv420p'], 'mp4', '✨ 60fps smooth video');

@@ -11,7 +11,7 @@ module.exports = {
   command: 'store',
   aliases: ['pluginstore'],
   category: 'owner',
-  description: 'Plugin Store — WhatsApp se plugins install karo',
+  description: 'Plugin store: install plugins from WhatsApp',
   usage: '.store | .store install <name> | .store remove <name>',
   ownerOnly: true,
   async handler(sock, message, args, context = {}) {
@@ -25,20 +25,20 @@ module.exports = {
 
     if (sub === 'install') {
       if (!rest) return reply('❌ Usage: `.store install motivate`\nYa: `.store install https://raw.githubusercontent.com/.../plugin.js`');
-      await reply('📥 *Plugin install ho raha hai...*');
+      await reply('⏳ *Installing plugin...*');
       const r = await ps.install(rest);
       if (!r.ok) return reply('❌ Install fail:\n' + r.error);
-      return reply(`✅ *Plugin install ho gaya!*\n\n📦 ${r.name} → \`${r.file}\`\nAbhi use karo: try karo uska command.\nHataane ke liye: \`.store remove ${r.name}\``);
+      return reply(`✅ *Plugin installed:* ${r.name}`);
     }
     if (sub === 'remove') {
       if (!rest) return reply('❌ Usage: `.store remove motivate`');
       const r = ps.remove(rest);
       if (!r.ok) return reply('❌ ' + r.error);
-      return reply(`🗑️ Plugin *${r.name}* hata diya gaya.`);
+      return reply(`✅ *Plugin ${r.name} removed.*`);
     }
     const catalog = ps.getCatalog();
     const installed = ps.installedList();
     const list = catalog.map((c) => `${installed.includes(c.name) ? '✅' : '📦'} *${c.name}* — ${c.desc}`).join('\n');
-    return reply(`🛒 *QUEEN AKUMA Plugin Store*\n\n${list}\n\n✅ = installed\n\nInstall: \`.store install <name>\`\nRemove: \`.store remove <name>\`\n\n⚠️ Catalog GitHub se download hota hai — bot ko apne GitHub repo (INCONNU-BOY-SENSEI/QUEEN-AKUMA) par push karo, tabhi install chalega. Apna plugin URL se bhi install kar sakte ho.`);
+    return reply(`🛒 *Plugin Store*\n\n${list}\n\n📌 *Usage:* .store install <name> | .store remove <name>`);
   }
 };

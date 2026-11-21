@@ -20,7 +20,7 @@ async function chatgotImage(prompt) {
   });
   const d = res.data || {};
   const url = d.data && d.data.images && d.data.images[0] && d.data.images[0].url;
-  if (!url) throw new Error('chatgot se image nahi mili');
+  if (!url) throw new Error('no image from chatgot');
   return url;
 }
 
@@ -33,7 +33,7 @@ module.exports = {
   command: 'deepimg',
   aliases: ['fluximg', 'flux'],
   category: 'ai',
-  description: 'Text se AI image banao (Flux).',
+  description: 'Make an AI image from text (Flux).',
   usage: '.deepimg <prompt>',
   async handler(sock, message, args, context = {}) {
     const chatId = context.chatId || message.key.remoteJid;
@@ -43,7 +43,7 @@ module.exports = {
       await reply('❌ Prompt do.\nExample: *.deepimg a cat wearing sunglasses, sunset*');
       return;
     }
-    await reply('⏳ Image ban rahi hai: *' + prompt.slice(0, 100) + '* ...');
+    await reply('⏳ Making image: *' + prompt.slice(0, 100) + '* ...');
     try {
       const url = await chatgotImage(prompt);
       await sock.sendMessage(chatId, { image: { url }, caption: '🖼️ *DeepImg (Flux)*\n📜 Prompt: ' + prompt }, { quoted: message });

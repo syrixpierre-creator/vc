@@ -212,24 +212,7 @@ const checkHost = {
 
 const handler = async (m, { conn, args, usedPrefix, command }) => {
     if (!args[0]) {
-        return m.reply(`Mana host/domain nya??
-
-Cara pakai:
-${usedPrefix}${command} host type
-${usedPrefix}${command} host type port/record
-
-Tipe yang tersedia:
-• ping
-• http
-• tcp (+ port)
-• udp (+ port)
-• dns (+ record type)
-• info
-
-Contoh:
-${usedPrefix}${command} google.com ping
-${usedPrefix}${command} google.com tcp 80
-${usedPrefix}${command} google.com dns A`)
+        return m.reply(`📌 *Usage:* ${usedPrefix}${command} <host> <ping|http|tcp|udp|dns|info>`)
     }
 
     let [host, type = 'ping', param] = args

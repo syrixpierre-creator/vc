@@ -31,7 +31,7 @@ module.exports = {
     const d = await fetchJson('https://api.openverse.org/v1/images/?q=' + encodeURIComponent(q) + '&page_size=3', 12000);
     const results = (d && Array.isArray(d.results) ? d.results : []).filter((r) => r && r.url);
     if (!results.length) {
-      await reply('❌ "' + q + '" ke liye koi image nahi mili.');
+      await reply('❌ "' + q + '": no image found.');
       return;
     }
     const r = results[0];

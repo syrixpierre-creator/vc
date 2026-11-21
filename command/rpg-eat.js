@@ -35,16 +35,16 @@ module.exports = {
     if (!want) {
       const lines = Object.entries(FOODS).map(([k, f]) => f.emoji + ' *' + f.name + '* — ' + fmt(f.price) + ' coins ( +' + f.xp + ' XP)');
       await reply('🍽️ *QUEEN AKUMA CANTEEN*\n\n' + lines.join('\n') +
-        '\n\n👛 Wallet: ' + fmt(user.coins) + ' coins\n\nKhane ke liye: *.eat <food>*\nExample: *.eat pizza*');
+        '\n\n👛 Wallet: ' + fmt(user.coins) + ' coins\n\n📌 *Usage:* .eat <food>');
       return;
     }
     const food = FOODS[want];
     if (!food) {
-      await reply('❌ Ye khana menu me nahi hai: *' + want + '*\nMenu dekhne ke liye *.eat* likho.');
+      await reply('❌ *This food is not on the menu:* *' + want + '*\nSee the menu: .eat');
       return;
     }
     if ((user.coins || 0) < food.price) {
-      await reply('❌ Coins kam hain! *' + food.name + '* ke liye ' + fmt(food.price) + ' coins chahiye.\n👛 Wallet: ' + fmt(user.coins) + ' coins');
+      await reply('❌ Coins kam hain! *' + food.name + '* for ' + fmt(food.price) + ' coins chahiye.\n👛 Wallet: ' + fmt(user.coins) + ' coins');
       return;
     }
     const before = (xpLib.progress(sender).xp || 0);

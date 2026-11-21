@@ -35,7 +35,7 @@ module.exports = { commands: [
   },
   {
     command: 'jsonfmt', aliases: ['json'], category: 'tools',
-    description: 'JSON format aur validate karo', usage: '.jsonfmt <json>',
+    description: 'Format and validate JSON', usage: '.jsonfmt <json>',
     async handler(sock, message, args, context = {}) {
       const chatId = context.chatId || message.key.remoteJid;
       const reply = (t) => sock.sendMessage(chatId, { text: t }, { quoted: message });
@@ -61,7 +61,7 @@ module.exports = { commands: [
       try {
         const re = new RegExp(pattern, 'g');
         const matches = [...text.matchAll(re)].map((m) => m[0]);
-        return reply(matches.length ? `🔍 *Regex matches (${matches.length}):*\n\n${matches.map((m, i) => `${i + 1}. ${m}`).join('\n')}` : '🔍 Koi match nahi mila.');
+        return reply(matches.length ? `🔍 *Regex matches (${matches.length}):*\n\n${matches.map((m, i) => `${i + 1}. ${m}`).join('\n')}` : '❌ *No match found.*');
       } catch (e) {
         return reply('❌ Galat regex: ' + String(e.message).slice(0, 200));
       }
@@ -69,7 +69,7 @@ module.exports = { commands: [
   },
   {
     command: 'dnscheck', aliases: ['dns'], category: 'tools',
-    description: 'Domain ka DNS lookup karo', usage: '.dnscheck <domain>',
+    description: 'DNS lookup of a domain', usage: '.dnscheck <domain>',
     async handler(sock, message, args, context = {}) {
       const chatId = context.chatId || message.key.remoteJid;
       const reply = (t) => sock.sendMessage(chatId, { text: t }, { quoted: message });
@@ -115,7 +115,7 @@ module.exports = { commands: [
   },
   {
     command: 'apicheck', aliases: [], category: 'tools',
-    description: 'Kisi bhi API ka response dekho', usage: '.apicheck <url>',
+    description: 'See the response of any API', usage: '.apicheck <url>',
     async handler(sock, message, args, context = {}) {
       const chatId = context.chatId || message.key.remoteJid;
       const reply = (t) => sock.sendMessage(chatId, { text: t }, { quoted: message });
@@ -174,28 +174,28 @@ module.exports = { commands: [
         const secret = randomSecret();
         db.users[k] = { secret };
         saveJson(TOTP_PATH, db);
-        return reply(`🔑 *Naya TOTP Secret*\n\n\`${secret}\`\n\nIse apne authenticator app me daalo, ya yahan se code lo: \`.totp\`\n⚠️ Secret kisi ko mat bhejo!`);
+        return reply(`🔑 *New TOTP secret*\n\n\`${secret}\`\n\nDo not share it.`);
       }
       if (sub === 'set') {
         const secret = (args[1] || '').toUpperCase().replace(/[^A-Z2-7]/g, '');
         if (secret.length < 16) return reply('❌ Usage: `.totp set JBSWY3DPEHPK3PXP` (base32 secret, kam se kam 16 chars)');
         db.users[k] = { secret };
         saveJson(TOTP_PATH, db);
-        return reply('✅ TOTP secret save ho gaya. Code lo: `.totp`');
+        return reply('✅ *TOTP secret saved.* Get a code: .totp');
       }
       const rec = db.users[k];
-      if (!rec) return reply('🔑 *2FA Authenticator*\n\nPehle secret set karo:\n`.totp set <secret>` — apne account ka secret\n`.totp new` — naya secret banao\n\nPhir `.totp` se 6-digit code milega.');
+      if (!rec) return reply('❌ *Invalid option!*\n\nAvailable options:\n- set <secret>\n- new');
       try {
         const { code, remaining } = totp(rec.secret);
         return reply(`🔑 *TOTP Code:* \`${code}\`\n\n⏳ ${remaining} sec me expire hoga.`);
       } catch (e) {
-        return reply('❌ Secret galat hai. `.totp set` se sahi secret daalo.');
+        return reply('❌ *Invalid secret.*');
       }
     },
   },
   {
     command: 'vault', aliases: [], category: 'tools',
-    description: 'Passwords encrypted save karo (master password se)',
+    description: 'Save passwords encrypted (master password)',
     usage: '.vault master <pass> | .vault add <site> <user> <pass> | .vault get <site>',
     async handler(sock, message, args, context = {}) {
       const chatId = context.chatId || message.key.remoteJid;
@@ -208,12 +208,12 @@ module.exports = { commands: [
       const u = db.users[k];
       if (sub === 'master') {
         const pass = args.slice(1).join(' ');
-        if (pass.length < 4) return reply('❌ Usage: `.vault master <password>` (kam se kam 4 chars)\n⚠️ DM me use karo, group me password mat likho!');
+        if (pass.length < 4) return reply('📌 *Usage:* .vault master <password> (min 4 chars, use in DM)');
         u.masterHash = sha256(pass);
         saveJson(VAULT_PATH, db);
-        return reply('✅ Master password set ho gaya. Ab `.vault add <site> <user> <pass>` se save karo.');
+        return reply('✅ *Master password set.*');
       }
-      if (!u.masterHash) return reply('🔐 *Password Vault*\n\nPehle master password set karo:\n`.vault master <password>`\n\nPhir: `.vault add gmail user@gmail.com mypass123`\n`.vault get gmail`\n`.vault list`\n\n⚠️ Master password DM me use karo!');
+      if (!u.masterHash) return reply('📌 *Usage:* .vault master <password> (use in DM)');
       if (sub === 'add') {
         const site = args[1];
         const user = args[2];
@@ -222,17 +222,17 @@ module.exports = { commands: [
         const masterPass = args[args.length - 1];
         u.items[site.toLowerCase()] = { user, enc: aesEncrypt(pass, u.masterHash.slice(0, 16)) };
         saveJson(VAULT_PATH, db);
-        return reply(`✅ *${site}* save ho gaya (encrypted).`);
+        return reply(`✅ *${site} saved (encrypted).*`);
       }
       if (sub === 'get') {
         const site = (args[1] || '').toLowerCase();
         const item = u.items[site];
-        if (!item) return reply('❌ Ye site vault me nahi hai. `.vault list` se dekho.');
+        if (!item) return reply('❌ *This site is not in the vault.*');
         try {
           const pass = aesDecrypt(item.enc, u.masterHash.slice(0, 16));
           return reply(`🔐 *${site}*\n\nUser: \`${item.user}\`\nPass: \`${pass}\``);
         } catch (_) {
-          return reply('❌ Decrypt fail — master password badal gaya hai kya?');
+          return reply('❌ *Decrypt failed. Wrong master password?*');
         }
       }
       if (sub === 'list') {
@@ -241,12 +241,12 @@ module.exports = { commands: [
       }
       if (sub === 'del') {
         const site = (args[1] || '').toLowerCase();
-        if (!u.items[site]) return reply('❌ Ye site vault me nahi hai.');
+        if (!u.items[site]) return reply('❌ *This site is not in the vault.*');
         delete u.items[site];
         saveJson(VAULT_PATH, db);
         return reply(`✅ *${site}* delete kar diya.`);
       }
-      return reply('🔐 *Password Vault*\n\n`.vault master <pass>` — master set karo\n`.vault add <site> <user> <pass>`\n`.vault get <site>`\n`.vault list` / `.vault del <site>`\n\n⚠️ Passwords AES-256 se encrypted hain. Master password DM me use karo!');
+      return reply('❌ *Invalid option!*\n\nAvailable options:\n- master <pass>\n- add <site> <user> <pass>\n- get <site>\n- list\n- del <site>');
     },
   },
   {
@@ -268,20 +268,20 @@ module.exports = { commands: [
         if (!pass || !text) return reply('❌ Usage: `.encnote add <password> <note text>`');
         notes.push({ id: notes.length + 1, enc: aesEncrypt(text, pass), at: Date.now() });
         saveJson(ENC_PATH, db);
-        return reply(`✅ Note #${notes.length} encrypted save ho gaya.`);
+        return reply(`✅ *Note #${notes.length} saved (encrypted).*`);
       }
       if (sub === 'list') {
-        return reply(notes.length ? `🔒 *Encrypted Notes (${notes.length}):*\n\n${notes.map((n) => `#${n.id} — ${new Date(n.at).toLocaleDateString('en-IN')}`).join('\n')}\n\nPadhne ke liye: \`.encnote get <password> <id>\`` : '🔒 Koi note nahi hai.');
+        return reply(notes.length ? `🔒 *Encrypted Notes (${notes.length}):*\n\n${notes.map((n) => `#${n.id} — ${new Date(n.at).toLocaleDateString('en-IN')}`).join('\n')}\n\nRead: \`.encnote get <password> <id>\`` : '🔒 *No notes.*');
       }
       if (sub === 'get') {
         const pass = args[1];
         const id = parseInt(args[2], 10);
         const note = notes.find((n) => n.id === id);
-        if (!note) return reply('❌ Note nahi mila. `.encnote list <password>` se dekho.');
+        if (!note) return reply('❌ *Note not found.*');
         try {
           return reply(`🔒 *Note #${id}:*\n\n${aesDecrypt(note.enc, pass)}`);
         } catch (_) {
-          return reply('❌ Galat password — decrypt nahi hua.');
+          return reply('❌ *Wrong password.*');
         }
       }
       return reply('🔒 *Encrypted Notes*\n\n`.encnote add <password> <text>`\n`.encnote list <password>`\n`.encnote get <password> <id>`\n\n⚠️ Password bhool gaye to note kabhi nahi khulega!');

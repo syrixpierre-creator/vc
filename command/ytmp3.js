@@ -19,7 +19,7 @@ module.exports = {
     try {
       const res = await youtubeAudio(url);
       if (!res || !res.download) {
-        return sock.sendMessage(chatId, { text: '❌ Audio nahi mila / API busy.' }, { quoted: message });
+        return sock.sendMessage(chatId, { text: '❌ *Audio not found / API busy.*' }, { quoted: message });
       }
       // v2.8.9: audio ke SAATH thumbnail + rich card (title, channel, views, duration)
       const caption = songCaption({

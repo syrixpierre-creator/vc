@@ -16,7 +16,7 @@ module.exports = {
     const reply = (t) => sock.sendMessage(chatId, { text: t }, { quoted: message });
     const url = (args || []).join(' ').trim();
     if (!url || !/^https?:\/\//i.test(url)) return reply('📥 *ytdlp*\nUsage: `.ytdlp <link>`\nYouTube / TikTok / Facebook link do.');
-    await sock.sendMessage(chatId, { text: '⏳ Download ho raha hai…' }, { quoted: message }).catch(() => {});
+    await sock.sendMessage(chatId, { text: '⏳ Downloading…' }, { quoted: message }).catch(() => {});
     try {
       if (/youtube\.com|youtu\.be/i.test(url)) {
         const v = await youtubeVideo(url);
@@ -35,7 +35,7 @@ module.exports = {
       if (res && res.audioUrl) {
         return sock.sendMessage(chatId, { audio: { url: res.audioUrl }, mimetype: 'audio/mpeg' }, { quoted: message });
       }
-      return reply('❌ Download nahi hua — saari APIs fail.\n• Link sahi hai check karo\n• Instagram / Twitter / Pinterest ke liye abhi koi free API live nahi hai\n• `.apicheck` se live status dekho, `.addapi` se apna API jodo');
+      return reply('❌ *Download failed.* Check the link and try again.');
     } catch (e) {
       return reply('❌ ytdlp: ' + (e.message || e));
     }

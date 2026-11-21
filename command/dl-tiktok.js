@@ -83,7 +83,7 @@ cmd({
     }
     catch (e) {
         console.error("TikTok Error:", e);
-        reply("❌ *Error aa gaya! Thori dair baad try karo*");
+        reply("❌ *An error occurred! Try again later.*");
     }
 });
 // ========== TikTok 2 Command ==========

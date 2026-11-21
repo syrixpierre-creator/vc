@@ -9,7 +9,7 @@
 module.exports = {
   command: 'fakepoll',
   aliases: ['presetpoll', 'riggedpoll'],
-  description: 'Preset vote numbers wala poll (labels — real votes preset nahi hote).',
+  description: 'Poll with preset vote numbers (shown in labels only).',
   category: 'fun',
   handler: async (sock, message, args, context) => {
     const chatId = message.key.remoteJid;
@@ -19,7 +19,7 @@ module.exports = {
     const question = parts[0];
     const rawOpts = parts.slice(1);
     if (!question || rawOpts.length < 2) {
-      await reply('❌ Usage: *.fakepoll Sawal? | Option 1 (votes) | Option 2 (votes)*\nExample: .fakepoll Best bot? | QUEEN AKUMA 45 | Other 5\n\n⚠️ Note: WhatsApp real votes preset nahi karne deta — vote numbers sirf option labels me dikhenge.');
+      await reply('📌 *Usage:* .fakepoll <question> | <option> (votes) | <option> (votes)');
       return;
     }
     const values = rawOpts.slice(0, 12).map((o) => {
@@ -31,7 +31,7 @@ module.exports = {
       await sock.sendMessage(chatId, {
         poll: { name: question + '  (preset labels — real votes nahi)', values, selectableCount: 1 }
       }, { quoted: message });
-      await reply('📊 Fake poll bhej diya.\n⚠️ Vote numbers sirf labels hain — WhatsApp real vote count preset karne ki permission nahi deta.');
+      await reply('✅ *Fake poll sent.*');
     } catch (e) {
       await reply('❌ Poll nahi ban paya: ' + String(e.message || e).slice(0, 120));
     }

@@ -52,7 +52,7 @@ module.exports = {
     const u = user.split(':')[0];
     const cur = data[key][u] || data[key][user] || 0;
     if (!cur) {
-      return sock.sendMessage(chatId, { text: 'ℹ️ Is user ke 0 warns hain.' }, { quoted: message });
+      return sock.sendMessage(chatId, { text: '❌ *This user has 0 warns.*' }, { quoted: message });
     }
     const next = Math.max(0, Number(cur) - 1);
     data[key][u] = next;

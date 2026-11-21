@@ -21,7 +21,7 @@ module.exports = {
       const chatId = context.chatId || message.key.remoteJid;
       await sock.sendMessage(chatId, {
         text:
-          '⚠️ Ye legacy command incomplete hai.\n\n' +
+          '⚠️ This legacy command is incomplete.\n\n' +
           'Use QUEEN AKUMA commands:\n' +
           '• `.autoreact on/off`\n' +
           '• `.autostatus on` + `.autostatus react on`\n' +

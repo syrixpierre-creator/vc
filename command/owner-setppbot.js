@@ -36,16 +36,16 @@ module.exports = {
       return;
     }
     if (typeof sock.updateProfilePicture !== 'function') {
-      await reply('❌ Ye feature is connection par available nahi hai.');
+      await reply('❌ *This feature is not available on this connection.*');
       return;
     }
     try {
       const buf = await downloadImage(imgMsg);
-      if (!buf || !buf.length) { await reply('❌ Image download nahi ho payi.'); return; }
+      if (!buf || !buf.length) { await reply('❌ *Failed to download the image.*'); return; }
       await sock.updateProfilePicture(sock.user.id, buf);
       await reply('✅ *Bot ki profile photo badal di!*');
     } catch (e) {
-      await reply('❌ PP update nahi ho payi: ' + String(e.message || e).slice(0, 120));
+      await reply('❌ *Failed to update profile picture:* ' + String(e.message || e).slice(0, 120));
     }
   },
 };

@@ -18,7 +18,7 @@ module.exports = {
     const reply = (t) => sock.sendMessage(chatId, { text: t }, { quoted: message });
 
     if (!String(chatId).endsWith('@g.us')) {
-      return reply('❌ Ye command sirf *group* me chalti hai.');
+      return reply('❌ *This command can only be used in groups!*');
     }
 
     const sub = (args[0] || '').toLowerCase();
@@ -34,16 +34,12 @@ module.exports = {
     if (sub === 'action' || sub === 'mode' || sub === 'set') {
       if (!['delete', 'warn', 'kick'].includes(arg2)) {
         return reply(
-`⚙️ *Anti-VV Action*
+`✅ *Anti-VV action: ${action}*
 
-Current: *${action}*
-
-Usage:
-• \`.antivv action delete\` — sirf message delete
-• \`.antivv action warn\` — delete + warning
-• \`.antivv action kick\` — delete + member kick
-
-_Bot ko admin banao (warn limit / kick ke liye)_`
+Available options:
+- delete
+- warn
+- kick`
         );
       }
       groupAnti.setAction('antivv', arg2);
@@ -72,22 +68,12 @@ Change action:
 
     // status / help
     return reply(
-`👁️ *Anti View-Once (antivv)*
+`✅ *Anti-VV: ${isOn ? 'ON' : 'OFF'}* (action: ${action})
 
-Status: ${isOn ? '✅ ON' : '❌ OFF'}
-Action: *${action}*
-
-*Toggle*
-• \`.antivv on\`
-• \`.antivv off\`
-
-*Action (jab koi view-once bheje)*
-• \`.antivv action delete\` — message hatao
-• \`.antivv action warn\` — hatao + warning
-• \`.antivv action kick\` — hatao + kick
-
-_Group admins skip. Kick/warn ke liye bot admin hona chahiye._
-_Manual open: \`.vv\` (reply view-once)_`
+Available options:
+- on
+- off
+- action delete|warn|kick`
     );
   }
 };

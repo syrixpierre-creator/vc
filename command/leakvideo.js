@@ -58,7 +58,7 @@ module.exports = {
     } catch (e) {
       console.error('[leakvideo]', e.message);
       return sock.sendMessage(chatId, {
-        text: '❌ Video load fail: ' + (e.message || 'unknown') + '\n_Source API offline ho sakti hai._'
+        text: '❌ Video load fail: ' + (e.message || 'unknown') + '\n_Source API may be offline._'
       }, { quoted: message });
     }
   }

@@ -19,31 +19,17 @@ module.exports = {
     try { total = require('../lib/commandHandler').commands.size || 0; } catch {}
     const uptime = Math.floor(process.uptime());
     const h = Math.floor(uptime / 3600), m = Math.floor((uptime % 3600) / 60);
-    const text = ` 🤖 *${settings.botName || 'QUEEN AKUMA'}*
+    const text = `🤖 *${settings.botName || 'QUEEN AKUMA'}*
 
- 👋 Hello! Main *${settings.botName || 'QUEEN AKUMA'}* hoon —
- ek advanced multi-device WhatsApp bot.
+👋 Hello! I am *${settings.botName || 'QUEEN AKUMA'}*, a multi-device WhatsApp bot.
 
- 👑 Owner: *${settings.botOwner || 'INCONNU BOY SENSEI'}*
- 📱 Owner Number: ${settings.ownerNumber || '554488138425'}
- 📢 Channel: *${settings.channelName || 'INCONNU BOY SENSEI'}*
- 🔗 ${settings.channelLink || ''}
+👑 Owner: *${settings.botOwner || 'INCONNU BOY SENSEI'}*
+📢 Channel: ${settings.channelLink || ''}
+📦 Commands: ${total || ''}
+⏱️ Uptime: ${h}h ${m}m
+🔤 Prefix: ${(settings.prefixes || ['.']).join(' ')}
 
- ⚡ Version: ${settings.version || '2.1.0'}
- 📦 Commands: ${total || '2600+'}+
- ⏱️ Uptime: ${h}h ${m}m
- 🔤 Prefix: ${(settings.prefixes || ['.']).join(' ')}
-
- ✨ Highlights:
- • 🎮 10 real quiz games (.quiz)
- • ✍️ 40 text styles (.textstyles)
- • 🌤️ Live weather (.weather)
- • 🕵️ OSINT tools (.osintmenu)
- • 🧠 Smart command (.smart)
- • 🤖 AI chat (.inconnuai / .ai)
-
- 📜 Commands dekhne ke liye: *.menu*
-`;
+Type *.menu* to see the commands.`;
     try {
       const quoted = buildFakeVCard({
         displayName: settings.botName || 'QUEEN AKUMA',

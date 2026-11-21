@@ -29,7 +29,7 @@ cmd({
     } catch (err) {
 
         console.log(err);
-        reply("❌ Video load nahi hui.");
+        reply("❌ *Failed to load video.*");
 
     }
 
@@ -62,7 +62,7 @@ cmd({
     } catch (err) {
 
         console.log(err);
-        reply("❌ Video load nahi hui.");
+        reply("❌ *Failed to load video.*");
 
     }
 

@@ -16,13 +16,13 @@ module.exports = {
       }, { quoted: message });
     }
 
-    await sock.sendMessage(chatId, { text: '⏳ Facebook video download ho raha hai…' }, { quoted: message }).catch(() => {});
+    await sock.sendMessage(chatId, { text: '⏳ Downloading Facebook video…' }, { quoted: message }).catch(() => {});
 
     try {
       const res = await downloadAny(url);
       if (!res || !res.mediaUrl) {
         return sock.sendMessage(chatId, {
-          text: '❌ Video nahi mila. Public video link try karo / baad me retry.'
+          text: '❌ *Video not found.* Try a public video link.'
         }, { quoted: message });
       }
       await sock.sendMessage(chatId, {

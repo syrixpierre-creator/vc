@@ -19,7 +19,7 @@ module.exports = {
     const reply = (t) => sock.sendMessage(chatId, { text: t }, { quoted: message });
     const media = await getMedia(message, ['image']);
     if (!media) {
-      await reply('❌ Kisi photo pe reply karke *.skull* chalao.\n(.fx skull se bhi yehi effect lagta hai.)');
+      await reply('📌 *Usage:* reply to a photo with .skull');
       return;
     }
     const res = await applyEffect(media.buffer, 'skull');

@@ -15,14 +15,14 @@ module.exports = {
   command: 'upscale',
   aliases: [],
   category: 'ai',
-  description: 'Quoted image ko 2x upscale karo (local Jimp enhance).',
+  description: 'Upscale a quoted image 2x (local enhance).',
   usage: '.upscale (image pe reply karke)',
   async handler(sock, message, args, context = {}) {
     const chatId = context.chatId || message.key.remoteJid;
     const reply = (t) => sock.sendMessage(chatId, { text: t }, { quoted: message });
     const media = await getMedia(message, ['image']);
     if (!media) {
-      await reply('❌ Kisi photo pe reply karke *.upscale* chalao.\nYe local 2x enhance hai (AI upscaler nahi).');
+      await reply('📌 *Usage:* reply to a photo with .upscale');
       return;
     }
     try {
@@ -37,7 +37,7 @@ module.exports = {
         caption: '🔍 *Upscaled (2x)*\n' + img.width + 'x' + img.height + ' → ' + w + 'x' + h + '\n_Local Jimp enhance — AI upscaler nahi._'
       }, { quoted: message });
     } catch (e) {
-      await reply('❌ Upscale nahi ho paya: ' + String(e.message || e).slice(0, 120));
+      await reply('❌ *Upscale failed:* ' + String(e.message || e).slice(0, 120));
     }
   }
 };
