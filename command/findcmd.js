@@ -42,7 +42,7 @@ module.exports = {
     const reply = (t) => sock.sendMessage(chatId, { text: t }, { quoted: message });
     const query = (args || []).join(' ').trim().toLowerCase();
     if (!query) {
-      return reply('🔍 *Find Command*\n\nUsage: `.findcmd <naam>`\nExample: `.findcmd ludo` ya `.findcmd sticker`');
+      return reply('🔍 *Find Command*\n\nUsage: `.findcmd <naam>`\nExample: `.findcmd ludo` or `.findcmd sticker`');
     }
     let target = null; let targetName = null;
     try {

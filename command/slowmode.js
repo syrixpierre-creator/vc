@@ -31,7 +31,7 @@ module.exports = {
       sm.set(chatId, { limit, window: win });
       return reply(`✅ Slow mode updated: *${limit} msg / ${win}s*`);
     }
-    return reply('🐢 Usage: `.slowmode on|off` ya `.slowmode set <msgs> <secs>`');
+    return reply('🐢 Usage: `.slowmode on|off` or `.slowmode set <msgs> <secs>`');
   },
   async onMessage(sock, message, context = {}) {
     try {

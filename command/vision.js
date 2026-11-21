@@ -1,7 +1,7 @@
 /**
  * QUEEN AKUMA v3.0.0 — .vision : AI Vision (Gemini 2.0 Flash)
  * Photo bhejo, bot batayega usme kya hai + sawal ka jawab dega.
- * Usage: photo par reply karke `.vision` ya `.vision isme kya hai?`
+ * Usage: photo par reply karke `.vision` or `.vision isme kya hai?`
  * Needs: GEMINI_API_KEY env (free: aistudio.google.com/app/apikey)
  */
 const https = require('https');

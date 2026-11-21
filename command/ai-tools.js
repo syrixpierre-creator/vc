@@ -114,7 +114,7 @@ module.exports = { commands: [
       const reply = (t) => sock.sendMessage(chatId, { text: t }, { quoted: message });
       const to = (args[0] || '').toLowerCase();
       const q = args.slice(1).join(' ').trim();
-      if (!to || !q) return reply('❌ Usage: `.anuvad hi Hello how are you` ya `.anuvad en Kaise ho`');
+      if (!to || !q) return reply('❌ Usage: `.anuvad hi Hello how are you` or `.anuvad en Kaise ho`');
       try {
         const { translateMyMemory } = require('../lib/publicApis');
         const out = await translateMyMemory(q, to);

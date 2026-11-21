@@ -68,7 +68,7 @@ module.exports = { commands: [
       const amount = parseFloat(args[0]);
       const from = (args[1] || '').toLowerCase();
       const to = (args[2] || 'inr').toLowerCase();
-      if (!amount || !from) return reply('❌ Usage: `.currency 100 usd inr` ya `.currency 1 btc usd`');
+      if (!amount || !from) return reply('❌ Usage: `.currency 100 usd inr` or `.currency 1 btc usd`');
       if (CRYPTO[from] || CRYPTO[to]) {
         const id = CRYPTO[from] || CRYPTO[to];
         const vs = CRYPTO[from] ? to : from;
@@ -201,7 +201,7 @@ module.exports = { commands: [
       const name = args[0];
       const amount = parseFloat(args[1]);
       const reason = args.slice(2).join(' ') || '';
-      if (!name || isNaN(amount)) return reply('❌ Usage: `.khata Rahul +500 chai` ya `.khata Rahul -200`');
+      if (!name || isNaN(amount)) return reply('❌ Usage: `.khata Rahul +500 chai` or `.khata Rahul -200`');
       if (!book[name]) book[name] = [];
       book[name].push({ amount, reason, at: Date.now() });
       saveJson(dataPath('khata.json'), db);

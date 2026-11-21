@@ -146,7 +146,7 @@ module.exports = { commands: [
       try { const isOwner = require('../lib/isOwner'); owner = (isOwner.isOwnerOnly && isOwner.isOwnerOnly(senderJid)) || (await isOwner(senderJid, sock, chatId)); } catch (_) {}
       if (!owner) return reply('🚫 *You are not authorized to use this command!*');
       const code = (args || []).join(' ').trim();
-      if (!code) return reply('❌ Usage: `.coderun 2+2` ya `.coderun [1,2,3].map(x=>x*2)`');
+      if (!code) return reply('❌ Usage: `.coderun 2+2` or `.coderun [1,2,3].map(x=>x*2)`');
       try {
         const sandbox = { Math, JSON, Date, console: { log: () => {} } };
         const script = new vm.Script(`(${code})`);

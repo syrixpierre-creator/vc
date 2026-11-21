@@ -51,7 +51,7 @@ module.exports = { commands: [
       const reply = (t) => sock.sendMessage(chatId, { text: t }, { quoted: message });
       if (!message.key.fromMe && !await isOwner(senderJid, sock, chatId)) return reply('🚫 *You are not authorized to use this command!*');
       const lang = (args[0] || '').toLowerCase();
-      if (lang !== 'hi' && lang !== 'en') return reply('❌ Usage: `.vlang hi` ya `.vlang en`');
+      if (lang !== 'hi' && lang !== 'en') return reply('❌ Usage: `.vlang hi` or `.vlang en`');
       vm.saveConfig({ lang });
       return reply(`🌐 *Voice language: ${lang === 'hi' ? 'Hindi 🇮🇳' : 'English 🇬🇧'}*\nAb voice notes isi language me sune jayenge.`);
     }

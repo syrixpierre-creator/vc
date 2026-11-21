@@ -59,6 +59,6 @@ module.exports = {
       if (!res.ok) return reply('❌ ' + res.error);
       return reply(`✅ Vote ${res.changed ? 'badal diya' : 'dal diya'}: *${res.option}*\n\nResults: \`.vote results\``);
     }
-    return reply('🗳️ *Vote System*\n\nStart: `.vote Best game? | Ludo | Cricket`\nVote: `.vote 1` ya `.vote Ludo`\nResults: `.vote results`\nEnd: `.vote end`');
+    return reply('🗳️ *Vote System*\n\nStart: `.vote Best game? | Ludo | Cricket`\nVote: `.vote 1` or `.vote Ludo`\nResults: `.vote results`\nEnd: `.vote end`');
   },
 };
