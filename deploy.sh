@@ -49,7 +49,7 @@ pm2 start ecosystem.config.js --update-env || pm2 restart queen-akuma --update-e
 pm2 save
 pm2 startup systemd -u "$USER" --hp "$HOME" >/dev/null 2>&1 || true
 
-PORT="$(grep -E '^PORT=' .env | cut -d= -f2 || true)"; PORT="${PORT:-5000}"
+PORT="$(grep -E '^PORT=' .env | cut -d= -f2 | tr -d '"\047 \r' || true)"; PORT="${PORT:-5000}"
 echo ""
 echo ">>> QUEEN AKUMA is deployed."
 echo ">>> Panel:  http://<your-server-ip>:${PORT}/   (password = ADMIN_PASSWORD in .env)"

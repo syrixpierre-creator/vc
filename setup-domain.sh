@@ -6,7 +6,7 @@ set -e
 DOMAIN="${1:-akuma.zone.id}"
 EMAIL="${2:-}"
 cd "$(dirname "$0")"
-PORT="$(grep -E '^PORT=' .env 2>/dev/null | cut -d= -f2 || true)"; PORT="${PORT:-5000}"
+PORT="$(grep -E '^PORT=' .env 2>/dev/null | cut -d= -f2 | tr -d '"\047 \r' || true)"; PORT="${PORT:-5000}"
 
 echo "==> Domain: $DOMAIN  ->  127.0.0.1:$PORT"
 IP="$(curl -s4 https://api.ipify.org || true)"
