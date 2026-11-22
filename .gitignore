@@ -7,3 +7,8 @@ tmp/*
 instances/
 bots.json
 bots.json.tmp
+
+# yt-dlp binary (downloaded on the VPS) and YouTube cookies
+bin/
+cookies.txt
+youtube-cookies.txt

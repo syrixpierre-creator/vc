@@ -1,9 +1,9 @@
 #!/usr/bin/env bash
 # QUEEN AKUMA — put the pairing site on your own (sub)domain with HTTPS.
-# Usage:  sudo bash setup-domain.sh akuma.zone.id [email]
+# Usage:  sudo bash setup-domain.sh akuma.skyhost.tech [email]
 # Before: the DNS A record of the domain must point to this VPS IP.
 set -e
-DOMAIN="${1:-akuma.zone.id}"
+DOMAIN="${1:-akuma.skyhost.tech}"
 EMAIL="${2:-}"
 cd "$(dirname "$0")"
 PORT="$(grep -E '^PORT=' .env 2>/dev/null | cut -d= -f2 | tr -d '"\047 \r' || true)"; PORT="${PORT:-5000}"

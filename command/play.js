@@ -1,107 +1,90 @@
-let axios; try { axios = require('axios'); } catch (_) { axios = null; }
-const { spotifySearch, spotifyDownload, youtubeAudio, songCaption } = require('../lib/downloadApis');
+'use strict';
+/**
+ * QUEEN AKUMA — .play <name or YouTube link>
+ * Finds the song on YouTube (scraping, no API) and asks: 🎵 Audio or 🎬 Video.
+ * The buttons send ".play audio <link>" / ".play video <link>".
+ */
+const fs = require('fs');
+const yt = require('../lib/ytScrape');
+
+const fmtViews = (n) => (n >= 1e6 ? (n / 1e6).toFixed(1) + 'M' : n >= 1e3 ? (n / 1e3).toFixed(1) + 'K' : String(n || 0));
+const safeName = (t) => String(t || 'song').replace(/[^\w\s-]/g, '').trim().slice(0, 60) || 'song';
 
 module.exports = {
   command: 'play',
-  aliases: ['music', 'ytplay'],
-  category: 'music',
-  description: 'Play / download song (Spotify + YT fallback)',
-  usage: '.play <song name>',
+  aliases: [],
+  category: 'download',
+  description: 'Play a song or video from YouTube',
+  usage: '.play <name or url>',
 
   async handler(sock, message, args, context = {}) {
     const chatId = context.chatId || message.key.remoteJid;
-    const query = args.join(' ').trim();
-    if (!query) {
-      return sock.sendMessage(chatId, {
-        text: '🎵 *Play*\n\nUsage: `.play <song name>`'
-      }, { quoted: message });
+    const prefix = (String(context.messageText || '').trim().match(/^[^\w\s]/) || [])[0] || (require('../settings').prefixes || ['.'])[0];
+    const reply = (text) => sock.sendMessage(chatId, { text }, { quoted: message });
+    const react = (e) => sock.sendMessage(chatId, { react: { text: e, key: message.key } }).catch(() => {});
+
+    let mode = null;
+    let parts = (args || []).slice();
+    if (/^(audio|video|mp3|mp4)$/i.test(parts[0] || '')) mode = /^(audio|mp3)$/i.test(parts.shift()) ? 'audio' : 'video';
+    const query = parts.join(' ').trim();
+    if (!query) return reply('📌 *Usage:* .play <name or url>');
+
+    await react('🔍');
+    let v;
+    try { v = await yt.search(query); } catch (_) { v = null; }
+    if (!v) { await react('❌'); return reply('❌ *No result found.*'); }
+
+    // Step 1: show the song and let the user choose
+    if (!mode) {
+      const caption =
+        `🎵 *${v.title}*\n\n` +
+        (v.author ? `👤 *Channel:* ${v.author}\n` : '') +
+        (v.duration ? `⏱️ *Duration:* ${v.duration}\n` : '') +
+        `👁️ *Views:* ${fmtViews(v.views)}\n\n` +
+        `Choose the format:`;
+      const buttons = [
+        { buttonId: `${prefix}play audio ${v.url}`, buttonText: { displayText: '🎵 Audio' }, type: 1 },
+        { buttonId: `${prefix}play video ${v.url}`, buttonText: { displayText: '🎬 Video' }, type: 1 },
+      ];
+      await react('🎶');
+      try {
+        return await sock.sendMessage(chatId, { image: { url: v.thumbnail }, caption, buttons, headerType: 4, footer: 'QUEEN AKUMA' }, { quoted: message });
+      } catch (_) {
+        return sock.sendMessage(chatId, { text: caption, buttons, headerType: 1, footer: 'QUEEN AKUMA' }, { quoted: message });
+      }
     }
 
-    await sock.sendMessage(chatId, { text: `🔍 Searching: *${query}*...` }, { quoted: message }).catch(() => {});
-
+    // Step 2: download the chosen format
+    if (v.seconds && v.seconds > (mode === 'audio' ? 60 * 60 : 30 * 60)) {
+      await react('❌');
+      return reply(`❌ *Too long!* Max ${mode === 'audio' ? '60' : '30'} min.`);
+    }
+    await react('⏳');
+    let file;
     try {
-      // 1) Spotify search (verified live API)
-      const search = await spotifySearch(query);
-      const tracks = search?.tracks || search?.result || (Array.isArray(search) ? search : []);
-      const first = tracks[0];
-
-      if (first && (first.url || first.link)) {
-        const trackUrl = first.url || first.link;
-        const dl = await spotifyDownload(trackUrl);
-        if (dl && dl.download) {
-          // v2.8.9: rich card — cover + title + singer + source
-          const caption = songCaption({
-            title: dl.title || first.title || query,
-            artist: dl.artist || first.artist || '',
-            album: dl.album || first.album || '',
-            source: 'Spotify'
-          });
-          try {
-            if (dl.cover) {
-              await sock.sendMessage(chatId, {
-                image: { url: dl.cover },
-                caption
-              }, { quoted: message });
-            }
-            await sock.sendMessage(chatId, {
-              audio: { url: dl.download },
-              mimetype: 'audio/mpeg',
-              fileName: `${(dl.title || 'song').replace(/[^\w\s-]/g, '').slice(0, 40)}.mp3`
-            }, { quoted: message });
-            return;
-          } catch (e) {
-            // fall through to yt
-            console.error('[play] send audio', e.message);
-          }
-        }
-      }
-
-      // 2) Fallback: YouTube search + mp3 (v2.6.0: youtubeAudio now searches
-      // via Elite ytsearch for plain song names too, not just URLs)
-      // v2.8.9: audio ke SAATH thumbnail + rich card (title, channel,
-      // views, duration) — pehle sirf audio aata tha.
-      const yt = await youtubeAudio(query);
-      if (yt && yt.download) {
-        const caption = songCaption({
-          title: yt.title || query,
-          artist: yt.artist || '',
-          channel: yt.channel || yt.author || '',
-          views: yt.views,
-          duration: yt.duration || '',
-          uploaded: yt.uploaded || '',
-          source: 'YouTube'
-        });
-        try {
-          if (yt.thumbnail) {
-            await sock.sendMessage(chatId, {
-              image: { url: yt.thumbnail },
-              caption
-            }, { quoted: message });
-          }
-        } catch (_) {
-          // thumbnail fail ho to bhi audio bhejo
-          await sock.sendMessage(chatId, { text: caption }, { quoted: message }).catch(() => {});
-        }
-        await sock.sendMessage(chatId, {
-          audio: { url: yt.download },
-          mimetype: 'audio/mpeg',
-          fileName: `${(yt.title || 'song').replace(/[^\w\s-]/g, '').slice(0, 40)}.mp3`
-        }, { quoted: message });
-        return;
-      }
-
-      return sock.sendMessage(chatId, {
-        text:
-          '❌ Song download fail.\n\n' +
-          '• Try another name\n' +
-          '• Or `.play` with exact Spotify/YT link\n' +
-          '• The API may be busy'
-      }, { quoted: message });
-    } catch (err) {
-      console.error('[play]', err.message);
-      return sock.sendMessage(chatId, {
-        text: '❌ Error: ' + (err.message || 'unknown')
-      }, { quoted: message });
+      file = await yt.download(v.url, mode);
+    } catch (e) {
+      await react('❌');
+      console.error('[play]', e.detail || e.message);
+      const why = { blocked: '❌ *YouTube blocked the download. Try again later.*', 'too-big': '❌ *File too big!*' };
+      return reply(why[e.message] || '❌ *Download failed. Try again.*');
     }
-  }
+    try {
+      const size = fs.statSync(file).size;
+      const name = safeName(v.title);
+      if (mode === 'audio') {
+        await sock.sendMessage(chatId, { audio: fs.readFileSync(file), mimetype: 'audio/mpeg', fileName: name + '.mp3' }, { quoted: message });
+      } else if (size > 60 * 1048576) {
+        await sock.sendMessage(chatId, { document: fs.readFileSync(file), mimetype: 'video/mp4', fileName: name + '.mp4', caption: `🎬 *${v.title}*` }, { quoted: message });
+      } else {
+        await sock.sendMessage(chatId, { video: fs.readFileSync(file), mimetype: 'video/mp4', caption: `🎬 *${v.title}*` }, { quoted: message });
+      }
+      await react('✅');
+    } catch (e) {
+      await react('❌');
+      return reply('❌ *Could not send the file.*');
+    } finally {
+      try { fs.unlinkSync(file); } catch (_) {}
+    }
+  },
 };

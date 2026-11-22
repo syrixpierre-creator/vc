@@ -44,7 +44,7 @@ function buildMenu(prefix, senderNum, total) {
 │ ✧ Dev : ${settings.botOwner}
 ╰────────────❖
 
-> akuma.zone.id
+> akuma.skyhost.tech
 
 Ξ Select a category below:
 `;

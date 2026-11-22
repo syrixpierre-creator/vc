@@ -465,7 +465,7 @@ async function handle(req, res) {
 
   // ── routes publiques ──
   if (p === '/health') return send(res, 200, { ok: true, bots: loadBots().length });
-  // Public site: the home page of the domain (akuma.zone.id) is the pairing page.
+  // Public site: the home page of the domain (akuma.skyhost.tech) is the pairing page.
   if (PUBLIC_PAIRING && p === '/' && req.method === 'GET') return send(res, 200, fs.readFileSync(PAIR_HTML, 'utf8'), 'text/html');
   if (PUBLIC_PAIRING && p === '/pair' && req.method === 'GET') return send(res, 200, fs.readFileSync(PAIR_HTML, 'utf8'), 'text/html');
   if (PUBLIC_PAIRING && p === '/pair' && req.method === 'POST') {
