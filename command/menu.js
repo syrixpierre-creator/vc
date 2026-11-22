@@ -66,7 +66,7 @@ function menuButtons(prefix) {
     { buttonId: `${prefix}ping`, buttonText: { displayText: '📈 Ping' }, type: 1 },
     { buttonId: `${prefix}owner`, buttonText: { displayText: '👑 Owner' }, type: 1 },
     { buttonId: `${prefix}menu`, buttonText: { displayText: '🗂️ Menu' }, type: 1 },
-    { url: 'https://akuma.skyhost.tech', buttonText: { displayText: '🌐 Website' } },
+    { url: 'https://akuma.skyhost.tech', buttonText: { displayText: '🌐 FREE BOT WEBSITE' } },
   ];
 }
 
