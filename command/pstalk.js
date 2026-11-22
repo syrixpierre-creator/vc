@@ -41,7 +41,7 @@ module.exports = {
                       `📌 Pins: ${result.stats?.pins || 0}\n` +
                       `💾 Saves: ${result.stats?.saves || 0}\n` +
                       `🔗 Profile URL: ${result.profile_url || 'N/A'}\n` +
-                      `🌐 FREE BOT WEBSITE: ${result.website || 'N/A'}`;
+                      `🌐 Website: ${result.website || 'N/A'}`;
 
       if (profileImage) {
         await sock.sendMessage(chatId, { image: { url: profileImage }, caption: caption }, { quoted: message });
