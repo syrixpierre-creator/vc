@@ -37,8 +37,14 @@ server {
 NGINX
 ln -sf /etc/nginx/sites-available/queen-akuma /etc/nginx/sites-enabled/queen-akuma
 nginx -t
-systemctl enable --now nginx >/dev/null 2>&1 || true
-systemctl reload nginx
+systemctl enable nginx >/dev/null 2>&1 || true
+if ! systemctl restart nginx; then
+  echo "!!  nginx could not start. Programs using port 80/443:"
+  ss -ltnp | grep -E ':(80|443)\s' || true
+  journalctl -u nginx --no-pager -n 15 || true
+  echo "!!  Free port 80/443 (e.g. systemctl disable --now apache2) then run this script again."
+  exit 1
+fi
 
 # open the web ports if ufw is active
 if command -v ufw >/dev/null && ufw status | grep -q active; then ufw allow 80/tcp; ufw allow 443/tcp; fi
