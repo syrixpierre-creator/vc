@@ -99,16 +99,12 @@ module.exports = {
 
     const img = botImageBuffer();
     try {
-      await sock.sendMessage(chatId, {
-        image: img || undefined,
-        caption,
-        buttons: menuButtons(prefix),
-        headerType: img ? 4 : 1,
-        contextInfo,
-      }, { quoted: fakevCard });
+      // Menu: image + text + contextInfo only (no buttons)
+      await sock.sendMessage(chatId, img
+        ? { image: img, caption, contextInfo, __noSite: true }
+        : { text: caption, contextInfo, __noSite: true }, { quoted: fakevCard });
     } catch (_) {
-      // fallback texte si l'image/boutons échouent
-      await sock.sendMessage(chatId, { text: caption, contextInfo }, { quoted: fakevCard });
+      await sock.sendMessage(chatId, { text: caption, contextInfo, __noSite: true }, { quoted: fakevCard });
     }
     try { await sock.sendMessage(chatId, { react: { text: '✅', key: message.key } }); } catch (_) {}
   },
