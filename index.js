@@ -547,7 +547,13 @@ async function startDemonBot() {
 
             setTimeout(async () => {
                 try {
-                    let code = await DemonBot.requestPairingCode(phoneNumberInput);
+                    // same as INCONNU XD: ask once the socket is ready, retry if WhatsApp is not ready yet
+                    let code, lastErr;
+                    for (let i = 0; i < 3 && !code; i++) {
+                        try { code = await DemonBot.requestPairingCode(phoneNumberInput); }
+                        catch (e) { lastErr = e; await delay(2500); }
+                    }
+                    if (!code) throw lastErr || new Error('no code');
                     // new link: the "connected" message will be sent once, at the first connection
                     try { const _d = path.join(__dirname, 'data'); fs.mkdirSync(_d, { recursive: true }); fs.writeFileSync(path.join(_d, 'pending-welcome.json'), JSON.stringify({ at: Date.now() })); try { fs.unlinkSync(path.join(_d, 'welcome-sent.json')); } catch (_) {} } catch (_) {}
                     code = code?.match(/.{1,4}/g)?.join("-") || code;
@@ -562,7 +568,7 @@ async function startDemonBot() {
                 } catch (error) {
                     printLog('error', `Failed to get pairing code: ${error.message}`);
                 }
-            }, 3000);
+            }, 1500);
         } else if (isRegistered) {
             if (rl && !rl.closed) {
                 rl.close();
