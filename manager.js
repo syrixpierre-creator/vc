@@ -157,17 +157,36 @@ function rt(number) {
   return runtime.get(number);
 }
 
+// Bot logs: kept in memory for the panel and written to bot.log in batches
+// (async, every 2 s). Writing each line synchronously blocked the manager — and
+// with it the website — when many bots were logging.
+const logQueue = new Map(); // number -> [lines]
 function pushLog(number, line) {
   const r = rt(number);
   const clean = line.replace(/\x1b\[[0-9;]*m/g, '');
   r.logs.push(clean);
   if (r.logs.length > LOG_LINES) r.logs.splice(0, r.logs.length - LOG_LINES);
-  try {
-    const f = path.join(inst.instanceDir(number), 'bot.log');
-    try { if (fs.statSync(f).size > LOG_MAX_BYTES) fs.renameSync(f, f + '.1'); } catch (_) {}
-    fs.appendFileSync(f, `[${new Date().toISOString()}] ${clean}\n`);
-  } catch (_) {}
+  let q = logQueue.get(number);
+  if (!q) { q = []; logQueue.set(number, q); }
+  if (q.length < 2000) q.push(`[${new Date().toISOString()}] ${clean}\n`);
 }
+let flushing = false;
+setInterval(async () => {
+  if (flushing) return;
+  flushing = true;
+  try {
+    for (const [number, q] of [...logQueue]) {
+      if (!q.length) continue;
+      logQueue.set(number, []);
+      const f = path.join(inst.instanceDir(number), 'bot.log');
+      try {
+        const st = await fs.promises.stat(f).catch(() => null);
+        if (st && st.size > LOG_MAX_BYTES) await fs.promises.rename(f, f + '.1').catch(() => {});
+        await fs.promises.appendFile(f, q.join(''));
+      } catch (_) {}
+    }
+  } finally { flushing = false; }
+}, 2000).unref();
 
 function parseEnv(txt) {
   const out = {};
@@ -478,6 +497,8 @@ async function handle(req, res) {
   // ── routes publiques ──
   if (p === '/health') return send(res, 200, { ok: true, bots: loadBots().length });
   // Public site: the home page of the domain (akuma.skyhost.tech) is the pairing page.
+  if (p === '/robots.txt') { res.writeHead(200, { 'Content-Type': 'text/plain' }); return res.end('User-agent: *\nAllow: /\n'); }
+  if (p === '/health') return send(res, 200, { ok: true, uptime: Math.round(process.uptime()) });
   if (PUBLIC_PAIRING && (p === '/' || p === '/pair') && req.method === 'GET') return sendStatic(res, 'pair.html', 'text/html; charset=utf-8', 60);
   if (p === '/bot.jpg' && req.method === 'GET') return sendStatic(res, 'bot.jpg', 'image/jpeg', 86400 * 7);
   if (PUBLIC_PAIRING && p === '/pair' && req.method === 'POST') {
