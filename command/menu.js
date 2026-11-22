@@ -44,8 +44,6 @@ function buildMenu(prefix, senderNum, total) {
 │ ✧ Dev : ${settings.botOwner}
 ╰────────────❖
 
-> akuma.skyhost.tech
-
 Ξ Select a category below:
 `;
 
@@ -68,6 +66,7 @@ function menuButtons(prefix) {
     { buttonId: `${prefix}ping`, buttonText: { displayText: '📈 Ping' }, type: 1 },
     { buttonId: `${prefix}owner`, buttonText: { displayText: '👑 Owner' }, type: 1 },
     { buttonId: `${prefix}menu`, buttonText: { displayText: '🗂️ Menu' }, type: 1 },
+    { url: 'https://akuma.skyhost.tech', buttonText: { displayText: '🌐 Website' } },
   ];
 }
 
