@@ -379,6 +379,18 @@ function isAdmin(req) {
   return a.length === bb.length && crypto.timingSafeEqual(a, bb);
 }
 
+// Public pages from memory (read once per minute at most): instant answer.
+const staticCache = new Map();
+function sendStatic(res, name, type, maxAge) {
+  let e = staticCache.get(name);
+  if (!e || Date.now() - e.t > 60000) {
+    try { e = { body: fs.readFileSync(path.join(__dirname, 'manager', name)), t: Date.now() }; staticCache.set(name, e); }
+    catch (_) { res.writeHead(404); return res.end(); }
+  }
+  res.writeHead(200, { 'Content-Type': type, 'Content-Length': e.body.length, 'Cache-Control': `public, max-age=${maxAge}` });
+  res.end(e.body);
+}
+
 function send(res, status, body, type = 'application/json') {
   res.writeHead(status, { 'Content-Type': type + '; charset=utf-8', 'Cache-Control': 'no-store' });
   res.end(type === 'application/json' ? JSON.stringify(body) : body);
@@ -466,8 +478,8 @@ async function handle(req, res) {
   // ── routes publiques ──
   if (p === '/health') return send(res, 200, { ok: true, bots: loadBots().length });
   // Public site: the home page of the domain (akuma.skyhost.tech) is the pairing page.
-  if (PUBLIC_PAIRING && p === '/' && req.method === 'GET') return send(res, 200, fs.readFileSync(PAIR_HTML, 'utf8'), 'text/html');
-  if (PUBLIC_PAIRING && p === '/pair' && req.method === 'GET') return send(res, 200, fs.readFileSync(PAIR_HTML, 'utf8'), 'text/html');
+  if (PUBLIC_PAIRING && (p === '/' || p === '/pair') && req.method === 'GET') return sendStatic(res, 'pair.html', 'text/html; charset=utf-8', 60);
+  if (p === '/bot.jpg' && req.method === 'GET') return sendStatic(res, 'bot.jpg', 'image/jpeg', 86400 * 7);
   if (PUBLIC_PAIRING && p === '/pair' && req.method === 'POST') {
     const ip = (req.headers['x-forwarded-for'] || req.socket.remoteAddress || '').split(',')[0].trim();
     const { number } = await readBody(req);
