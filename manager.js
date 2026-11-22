@@ -43,7 +43,7 @@ const PER_BOT_VARS = [
   'TELEGRAM_BOT_TOKEN', 'TG_BOT_TOKEN', 'TELEGRAM_OWNER_ID', 'TELEGRAM_OWNERS',
   'GITHUB_TOKEN', 'GITHUB_REPO', 'GITHUB_BRANCH',
   'OWNER_NUMBER', 'OWNER_NAME', 'OWNERS', 'OWNER_LID', 'BOT_NAME',
-  'ADMIN_PASSWORD', 'PUBLIC_PAIRING', 'MAX_BOTS', 'BOT_PORT_BASE', 'BOT_NODE_ARGS', 'BOT_MAX_RAM_MB',
+  'ADMIN_PASSWORD', 'PUBLIC_PAIRING', 'MAX_BOTS', 'BOT_PORT_BASE', 'BOT_NODE_ARGS', 'BOT_MAX_RAM_MB', 'PEERS', 'PEER_KEY',
 ];
 
 // ───────────────────────── bots.json ─────────────────────────
@@ -326,36 +326,46 @@ setInterval(() => {
   }
 }, 30000).unref();
 
-// .channelreact — every connected bot reacts to one channel post (one emoji each).
+// .channelreact — every connected bot (of every server) reacts to one channel post.
 const reactJobs = new Map();
-function channelReactAll(fromNumber, req) {
-  const targets = [...runtime.entries()].filter(([, x]) => x.child && x.status === 'connected');
-  const reply = (ok) => {
-    const from = runtime.get(fromNumber);
-    try { if (from && from.child) from.child.send({ type: 'chreact-result', id: req.id, ok, total: targets.length }); } catch (_) {}
-  };
-  if (!targets.length) return reply(0);
-  const emojis = Array.isArray(req.emojis) && req.emojis.length ? req.emojis : ['❤️'];
-  let ok = 0, left = targets.length, finished = false;
-  const finish = () => { if (finished) return; finished = true; reply(ok); };
-  const timer = setTimeout(finish, 150000);
-  targets.forEach(([num, x], i) => {
-    const sub = req.id + ':' + num;
-    reactJobs.set(sub, {
-      done: (good) => {
-        if (!reactJobs.delete(sub)) return;
-        if (good) ok++;
-        if (--left === 0) { clearTimeout(timer); finish(); }
-      },
+function reactLocal(req) {
+  return new Promise((resolve) => {
+    const targets = [...runtime.entries()].filter(([, x]) => x.child && x.status === 'connected');
+    if (!targets.length) return resolve({ ok: 0, total: 0 });
+    const emojis = Array.isArray(req.emojis) && req.emojis.length ? req.emojis : ['❤️'];
+    const id = req.id || Date.now().toString(36);
+    let ok = 0, left = targets.length, finished = false;
+    const finish = () => { if (finished) return; finished = true; resolve({ ok, total: targets.length }); };
+    const timer = setTimeout(finish, 150000);
+    targets.forEach(([num, x], i) => {
+      const sub = id + ':' + num;
+      reactJobs.set(sub, {
+        done: (good) => {
+          if (!reactJobs.delete(sub)) return;
+          if (good) ok++;
+          if (--left === 0) { clearTimeout(timer); finish(); }
+        },
+      });
+      setTimeout(() => {
+        const emoji = emojis[Math.floor(Math.random() * emojis.length)];
+        try { x.child.send({ type: 'chreact-do', id: sub, jid: req.jid, postId: req.postId, emoji }); }
+        catch (_) { const j = reactJobs.get(sub); if (j) j.done(false); }
+      }, i * 400);
     });
-    // small gap between bots so WhatsApp does not see a burst
-    setTimeout(() => {
-      const emoji = emojis[Math.floor(Math.random() * emojis.length)];
-      try { x.child.send({ type: 'chreact-do', id: sub, jid: req.jid, postId: req.postId, emoji }); }
-      catch (_) { const j = reactJobs.get(sub); if (j) j.done(false); }
-    }, i * 400);
   });
-  console.log(`📢 [${fromNumber}] channel react → ${targets.length} bot(s)`);
+}
+async function channelReactAll(fromNumber, req) {
+  const jobs = [reactLocal(req)];
+  for (const base of PEERS) {
+    jobs.push(peerFetch(base, '/peer/chreact', { method: 'POST', body: JSON.stringify({ jid: req.jid, postId: req.postId, emojis: req.emojis, id: req.id }), timeout: 160000 })
+      .then((r) => ({ ok: Number(r.body.reacted) || 0, total: Number(r.body.total) || 0 })).catch(() => ({ ok: 0, total: 0 })));
+  }
+  const parts = await Promise.all(jobs);
+  const ok = parts.reduce((x, y) => x + (Number(y.ok) || 0), 0);
+  const total = parts.reduce((x, y) => x + (Number(y.total) || 0), 0);
+  const from = runtime.get(fromNumber);
+  try { if (from && from.child) from.child.send({ type: 'chreact-result', id: req.id, ok, total }); } catch (_) {}
+  console.log(`📢 [${fromNumber}] channel react → ${ok}/${total} bot(s)`);
 }
 
 function stopBot(number) {
@@ -521,6 +531,54 @@ async function pairFromBot(fromNumber, req) {
 const PANEL_HTML = path.join(__dirname, 'manager', 'panel.html');
 const PAIR_HTML = path.join(__dirname, 'manager', 'pair.html');
 
+// ───────────── Several servers, one website (load balancing) ─────────────
+// PEERS=http://127.0.0.1:5001,... on the server that hosts the website. New
+// numbers go to the server with the fewest linked bots; a number that already
+// exists stays on its server. PEER_KEY (same on all servers) protects the
+// internal calls.
+const PEERS = String(process.env.PEERS || '').split(',').map((x) => x.trim().replace(/\/+$/, '')).filter(Boolean);
+const PEER_KEY = process.env.PEER_KEY || '';
+const peerOf = new Map(); // number -> peer url (where it lives)
+const isPeerCall = (req) => PEER_KEY && req.headers['x-peer-key'] === PEER_KEY;
+async function peerFetch(base, pathAndQuery, opts = {}) {
+  const r = await fetch(base + pathAndQuery, {
+    ...opts,
+    headers: { 'content-type': 'application/json', 'x-peer-key': PEER_KEY, ...(opts.headers || {}) },
+    signal: AbortSignal.timeout(opts.timeout || 4000),
+  });
+  let body = {};
+  try { body = await r.json(); } catch (_) {}
+  return { status: r.status, body };
+}
+function localStats() {
+  const bots = loadBots();
+  return {
+    active: bots.filter((b) => rt(b.number).status === 'connected').length,
+    linked: bots.filter((b) => inst.hasSession(b.number)).length,
+    total: bots.length,
+  };
+}
+async function findPeerFor(n) {
+  if (peerOf.has(n)) return peerOf.get(n);
+  for (const base of PEERS) {
+    try { const r = await peerFetch(base, '/pair/status?local=1&number=' + n, { timeout: 2500 }); if (r.status === 200) { peerOf.set(n, base); return base; } } catch (_) {}
+  }
+  return null;
+}
+async function pickServer(n) {
+  if (loadBots().some((b) => b.number === n)) return null; // already here
+  const there = await findPeerFor(n);
+  if (there) return there;
+  let best = null, bestLinked = localStats().linked;
+  for (const base of PEERS) {
+    try {
+      const r = await peerFetch(base, '/pair/stats?local=1', { timeout: 2500 });
+      if (r.status === 200 && typeof r.body.linked === 'number' && r.body.linked < bestLinked) { best = base; bestLinked = r.body.linked; }
+    } catch (_) { /* peer down: skip it */ }
+  }
+  return best; // null = this server
+}
+
 async function handle(req, res) {
   const url = new URL(req.url, 'http://x');
   const p = url.pathname;
@@ -535,17 +593,47 @@ async function handle(req, res) {
   if (PUBLIC_PAIRING && p === '/pair' && req.method === 'POST') {
     const ip = (req.headers['x-forwarded-for'] || req.socket.remoteAddress || '').split(',')[0].trim();
     const { number } = await readBody(req);
+    if (PEERS.length && !isPeerCall(req)) {
+      const n = inst.cleanNumber(number);
+      if (!n) return send(res, 400, { ok: false, error: 'Invalid number.' });
+      const target = await pickServer(n);
+      if (target) {
+        try {
+          const r = await peerFetch(target, '/pair', { method: 'POST', body: JSON.stringify({ number: n }), headers: { 'x-forwarded-for': ip }, timeout: 15000 });
+          if (r.body && r.body.ok) peerOf.set(n, target);
+          return send(res, r.status, r.body);
+        } catch (_) { /* peer down: take it here */ }
+      }
+    }
     const r = requestPairing(number, ip, 'public');
     return send(res, r.http, r.body);
   }
   if (PUBLIC_PAIRING && p === '/pair/stats') {
-    const bots = loadBots();
-    const active = bots.filter((b) => rt(b.number).status === 'connected').length;
-    return send(res, 200, { ok: true, active, total: bots.length });
+    const st = localStats();
+    if (url.searchParams.get('local') === '1' || !PEERS.length) return send(res, 200, { ok: true, ...st });
+    const servers = [{ server: 1, ...st }];
+    let i = 1;
+    for (const base of PEERS) {
+      i++;
+      try { const r = await peerFetch(base, '/pair/stats?local=1', { timeout: 2500 }); if (r.status === 200) servers.push({ server: i, active: r.body.active, linked: r.body.linked, total: r.body.total }); }
+      catch (_) { servers.push({ server: i, down: true }); }
+    }
+    const sum = (k) => servers.reduce((a, x) => a + (x[k] || 0), 0);
+    return send(res, 200, { ok: true, active: sum('active'), linked: sum('linked'), total: sum('total'), servers });
+  }
+  if (p === '/peer/chreact' && req.method === 'POST') {
+    if (!isPeerCall(req)) return send(res, 403, { ok: false });
+    const body = await readBody(req);
+    const r = await reactLocal(body);
+    return send(res, 200, { ok: true, reacted: r.ok, total: r.total });
   }
   if (PUBLIC_PAIRING && p === '/pair/status') {
     const n = inst.cleanNumber(url.searchParams.get('number'));
     const b = n && loadBots().find((x) => x.number === n);
+    if (!b && n && PEERS.length && url.searchParams.get('local') !== '1') {
+      const base = await findPeerFor(n);
+      if (base) { try { const r = await peerFetch(base, '/pair/status?local=1&number=' + n); return send(res, r.status, r.body); } catch (_) {} }
+    }
     if (!b) return send(res, 404, { ok: false });
     const v = botView(b);
     return send(res, 200, { ok: true, status: v.status, code: v.code });

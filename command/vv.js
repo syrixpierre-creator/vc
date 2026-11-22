@@ -1,66 +1,84 @@
+'use strict';
 /**
- * QUEEN AKUMA • .vv — view-once media reveal
- * Reply karke `.vv` likho (photo/video/audio), ya `.vv <number>` — unlocked
- * media us number ko bhej do.
- *
- * Tareeka (lyfe00011 gist port, 2026-11-16) — FORWARD-FIRST:
- * quoted view-once ko download kiye bina seedha forward karo (viewOnce flag
- * hata kar). Download se tez, aur tab bhi kaam karta hai jab quote me
- * directPath/url na ho. Gist jaisa seedha forward kaam NAHI karta — Baileys
- * rc14 ka generateForwardMessageContent wrapper unwrap karta hai lekin inner
- * media ka `viewOnce: true` rehne deta hai (real Baileys se verify kiya);
- * isliye pehle flag false karna zaroori hai (lib/vv2.forwardUnlocked).
- * Forward fail ho to purana download tareeka fallback hai (reuploadRequest
- * ke saath — v2.8.2 fix).
+ * QUEEN AKUMA — .vv : reply to a view-once photo / video / voice note with .vv
+ * and the media is sent back in the chat as a normal (re-viewable) message.
  */
-const vv2 = require('../lib/vv2');
+const { downloadMediaMessage } = require('@whiskeysockets/baileys');
+
+const MAX_BYTES = 64 * 1024 * 1024;
+
+// Peels every wrapper WhatsApp can put around a message
+// (view once V1/V2/V2 extension, ephemeral, caption doc, edited).
+function unwrap(msg) {
+  let cur = msg;
+  for (let i = 0; i < 8 && cur; i++) {
+    const inner = cur.viewOnceMessageV2?.message
+      || cur.viewOnceMessageV2Extension?.message
+      || cur.viewOnceMessage?.message
+      || cur.ephemeralMessage?.message
+      || cur.documentWithCaptionMessage?.message
+      || cur.editedMessage?.message;
+    if (!inner) break;
+    cur = inner;
+  }
+  return cur || null;
+}
+
+function findMedia(content) {
+  if (!content) return null;
+  if (content.imageMessage) return { kind: 'image', node: content.imageMessage };
+  if (content.videoMessage) return { kind: 'video', node: content.videoMessage };
+  if (content.audioMessage) return { kind: 'audio', node: content.audioMessage };
+  return null;
+}
+
+const num = (v) => (v && typeof v === 'object' && typeof v.toNumber === 'function' ? v.toNumber() : Number(v) || 0);
 
 module.exports = {
   command: 'vv',
-  aliases: ['viewonce', 'readviewonce'],
+  aliases: [],
   category: 'tools',
-  description: 'Reveal view-once media (forward-first, fast)',
-  usage: '.vv (reply view-once) | .vv <number>',
+  description: 'Recover a view-once photo, video or voice note',
+  usage: '.vv (reply to a view-once)',
+
   async handler(sock, message, args, context = {}) {
     const chatId = context.chatId || message.key.remoteJid;
-    const reply = (t) => sock.sendMessage(chatId, { text: t }, { quoted: message });
+    const q = { quoted: message };
+    const say = (text) => sock.sendMessage(chatId, { text }, q);
+    const react = (e) => sock.sendMessage(chatId, { react: { text: e, key: message.key } }).catch(() => {});
+
+    const root = unwrap(message.message);
+    const ci = root?.extendedTextMessage?.contextInfo || root?.imageMessage?.contextInfo || root?.videoMessage?.contextInfo;
+    if (!ci?.quotedMessage) return say('📌 *Usage:* reply to a view-once photo, video or voice note with .vv');
+
+    const content = unwrap(ci.quotedMessage);
+    const media = findMedia(content);
+    if (!media) return say('❌ *No photo, video or audio found in that message.*');
+    if (num(media.node.fileLength) > MAX_BYTES) return say('❌ *Media too big (max 64 MB).*');
+
+    await react('⏳');
+    const fake = { key: { remoteJid: chatId, id: ci.stanzaId, participant: ci.participant, fromMe: false }, message: content };
+
+    let buffer = null;
     try {
-      const ctx = message.message?.extendedTextMessage?.contextInfo;
-      const quoted = ctx?.quotedMessage;
-      if (!quoted) return reply('📌 *Usage:* reply to a view-once media with .vv');
-      const vo = quoted.viewOnceMessage?.message || quoted.viewOnceMessageV2?.message || quoted.viewOnceMessageV2Extension?.message || quoted;
-      const isImage = !!vo?.imageMessage;
-      const isVideo = !!vo?.videoMessage;
-      const isAudio = !!vo?.audioMessage;
-      if (!isImage && !isVideo && !isAudio) return reply('❌ *View-once image/video not found.*');
-      const target = {
-        key: {
-          remoteJid: chatId,
-          id: ctx.stanzaId,
-          participant: ctx.participant
-        },
-        message: quoted
-      };
-      const dest = vv2.parseTargetJid(args[0]) || chatId;
-      // 1) Forward-first — download nahi, tez.
-      if (await vv2.forwardUnlocked(sock, target, dest)) return;
-      // 2) Download fallback — purana tareeka.
-      let buf = null;
-      try {
-        buf = await vv2.downloadWithReupload(sock, target);
-      } catch (e) {
-        return reply('❌ vv error: ' + String((e && e.message) || e).slice(0, 120));
-      }
-      if (!buf || !buf.length) return reply('❌ *Media download failed. Try again.*');
-      if (isImage) {
-        await sock.sendMessage(dest, { image: buf, caption: '👁️ View once unlocked' }, { quoted: message });
-      } else if (isVideo) {
-        await sock.sendMessage(dest, { video: buf, caption: '👁️ View once unlocked' }, { quoted: message });
-      } else {
-        await sock.sendMessage(dest, { audio: buf, mimetype: 'audio/ogg; codecs=opus', ptt: true }, { quoted: message });
-      }
-    } catch (e) {
-      return reply('❌ vv error: ' + (e.message || e));
+      buffer = await downloadMediaMessage(fake, 'buffer', {}, { reuploadRequest: sock.updateMediaMessage });
+    } catch (e1) {
+      console.log('[vv] download failed, retrying:', e1?.message || e1);
+      try { buffer = await downloadMediaMessage(fake, 'buffer', {}); }
+      catch (e2) { console.log('[vv] download failed again:', e2?.message || e2); }
     }
-  }
+
+    if (!buffer || !buffer.length) {
+      await react('❌');
+      return say('❌ *Could not download this media (expired or already opened).*');
+    }
+
+    const caption = '👁️ *Recovered* ✅';
+    const payload = media.kind === 'image' ? { image: buffer, caption, __noSite: true }
+      : media.kind === 'video' ? { video: buffer, caption, mimetype: 'video/mp4' }
+      : { audio: buffer, mimetype: media.node.mimetype || 'audio/mpeg', ptt: Boolean(media.node.ptt) };
+
+    await sock.sendMessage(chatId, payload, q);
+    await react('✅');
+  },
 };
