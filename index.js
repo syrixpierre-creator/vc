@@ -76,14 +76,27 @@ setInterval(() => {
     }
 }, 60_000);
 
+// RAM guard: restart only if the bot stays above the limit for 3 checks in a row
+// (a short peak — a video download — must not disconnect the bot).
+let _ramHigh = 0;
 setInterval(() => {
     const used = process.memoryUsage().rss / 1024 / 1024;
-    const MAX_RAM_MB = parseInt(process.env.MAX_RAM_MB || '700', 10);
-    if (used > MAX_RAM_MB) {
-        console.log(chalk.yellow(`⚠️ RAM too high (>${MAX_RAM_MB}MB), restarting bot...`));
+    const MAX_RAM_MB = parseInt(process.env.MAX_RAM_MB || '1500', 10);
+    _ramHigh = used > MAX_RAM_MB ? _ramHigh + 1 : 0;
+    if (_ramHigh >= 3) {
+        console.log(chalk.yellow(`⚠️ RAM too high (${Math.round(used)}MB > ${MAX_RAM_MB}MB), restarting bot...`));
         process.exit(1);
     }
 }, 30_000);
+
+// Event-loop watchdog: logs when the bot freezes (a frozen bot misses WhatsApp
+// keep-alives and shows as "inactive").
+let _lagT = Date.now();
+setInterval(() => {
+    const lag = Date.now() - _lagT - 5000;
+    if (lag > 2000) console.log(chalk.yellow(`⚠️ Bot was frozen for ${lag}ms`));
+    _lagT = Date.now();
+}, 5000).unref();
 
 let phoneNumber = global.PAIRING_NUMBER || process.env.PAIRING_NUMBER || "554488138425";
 let owner = JSON.parse(fs.readFileSync('./data/owner.json'));
@@ -650,8 +663,10 @@ async function startDemonBot() {
                 
                 if (shouldReconnect && !restartScheduled) {
                     restartScheduled = true;
-                    printLog('connection', 'Reconnecting in 5 seconds...');
-                    await delay(5000);
+                    // reconnect fast: 515 (restart required) at once, other drops after 1.5s
+                    const wait = statusCode === 515 ? 300 : 1500;
+                    printLog('connection', `Reconnecting in ${wait}ms...`);
+                    await delay(wait);
                     restartScheduled = false; botStarting = false;
                     startDemonBot();
                 }

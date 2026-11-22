@@ -151,7 +151,7 @@ function rt(number) {
   if (!runtime.has(number)) {
     runtime.set(number, {
       child: null, status: 'stopped', code: null, codeAt: null, jid: null,
-      startedAt: null, restarts: 0, backoff: 5000, logs: [], timer: null, wantRunning: false,
+      startedAt: null, restarts: 0, backoff: 2000, logs: [], timer: null, wantRunning: false,
     });
   }
   return runtime.get(number);
@@ -204,7 +204,7 @@ function startBot(bot) {
   // Fresh attempt: clear any previous permanent/crash state so a retry works.
   r.permanentError = null;
   r.fastCrashes = 0;
-  r.backoff = r.backoff || 5000;
+  r.backoff = r.backoff || 2000;
   if (r.child) return;
   clearTimeout(r.timer);
   try { inst.ensureInstance(bot); } catch (e) {
@@ -244,7 +244,7 @@ function startBot(bot) {
     } else if (msg.type === 'status') {
       r.status = msg.status;
       if (msg.status === 'connected') {
-        r.code = null; r.jid = msg.jid || null; r.backoff = 5000;
+        r.code = null; r.jid = msg.jid || null; r.backoff = 2000;
         console.log(`✅ [${bot.number}] connecté`);
       }
       if (msg.status === 'logged-out') console.log(`⚠️ [${bot.number}] déconnecté de WhatsApp — refaire l'appairage depuis le panel.`);
@@ -267,7 +267,7 @@ function startBot(bot) {
     // it's broken (bad session, missing dep, OOM). Stop after N fast crashes and
     // surface it instead of restarting forever.
     if (ranFor < 12000) r.fastCrashes = (r.fastCrashes || 0) + 1;
-    else { r.fastCrashes = 0; r.backoff = 5000; }
+    else { r.fastCrashes = 0; r.backoff = 2000; }
     if (r.fastCrashes >= 5) {
       r.status = 'crashed';
       r.wantRunning = false;
