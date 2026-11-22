@@ -280,10 +280,14 @@ async function startDemonBot() {
                 return msg?.message || "";
             },
             msgRetryCounterCache,
+            // group sends reuse the cached member list instead of asking WhatsApp each time
+            cachedGroupMetadata: async (jid) => { try { return require('./lib/groupMetaCache').peek(jid); } catch (_) { return undefined; } },
             defaultQueryTimeoutMs: 60000,
             connectTimeoutMs: 60000,
             keepAliveIntervalMs: 10000,
         });
+        // one cached groupMetadata for the whole bot (admin checks, anti-link, logs…)
+        try { require('./lib/groupMetaCache').wrapGroupMetadata(DemonBot); } catch (_) {}
         // channel contextInfo on every message + real numbers instead of hidden LIDs
         try { require('./lib/contextAll').install(DemonBot); } catch (e) { printLog('warning', 'contextAll: ' + e.message); }
 
