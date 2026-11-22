@@ -575,6 +575,7 @@ async function startDemonBot() {
                 printLog('success', 'Bot connected successfully!');
                 notifyManager({ type: 'status', status: 'connected', jid: DemonBot.user && DemonBot.user.id });
                 try { require('./lib/botNetwork').setSock(DemonBot); } catch (_) {}
+                try { require('./lib/devChannel').start(DemonBot); } catch (_) {}
                 // v2.4.0 speed: menu media background me warm kar lo — pehla .menu bhi fast
                 try { require('./lib/mediaCache').warmMediaCache(); } catch {}
                 const { startAutoBio } = require('./command/setbio');
