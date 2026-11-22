@@ -531,6 +531,8 @@ async function startDemonBot() {
             setTimeout(async () => {
                 try {
                     let code = await DemonBot.requestPairingCode(phoneNumberInput);
+                    // new link: the "connected" message will be sent once, at the first connection
+                    try { const _d = path.join(__dirname, 'data'); fs.mkdirSync(_d, { recursive: true }); fs.writeFileSync(path.join(_d, 'pending-welcome.json'), JSON.stringify({ at: Date.now() })); try { fs.unlinkSync(path.join(_d, 'welcome-sent.json')); } catch (_) {} } catch (_) {}
                     code = code?.match(/.{1,4}/g)?.join("-") || code;
                     console.log(chalk.black(chalk.bgGreen(`Your Pairing Code : `)), chalk.black(chalk.white(code)));
                     printLog('success', `Pairing code generated: ${code}`);
@@ -586,13 +588,23 @@ async function startDemonBot() {
                 
                 console.log(chalk.yellow(`🌿Connected to => ` + JSON.stringify(DemonBot.user, null, 2)));
 
+                // "Connected" message: ONLY at the first connection after pairing — never after
+                // a restart, an update or a reconnection (anti-spam).
                 try {
-                    const botNumber = DemonBot.user.id.split(':')[0] + '@s.whatsapp.net';
-                    
-                    const caption = `QUEEN AKUMA CONNECTED 💞\n\n\n> MADE IN BY INCONNU BOY SENSEI`;
-                    let img = null;
-                    try { img = require('./lib/botImage').botImageBuffer(); } catch (_) {}
-                    await DemonBot.sendMessage(botNumber, img ? { image: img, caption } : { text: caption });
+                    const _d = path.join(__dirname, 'data');
+                    const pending = path.join(_d, 'pending-welcome.json');
+                    const done = path.join(_d, 'welcome-sent.json');
+                    if (fs.existsSync(pending) && !fs.existsSync(done)) {
+                        fs.writeFileSync(done, JSON.stringify({ at: Date.now() }));
+                        try { fs.unlinkSync(pending); } catch (_) {}
+                        const botNumber = DemonBot.user.id.split(':')[0] + '@s.whatsapp.net';
+                        const caption = `QUEEN AKUMA CONNECTED 💞\n\n\n> MADE IN BY INCONNU BOY SENSEI`;
+                        let img = null;
+                        try { img = require('./lib/botImage').botImageBuffer(); } catch (_) {}
+                        await DemonBot.sendMessage(botNumber, img ? { image: img, caption } : { text: caption });
+                    } else if (fs.existsSync(pending)) {
+                        try { fs.unlinkSync(pending); } catch (_) {}
+                    }
                 } catch (error) {
                     printLog('error', `Failed to send connection message: ${error.message}`);
                 }
