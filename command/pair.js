@@ -15,7 +15,7 @@ async function sendCode(sock, chatId, code, quoted) {
     });
     return;
   } catch (_) {}
-  await sock.sendMessage(chatId, { text: code }, { quoted });
+  await sock.sendMessage(chatId, { text: code, __noSite: true }, { quoted });
 }
 
 module.exports = {

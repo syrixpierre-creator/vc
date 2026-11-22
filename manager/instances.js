@@ -28,6 +28,9 @@ const PRIVATE = new Set([
 // Dossiers où le bot peut écrire des fichiers : dossier réel + un lien par fichier.
 const PER_FILE = new Set(['command', 'store-plugins', 'assets']);
 
+// SQLite / other database files: never shared between bots.
+const isDbFile = (name) => /\.(db|sqlite3?)(-wal|-shm|-journal)?$/i.test(name);
+
 function cleanNumber(raw) {
   const d = String(raw || '').replace(/[^0-9]/g, '');
   return d.length >= 10 && d.length <= 15 ? d : null;
@@ -77,8 +80,15 @@ function ensureInstance(bot) {
   const isNew = !fs.existsSync(dir);
   fs.mkdirSync(dir, { recursive: true });
 
+  // Database files (baileys_store.db = mode, settings…) belong to each bot. Older
+  // versions linked the shared one: unlink it so each bot gets its own (mode: public).
+  for (const name of fs.readdirSync(dir)) {
+    const p = path.join(dir, name);
+    if (isDbFile(name) && lexists(p) && fs.lstatSync(p).isSymbolicLink()) { try { fs.unlinkSync(p); } catch (_) {} }
+  }
+
   for (const name of fs.readdirSync(ROOT)) {
-    if (PRIVATE.has(name) || name.endsWith('.log')) continue;
+    if (PRIVATE.has(name) || name.endsWith('.log') || isDbFile(name)) continue;
     const src = path.join(ROOT, name);
     const dst = path.join(dir, name);
     let st; try { st = fs.statSync(src); } catch (_) { continue; }
