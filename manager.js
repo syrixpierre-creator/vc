@@ -266,7 +266,12 @@ function startBot(bot) {
         r.code = null; r.jid = msg.jid || null; r.backoff = 2000;
         console.log(`✅ [${bot.number}] connecté`);
       }
-      if (msg.status === 'logged-out') console.log(`⚠️ [${bot.number}] déconnecté de WhatsApp — refaire l'appairage depuis le panel.`);
+      if (msg.status === 'logged-out') {
+        // Unlinked by the user: stop it (no endless new pairing codes). Re-pair from the site.
+        console.log(`⚠️ [${bot.number}] logged out — stopped.`);
+        updateBotConfig(bot.number, { enabled: false });
+        setTimeout(() => stopBot(bot.number).then(() => { r.status = 'logged-out'; }), 1000);
+      }
       if (msg.status === 'invalid-number') {
         // Permanent failure: stop this bot, don't crash-loop it.
         r.permanentError = 'invalid-number';
@@ -306,6 +311,20 @@ function startBot(bot) {
     }, wait);
   });
 }
+
+// Pairing that is never finished: stop the process after PAIR_TIMEOUT_MIN (default 4)
+// so abandoned requests from the website do not pile up and overload the server.
+const PAIR_TIMEOUT_MS = (parseFloat(process.env.PAIR_TIMEOUT_MIN || '4') || 4) * 60000;
+setInterval(() => {
+  for (const [number, r] of runtime) {
+    if (!r.child || r.status === 'connected') continue;
+    if (inst.hasSession(number)) continue;
+    if (Date.now() - (r.startedAt || Date.now()) < PAIR_TIMEOUT_MS) continue;
+    pushLog(number, '[manager] pairing not finished in time — stopped');
+    updateBotConfig(number, { enabled: false });
+    stopBot(number).then(() => { r.status = 'expired'; r.code = null; });
+  }
+}, 30000).unref();
 
 // .channelreact — every connected bot reacts to one channel post (one emoji each).
 const reactJobs = new Map();
@@ -362,7 +381,19 @@ async function restartBot(number) {
 async function reconcile() {
   const bots = loadBots();
   const wanted = new Set(bots.filter((b) => b.enabled).map((b) => b.number));
-  for (const b of bots) if (b.enabled) startBot(b);
+  // Start only bots that are linked (have a session). A number that never finished
+  // pairing is not started again: it would just sit there using CPU/RAM.
+  // Starts are spread out (one every 1.5 s) so a restart does not freeze the server.
+  let delayMs = 0;
+  for (const b of bots) {
+    if (!b.enabled) continue;
+    const r = rt(b.number);
+    if (r.child || r.timer && r.wantRunning) continue;
+    if (!inst.hasSession(b.number)) { updateBotConfig(b.number, { enabled: false }); r.status = 'expired'; continue; }
+    r.wantRunning = true;
+    r.timer = setTimeout(() => { const fresh = loadBots().find((x) => x.number === b.number); if (fresh && fresh.enabled) startBot(fresh); }, delayMs);
+    delayMs += 1500;
+  }
   for (const [number, r] of runtime) {
     if (!wanted.has(number) && (r.child || r.wantRunning)) await stopBot(number);
     if (!bots.find((b) => b.number === number) && !r.child) runtime.delete(number);
