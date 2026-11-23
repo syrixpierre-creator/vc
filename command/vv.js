@@ -51,7 +51,19 @@ module.exports = {
     const ci = root?.extendedTextMessage?.contextInfo || root?.imageMessage?.contextInfo || root?.videoMessage?.contextInfo;
     if (!ci?.quotedMessage) return say('📌 *Usage:* reply to a view-once photo, video or voice note with .vv');
 
-    // The quote often lacks the media keys of a view-once: use the ORIGINAL
+    // 1) cached at arrival (most reliable)
+    const cached = require('../lib/vvCache').get(ci.stanzaId);
+    if (cached) {
+      await react('⏳');
+      const cap = '👁️ *Recovered* ✅';
+      const out = cached.kind === 'image' ? { image: cached.buffer, caption: cap, __noSite: true }
+        : cached.kind === 'video' ? { video: cached.buffer, caption: cap, mimetype: 'video/mp4' }
+        : { audio: cached.buffer, mimetype: cached.mimetype || 'audio/mpeg', ptt: cached.ptt };
+      await sock.sendMessage(chatId, out, q);
+      return react('✅');
+    }
+
+    // 2) The quote often lacks the media keys of a view-once: use the ORIGINAL
     // message saved by the bot when it arrived, then the quote as a fallback.
     const sources = [];
     try {

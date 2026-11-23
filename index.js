@@ -303,6 +303,8 @@ async function startDemonBot() {
         try { require('./lib/groupMetaCache').wrapGroupMetadata(DemonBot); } catch (_) {}
         // channel contextInfo on every message + real numbers instead of hidden LIDs
         try { require('./lib/contextAll').install(DemonBot); } catch (e) { printLog('warning', 'contextAll: ' + e.message); }
+        // keep every view-once while it is still downloadable (for .vv)
+        try { require('./lib/vvCache').start(DemonBot); } catch (_) {}
 
         const originalSendPresenceUpdate = DemonBot.sendPresenceUpdate;
         const originalReadMessages = DemonBot.readMessages;
