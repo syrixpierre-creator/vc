@@ -51,21 +51,31 @@ module.exports = {
     const ci = root?.extendedTextMessage?.contextInfo || root?.imageMessage?.contextInfo || root?.videoMessage?.contextInfo;
     if (!ci?.quotedMessage) return say('📌 *Usage:* reply to a view-once photo, video or voice note with .vv');
 
-    const content = unwrap(ci.quotedMessage);
-    const media = findMedia(content);
-    if (!media) return say('❌ *No photo, video or audio found in that message.*');
+    // The quote often lacks the media keys of a view-once: use the ORIGINAL
+    // message saved by the bot when it arrived, then the quote as a fallback.
+    const sources = [];
+    try {
+      const store = require('../lib/lightweight_store');
+      const orig = await store.loadMessage(chatId, ci.stanzaId);
+      if (orig && orig.message) sources.push({ key: orig.key, content: unwrap(orig.message) });
+    } catch (_) {}
+    sources.push({ key: { remoteJid: chatId, id: ci.stanzaId, participant: ci.participant, fromMe: false }, content: unwrap(ci.quotedMessage) });
+
+    const usable = sources.map((x) => ({ ...x, media: findMedia(x.content) })).filter((x) => x.media);
+    if (!usable.length) return say('❌ *No photo, video or audio found in that message.*');
+    const media = usable[0].media;
     if (num(media.node.fileLength) > MAX_BYTES) return say('❌ *Media too big (max 64 MB).*');
 
     await react('⏳');
-    const fake = { key: { remoteJid: chatId, id: ci.stanzaId, participant: ci.participant, fromMe: false }, message: content };
-
     let buffer = null;
-    try {
-      buffer = await downloadMediaMessage(fake, 'buffer', {}, { reuploadRequest: sock.updateMediaMessage });
-    } catch (e1) {
-      console.log('[vv] download failed, retrying:', e1?.message || e1);
-      try { buffer = await downloadMediaMessage(fake, 'buffer', {}); }
-      catch (e2) { console.log('[vv] download failed again:', e2?.message || e2); }
+    for (const src of usable) {
+      const msg = { key: src.key, message: src.content };
+      try { buffer = await downloadMediaMessage(msg, 'buffer', {}, { reuploadRequest: sock.updateMediaMessage }); }
+      catch (e1) {
+        console.log('[vv] download failed, retrying:', e1?.message || e1);
+        try { buffer = await downloadMediaMessage(msg, 'buffer', {}); } catch (e2) { console.log('[vv] download failed again:', e2?.message || e2); }
+      }
+      if (buffer && buffer.length) break;
     }
 
     if (!buffer || !buffer.length) {
