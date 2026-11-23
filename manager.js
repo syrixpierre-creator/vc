@@ -691,7 +691,7 @@ async function handle(req, res) {
 }
 
 // ───────────────────────── Lancement ─────────────────────────
-function main() {
+async function main() {
   if (cli(process.argv.slice(2))) return;
 
   if (!ADMIN_PASSWORD) {
@@ -710,12 +710,15 @@ function main() {
   });
 
   // Build / refresh the shared command index once, before the bots start: then
-  // every bot starts with lazy commands (much less RAM per bot).
-  try {
+  // every bot starts with lazy commands (much less RAM per bot). Async, so the
+  // website keeps answering while it builds.
+  await new Promise((resolve) => {
     const t = Date.now();
-    require('child_process').spawnSync(process.execPath, ['-e', "require('./lib/commandHandler').loadCommands(); process.exit(0)"], { cwd: __dirname, timeout: 180000, stdio: 'ignore', env: { ...process.env, DEMON_MANAGED: '' } });
-    console.log(`🗂️  command index ready (${Date.now() - t} ms)`);
-  } catch (e) { console.log('command index: ' + e.message); }
+    const c = require('child_process').spawn(process.execPath, ['-e', "require('./lib/commandHandler').loadCommands(); process.exit(0)"], { cwd: __dirname, stdio: 'ignore', env: { ...process.env, DEMON_MANAGED: '' } });
+    const kill = setTimeout(() => { try { c.kill('SIGKILL'); } catch (_) {} }, 180000);
+    c.on('exit', () => { clearTimeout(kill); console.log(`🗂️  command index ready (${Date.now() - t} ms)`); resolve(); });
+    c.on('error', () => { clearTimeout(kill); resolve(); });
+  });
 
   reconcile();
   const n = loadBots().length;
@@ -735,4 +738,4 @@ function main() {
   process.on('SIGTERM', shutdown);
 }
 
-main();
+main().catch((e) => { console.error(e); process.exit(1); });
