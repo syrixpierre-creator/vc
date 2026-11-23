@@ -713,7 +713,7 @@ function main() {
   // every bot starts with lazy commands (much less RAM per bot).
   try {
     const t = Date.now();
-    require('child_process').spawnSync(process.execPath, ['-e', "require('./lib/commandHandler').loadCommands()"], { cwd: __dirname, timeout: 180000, stdio: 'ignore', env: { ...process.env, DEMON_MANAGED: '' } });
+    require('child_process').spawnSync(process.execPath, ['-e', "require('./lib/commandHandler').loadCommands(); process.exit(0)"], { cwd: __dirname, timeout: 180000, stdio: 'ignore', env: { ...process.env, DEMON_MANAGED: '' } });
     console.log(`🗂️  command index ready (${Date.now() - t} ms)`);
   } catch (e) { console.log('command index: ' + e.message); }
 
