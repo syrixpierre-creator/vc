@@ -12,3 +12,7 @@ bots.json.tmp
 bin/
 cookies.txt
 youtube-cookies.txt
+
+# shared lazy-command index (rebuilt automatically)
+lib/.cmdindex.json
+lib/.cmdindex.json.*

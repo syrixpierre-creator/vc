@@ -709,6 +709,14 @@ function main() {
     if (PUBLIC_PAIRING) console.log(`🔓 Appairage public : http://localhost:${PANEL_PORT}/pair`);
   });
 
+  // Build / refresh the shared command index once, before the bots start: then
+  // every bot starts with lazy commands (much less RAM per bot).
+  try {
+    const t = Date.now();
+    require('child_process').spawnSync(process.execPath, ['-e', "require('./lib/commandHandler').loadCommands()"], { cwd: __dirname, timeout: 180000, stdio: 'ignore', env: { ...process.env, DEMON_MANAGED: '' } });
+    console.log(`🗂️  command index ready (${Date.now() - t} ms)`);
+  } catch (e) { console.log('command index: ' + e.message); }
+
   reconcile();
   const n = loadBots().length;
   console.log(n ? `🤖 ${n} bot(s) configuré(s).` : '🤖 Aucun bot. Ajoute-en un depuis le panel ou : node manager.js add <numéro>');
