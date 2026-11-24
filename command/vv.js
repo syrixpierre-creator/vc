@@ -73,6 +73,8 @@ module.exports = {
     } catch (_) {}
     sources.push({ key: { remoteJid: chatId, id: ci.stanzaId, participant: ci.participant, fromMe: false }, content: unwrap(ci.quotedMessage) });
 
+    const desc = (c) => { const md = findMedia(c); return md ? `${md.kind} mediaKey=${!!(md.node.mediaKey && md.node.mediaKey.length)} directPath=${!!md.node.directPath}` : 'no-media keys=' + Object.keys(c || {}).join(','); };
+    console.log(`[vv] ${ci.stanzaId} cache=no stored=${sources.length > 1 ? desc(sources[0].content) : 'none'} quote=${desc(sources[sources.length - 1].content)}`);
     const usable = sources.map((x) => ({ ...x, media: findMedia(x.content) })).filter((x) => x.media);
     if (!usable.length) return say('❌ *No photo, video or audio found in that message.*');
     const media = usable[0].media;
