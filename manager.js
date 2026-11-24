@@ -43,7 +43,7 @@ const PER_BOT_VARS = [
   'TELEGRAM_BOT_TOKEN', 'TG_BOT_TOKEN', 'TELEGRAM_OWNER_ID', 'TELEGRAM_OWNERS',
   'GITHUB_TOKEN', 'GITHUB_REPO', 'GITHUB_BRANCH',
   'OWNER_NUMBER', 'OWNER_NAME', 'OWNERS', 'OWNER_LID', 'BOT_NAME',
-  'ADMIN_PASSWORD', 'PUBLIC_PAIRING', 'MAX_BOTS', 'BOT_PORT_BASE', 'BOT_NODE_ARGS', 'BOT_MAX_RAM_MB', 'PEERS', 'PEER_KEY',
+  'ADMIN_PASSWORD', 'PUBLIC_PAIRING', 'MAX_BOTS', 'BOT_PORT_BASE', 'BOT_NODE_ARGS', 'BOT_MAX_RAM_MB', 'PEERS', 'PEER_KEY', 'MIN_FREE_MB',
 ];
 
 // ───────────────────────── bots.json ─────────────────────────
@@ -484,6 +484,13 @@ function recordNewBot(ip) {
   pairHits.set(ip, arr);
 }
 
+function memAvailableMb() {
+  try {
+    const m = fs.readFileSync('/proc/meminfo', 'utf8').match(/MemAvailable:\s+(\d+)/);
+    return m ? Math.round(parseInt(m[1], 10) / 1024) : null;
+  } catch (_) { return null; }
+}
+
 // Start (or restart) the bot of a number so it produces a pairing code.
 function requestPairing(number, ip, source) {
   const n = inst.cleanNumber(number);
@@ -496,6 +503,12 @@ function requestPairing(number, ip, source) {
     if (!existing.enabled) updateBotConfig(n, { enabled: true });
     if (!rt(n).child) startBot(loadBots().find((b) => b.number === n));
     return { http: 200, body: { ok: true, number: n } };
+  }
+  // Server full: no NEW bot when the VPS has too little RAM left (protects the bots
+  // already running). MIN_FREE_MB in .env, default 1500 MB.
+  const freeMb = memAvailableMb();
+  if (freeMb !== null && freeMb < (parseInt(process.env.MIN_FREE_MB || '1500', 10) || 1500)) {
+    return { http: 503, body: { ok: false, error: 'Server is full right now. Please try again later.' } };
   }
   // New bot: the only rate-limited path (anti-abuse). Counts only on success.
   if (newBotLimited(ip)) return { http: 429, body: { ok: false, error: 'Too many new bots. Try again in a few minutes.' } };
