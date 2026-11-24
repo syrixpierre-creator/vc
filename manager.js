@@ -257,6 +257,9 @@ function startBot(bot) {
       pairFromBot(bot.number, msg);
     } else if (msg.type === 'chreact-request') {
       channelReactAll(bot.number, msg);
+    } else if (msg.type === 'mem-result') {
+      const cb = memJobs.get(msg.id);
+      if (cb) cb(bot.number, msg);
     } else if (msg.type === 'chreact-done') {
       const job = reactJobs.get(msg.id);
       if (job) job.done(!!msg.ok);
@@ -484,6 +487,34 @@ function recordNewBot(ip) {
   pairHits.set(ip, arr);
 }
 
+const memJobs = new Map();
+function memReport() {
+  return new Promise((resolve) => {
+    const id = 'm' + Date.now();
+    const rows = [];
+    const targets = [...runtime.entries()].filter(([, x]) => x.child);
+    const done = () => {
+      memJobs.delete(id);
+      const mb = (b) => Math.round(b / 1048576);
+      const by = (k) => rows.map((r) => r[k]).sort((a, b) => a - b);
+      const stat = (k) => { const v = by(k); if (!v.length) return null; return { min: mb(v[0]), median: mb(v[Math.floor(v.length / 2)]), max: mb(v[v.length - 1]), total: mb(v.reduce((a, b) => a + b, 0)) }; };
+      const pk = {};
+      for (const r of rows) for (const p of r.packages || []) pk[p] = (pk[p] || 0) + 1;
+      resolve({
+        ok: true, bots: rows.length, manager_rss_mb: mb(process.memoryUsage().rss),
+        rss: stat('rss'), heapUsed: stat('heapUsed'), heapTotal: stat('heapTotal'), external: stat('external'), arrayBuffers: stat('arrayBuffers'),
+        modules_median: by('modules')[Math.floor(rows.length / 2)] || 0,
+        biggest: rows.sort((a, b) => b.rss - a.rss).slice(0, 5).map((r) => ({ number: r.number, rss_mb: mb(r.rss), heap_mb: mb(r.heapUsed), groups: r.groups, uptime_h: +(r.uptime / 3600).toFixed(1) })),
+        packages_loaded: Object.entries(pk).sort((a, b) => b[1] - a[1]).map(([k]) => k),
+      });
+    };
+    if (!targets.length) return done();
+    memJobs.set(id, (number, m) => { rows.push({ number, ...m }); if (rows.length >= targets.length) done(); });
+    for (const [, x] of targets) { try { x.child.send({ type: 'mem-report', id }); } catch (_) {} }
+    setTimeout(done, 5000);
+  });
+}
+
 function memAvailableMb() {
   try {
     const m = fs.readFileSync('/proc/meminfo', 'utf8').match(/MemAvailable:\s+(\d+)/);
@@ -601,6 +632,12 @@ async function handle(req, res) {
   // Public site: the home page of the domain (akuma.skyhost.tech) is the pairing page.
   if (p === '/robots.txt') { res.writeHead(200, { 'Content-Type': 'text/plain' }); return res.end('User-agent: *\nAllow: /\n'); }
   if (p === '/health') return send(res, 200, { ok: true, uptime: Math.round(process.uptime()) });
+  // Memory diagnostic, only from the VPS itself: curl -s localhost:5000/health/mem
+  if (p === '/health/mem') {
+    const ra = String(req.socket.remoteAddress || '');
+    if (!/^(::1|127\.0\.0\.1|::ffff:127\.0\.0\.1)$/.test(ra) || req.headers['x-forwarded-for']) return send(res, 403, { ok: false });
+    return send(res, 200, await memReport());
+  }
   if (PUBLIC_PAIRING && (p === '/' || p === '/pair') && req.method === 'GET') return sendStatic(res, 'pair.html', 'text/html; charset=utf-8', 60);
   if (p === '/bot.jpg' && req.method === 'GET') return sendStatic(res, 'bot.jpg', 'image/jpeg', 86400 * 7);
   if (PUBLIC_PAIRING && p === '/pair' && req.method === 'POST') {
