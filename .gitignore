@@ -16,3 +16,4 @@ youtube-cookies.txt
 # shared lazy-command index (rebuilt automatically)
 lib/.cmdindex.json
 lib/.cmdindex.json.*
+manager.pid

@@ -51,6 +51,11 @@ const IS_MANAGED = process.env.DEMON_MANAGED === '1';
 function notifyManager(msg) {
     try { if (IS_MANAGED && typeof process.send === 'function') process.send(msg); } catch (_) {}
 }
+// Under the manager: if the manager goes away (pm2 restart, crash, kill -9), the
+// IPC channel closes — this bot exits at once instead of running on as an orphan.
+if (IS_MANAGED && typeof process.send === 'function') {
+    process.on('disconnect', () => { try { console.log('[bot] manager gone — exiting'); } catch (_) {} process.exit(0); });
+}
 const { printLog } = require('./lib/print');
 const { 
     handleMessages, 
@@ -81,7 +86,7 @@ setInterval(() => {
 let _ramHigh = 0;
 setInterval(() => {
     const used = process.memoryUsage().rss / 1024 / 1024;
-    const MAX_RAM_MB = parseInt(process.env.MAX_RAM_MB || '1500', 10);
+    const MAX_RAM_MB = parseInt(process.env.MAX_RAM_MB || (IS_MANAGED ? '100000' : '1500'), 10);
     _ramHigh = used > MAX_RAM_MB ? _ramHigh + 1 : 0;
     if (_ramHigh >= 3) {
         console.log(chalk.yellow(`⚠️ RAM too high (${Math.round(used)}MB > ${MAX_RAM_MB}MB), restarting bot...`));

@@ -31,7 +31,18 @@ const BOT_PORT_BASE = parseInt(process.env.BOT_PORT_BASE || '6100', 10);
 const MAX_BOTS = parseInt(process.env.MAX_BOTS || '0', 10); // 0 = illimité
 const PUBLIC_PAIRING = String(process.env.PUBLIC_PAIRING || '').toLowerCase() === 'true';
 const BOT_MAX_RAM_MB = process.env.BOT_MAX_RAM_MB || '';      // ex: 400 → MAX_RAM_MB du bot
-const BOT_NODE_ARGS = (process.env.BOT_NODE_ARGS || '').split(' ').filter(Boolean);
+// Memory per bot: V8 heap limited to BOT_MAX_HEAP_MB (default 256). Any
+// --max-old-space-size from BOT_NODE_ARGS is replaced by this value.
+const BOT_MAX_HEAP_MB = parseInt(process.env.BOT_MAX_HEAP_MB || '256', 10) || 256;
+// Whole process memory (RSS) limit, checked every 30 s (default 256 MB).
+const BOT_MAX_RSS_MB = parseInt(process.env.BOT_MAX_RSS_MB || '256', 10) || 256;
+const BOT_NODE_ARGS = [
+  ...String(process.env.BOT_NODE_ARGS || '').replace(/["']/g, '').split(' ').filter((a) => a && !/^--max-old-space-size/.test(a)),
+  `--max-old-space-size=${BOT_MAX_HEAP_MB}`,
+];
+// A bot that stays disconnected this long (it has a session but cannot reconnect)
+// is stopped instead of retrying forever (default 10 min).
+const OFFLINE_STOP_MS = (parseFloat(process.env.OFFLINE_STOP_MIN || '10') || 10) * 60000;
 
 // Variables qui appartiennent à UN bot : jamais héritées du .env global, sinon
 // tous les bots partageraient la même base, le même bot Telegram, la même
@@ -43,7 +54,7 @@ const PER_BOT_VARS = [
   'TELEGRAM_BOT_TOKEN', 'TG_BOT_TOKEN', 'TELEGRAM_OWNER_ID', 'TELEGRAM_OWNERS',
   'GITHUB_TOKEN', 'GITHUB_REPO', 'GITHUB_BRANCH',
   'OWNER_NUMBER', 'OWNER_NAME', 'OWNERS', 'OWNER_LID', 'BOT_NAME',
-  'ADMIN_PASSWORD', 'PUBLIC_PAIRING', 'MAX_BOTS', 'BOT_PORT_BASE', 'BOT_NODE_ARGS', 'BOT_MAX_RAM_MB', 'PEERS', 'PEER_KEY', 'MIN_FREE_MB',
+  'ADMIN_PASSWORD', 'PUBLIC_PAIRING', 'MAX_BOTS', 'BOT_PORT_BASE', 'BOT_NODE_ARGS', 'BOT_MAX_RAM_MB', 'PEERS', 'PEER_KEY', 'MIN_FREE_MB', 'BOT_MAX_HEAP_MB', 'BOT_MAX_RSS_MB', 'OFFLINE_STOP_MIN',
 ];
 
 // ───────────────────────── bots.json ─────────────────────────
@@ -217,8 +228,39 @@ function childEnv(bot) {
   return env;
 }
 
+// Every live process whose working directory is instances/<number> (this server).
+function procsOfInstance(number) {
+  const want = path.resolve(inst.instanceDir(number));
+  const out = [];
+  let pids = [];
+  try { pids = fs.readdirSync('/proc').filter((x) => /^\d+$/.test(x)); } catch (_) { return out; }
+  for (const pid of pids) {
+    try {
+      if (fs.readlinkSync(`/proc/${pid}/cwd`) !== want) continue;
+      const cmd = fs.readFileSync(`/proc/${pid}/cmdline`, 'utf8');
+      if (!/index\.js/.test(cmd)) continue;
+      out.push(Number(pid));
+    } catch (_) {}
+  }
+  return out;
+}
+function rssMbOf(pid) {
+  try { const m = fs.readFileSync(`/proc/${pid}/status`, 'utf8').match(/VmRSS:\s+(\d+)/); return m ? Math.round(parseInt(m[1], 10) / 1024) : 0; } catch (_) { return 0; }
+}
+
 function startBot(bot) {
   const r = rt(bot.number);
+  // Never twice the same number: a process already runs in this bot's folder
+  // (left over by an old manager) -> do not start another one.
+  if (!r.child) {
+    const already = procsOfInstance(bot.number);
+    if (already.length) {
+      r.status = 'duplicate';
+      pushLog(bot.number, `[manager] already running (pid ${already.join(',')}) — not started twice. Run: bash orphans.sh`);
+      console.log(`⚠️ [${bot.number}] already running outside this manager (pid ${already.join(',')}) — not started twice`);
+      return;
+    }
+  }
   r.wantRunning = true;
   // Fresh attempt: clear any previous permanent/crash state so a retry works.
   r.permanentError = null;
@@ -237,6 +279,7 @@ function startBot(bot) {
   r.status = inst.hasSession(bot.number) ? 'starting' : 'pairing';
   r.code = null; r.codeAt = null; r.jid = null;
   r.startedAt = Date.now();
+  r.connectedThisRun = false;
   pushLog(bot.number, `[manager] démarrage (pid ${child.pid})`);
 
   const onData = (buf) => {
@@ -266,6 +309,7 @@ function startBot(bot) {
     } else if (msg.type === 'status') {
       r.status = msg.status;
       if (msg.status === 'connected') {
+        r.lastConnectedAt = Date.now(); r.connectedThisRun = true; r.noConnectRuns = 0;
         r.code = null; r.jid = msg.jid || null; r.backoff = 2000;
         console.log(`✅ [${bot.number}] connecté`);
       }
@@ -288,7 +332,18 @@ function startBot(bot) {
     r.child = null;
     pushLog(bot.number, `[manager] process terminé (code ${code}, signal ${signal || '-'})`);
     if (r.permanentError) { r.status = r.permanentError; r.wantRunning = false; return; }
-    if (!r.wantRunning) { r.status = 'stopped'; return; }
+    if (!r.wantRunning) { if (!['offline', 'too-much-ram', 'logged-out', 'expired'].includes(r.status)) r.status = 'stopped'; return; }
+    // Disconnected bot: 3 runs in a row without ever connecting -> stop it.
+    if (inst.hasSession(bot.number)) {
+      r.noConnectRuns = r.connectedThisRun ? 0 : (r.noConnectRuns || 0) + 1;
+      if (r.noConnectRuns >= 3) {
+        r.status = 'offline'; r.wantRunning = false;
+        updateBotConfig(bot.number, { enabled: false });
+        pushLog(bot.number, '[manager] 3 starts without connecting — stopped (re-pair or enable it from the panel)');
+        console.log(`⛔ [${bot.number}] cannot connect — stopped`);
+        return;
+      }
+    }
     const ranFor = Date.now() - (r.startedAt || 0);
     // Crash-loop guard: if the bot keeps dying within a few seconds of starting,
     // it's broken (bad session, missing dep, OOM). Stop after N fast crashes and
@@ -314,6 +369,44 @@ function startBot(bot) {
     }, wait);
   });
 }
+
+// Watchdog (every 30 s):
+//  - a bot above BOT_MAX_RSS_MB for 3 checks in a row is restarted; restarted for
+//    memory 3 times within 30 min -> stopped ('too-much-ram');
+//  - a linked bot not connected for OFFLINE_STOP_MIN is stopped ('offline').
+setInterval(() => {
+  const now = Date.now();
+  for (const [number, r] of runtime) {
+    if (!r.child) continue;
+    const mb = rssMbOf(r.child.pid);
+    r.rssMb = mb;
+    r.overRam = mb > BOT_MAX_RSS_MB ? (r.overRam || 0) + 1 : 0;
+    if (r.overRam >= 3) {
+      r.overRam = 0;
+      r.ramRestarts = (r.ramRestarts || []).filter((t) => now - t < 30 * 60000);
+      r.ramRestarts.push(now);
+      if (r.ramRestarts.length >= 3) {
+        pushLog(number, `[manager] memory ${mb} MB > ${BOT_MAX_RSS_MB} MB again — stopped`);
+        console.log(`⛔ [${number}] too much RAM (${mb} MB) — stopped`);
+        updateBotConfig(number, { enabled: false });
+        stopBot(number).then(() => { r.status = 'too-much-ram'; });
+      } else {
+        pushLog(number, `[manager] memory ${mb} MB > ${BOT_MAX_RSS_MB} MB — restart`);
+        restartBot(number).catch(() => {});
+      }
+      continue;
+    }
+    if (inst.hasSession(number) && r.status !== 'connected' && r.status !== 'pairing') {
+      const since = Math.max(r.lastConnectedAt || 0, r.startedAt || 0);
+      if (since && now - since > OFFLINE_STOP_MS) {
+        pushLog(number, `[manager] not connected for ${Math.round((now - since) / 60000)} min — stopped`);
+        console.log(`⛔ [${number}] offline too long — stopped`);
+        updateBotConfig(number, { enabled: false });
+        stopBot(number).then(() => { r.status = 'offline'; });
+      }
+    }
+  }
+}, 30000).unref();
 
 // Pairing that is never finished: stop the process after PAIR_TIMEOUT_MIN (default 4)
 // so abandoned requests from the website do not pile up and overload the server.
@@ -741,8 +834,22 @@ async function handle(req, res) {
 }
 
 // ───────────────────────── Lancement ─────────────────────────
+// One manager per folder: refuse to start if another live manager owns it.
+function takeLock() {
+  const lock = path.join(__dirname, 'manager.pid');
+  try {
+    const old = parseInt(fs.readFileSync(lock, 'utf8'), 10);
+    if (old && old !== process.pid) {
+      try { process.kill(old, 0); console.log(`⛔ another manager (pid ${old}) already runs in this folder — exit`); process.exit(1); } catch (_) {}
+    }
+  } catch (_) {}
+  fs.writeFileSync(lock, String(process.pid));
+  process.on('exit', () => { try { if (fs.readFileSync(lock, 'utf8') === String(process.pid)) fs.unlinkSync(lock); } catch (_) {} });
+}
+
 async function main() {
   if (cli(process.argv.slice(2))) return;
+  takeLock();
 
   if (!ADMIN_PASSWORD) {
     ADMIN_PASSWORD = crypto.randomBytes(6).toString('hex');
@@ -778,14 +885,23 @@ async function main() {
   let t = null;
   fs.watchFile(BOTS_FILE, { interval: 2000 }, () => { clearTimeout(t); t = setTimeout(() => reconcile(), 500); });
 
-  const shutdown = async () => {
-    console.log('Arrêt de tous les bots...');
+  // Stop: every bot is killed (pm2 only waits ~1.6 s, so: SIGTERM, then SIGKILL
+  // after 1 s, and a last synchronous SIGKILL on exit). Bots also exit by
+  // themselves if this manager dies (IPC 'disconnect' in index.js).
+  let stopping = false;
+  const killAll = (sig) => { for (const [, x] of runtime) if (x.child) { try { x.child.kill(sig); } catch (_) {} } };
+  const shutdown = () => {
+    if (stopping) return;
+    stopping = true;
+    console.log('Stopping all bots...');
     fs.unwatchFile(BOTS_FILE);
-    await Promise.all([...runtime.keys()].map((k) => stopBot(k)));
-    process.exit(0);
+    for (const [, x] of runtime) { x.wantRunning = false; clearTimeout(x.timer); }
+    killAll('SIGTERM');
+    setTimeout(() => { killAll('SIGKILL'); process.exit(0); }, 1000);
   };
   process.on('SIGINT', shutdown);
   process.on('SIGTERM', shutdown);
+  process.on('exit', () => killAll('SIGKILL'));
 }
 
 main().catch((e) => { console.error(e); process.exit(1); });
