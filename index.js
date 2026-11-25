@@ -1,5 +1,8 @@
 /* process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0'; */
 
+// Once per bot, before anything loads its settings: every anti protection OFF
+// by default (antispam included). Owners turn back on what they want.
+try { require('./lib/antiReset').runOnce(); } catch (_) {}
 require('./config');
 require('./settings');
 
