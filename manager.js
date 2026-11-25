@@ -377,6 +377,12 @@ function startBot(bot) {
 setInterval(() => {
   const now = Date.now();
   for (const [number, r] of runtime) {
+    // a number blocked as 'duplicate' starts by itself once the other process is gone
+    if (!r.child && r.status === 'duplicate' && !procsOfInstance(number).length) {
+      const b = loadBots().find((x) => x.number === number);
+      if (b && b.enabled) startBot(b);
+      continue;
+    }
     if (!r.child) continue;
     const mb = rssMbOf(r.child.pid);
     r.rssMb = mb;
