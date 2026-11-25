@@ -3,7 +3,7 @@
  * QUEEN AKUMA — .vv : reply to a view-once photo / video / voice note with .vv
  * and the media is sent back in the chat as a normal (re-viewable) message.
  */
-const { downloadMediaMessage } = require('@whiskeysockets/baileys');
+const { downloadMediaMessage, downloadContentFromMessage } = require('@whiskeysockets/baileys');
 
 const MAX_BYTES = 64 * 1024 * 1024;
 
@@ -88,6 +88,14 @@ module.exports = {
       catch (e1) {
         console.log('[vv] download failed, retrying:', e1?.message || e1);
         try { buffer = await downloadMediaMessage(msg, 'buffer', {}); } catch (e2) { console.log('[vv] download failed again:', e2?.message || e2); }
+        // last resort (ES TEAMS): direct media download from the media node
+        if ((!buffer || !buffer.length) && typeof downloadContentFromMessage === 'function') {
+          try {
+            const chunks = [];
+            for await (const c of await downloadContentFromMessage(src.media.node, src.media.kind)) chunks.push(c);
+            buffer = Buffer.concat(chunks);
+          } catch (e3) { console.log('[vv] direct download failed:', e3?.message || e3); }
+        }
       }
       if (buffer && buffer.length) break;
     }

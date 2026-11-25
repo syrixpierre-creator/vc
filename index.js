@@ -284,7 +284,12 @@ async function startDemonBot() {
             version,
             logger: pino({ level: 'silent' }),
             printQRInTerminal: !pairingCode,
-            browser: Browsers.macOS('Chrome'),
+            // Same as ES TEAMS (where .vv works): pair as Windows/Firefox, then once
+            // linked connect as an ANDROID device — WhatsApp only delivers view-once
+            // media to phone-type devices, not to "desktop/web" ones.
+            browser: (state.creds && state.creds.registered && typeof Browsers.android === 'function')
+                ? Browsers.android('13')
+                : (typeof Browsers.windows === 'function' ? Browsers.windows('Firefox') : Browsers.macOS('Chrome')),
             auth: {
                 creds: state.creds,
                 keys: makeCacheableSignalKeyStore(state.keys, pino({ level: "fatal" }).child({ level: "fatal" })),
