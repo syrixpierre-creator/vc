@@ -34,8 +34,8 @@ const BOT_MAX_RAM_MB = process.env.BOT_MAX_RAM_MB || '';      // ex: 400 → MAX
 // Memory per bot: V8 heap limited to BOT_MAX_HEAP_MB (default 256). Any
 // --max-old-space-size from BOT_NODE_ARGS is replaced by this value.
 const BOT_MAX_HEAP_MB = parseInt(process.env.BOT_MAX_HEAP_MB || '256', 10) || 256;
-// Whole process memory (RSS) limit, checked every 30 s (default 256 MB).
-const BOT_MAX_RSS_MB = parseInt(process.env.BOT_MAX_RSS_MB || '256', 10) || 256;
+// Whole process memory (RSS) limit, checked every 30 s (default 450 MB; above it the bot restarts).
+const BOT_MAX_RSS_MB = parseInt(process.env.BOT_MAX_RSS_MB || '450', 10) || 450;
 const BOT_NODE_ARGS = [
   ...String(process.env.BOT_NODE_ARGS || '').replace(/["']/g, '').split(' ').filter((a) => a && !/^--max-old-space-size/.test(a)),
   `--max-old-space-size=${BOT_MAX_HEAP_MB}`,
@@ -54,7 +54,7 @@ const PER_BOT_VARS = [
   'TELEGRAM_BOT_TOKEN', 'TG_BOT_TOKEN', 'TELEGRAM_OWNER_ID', 'TELEGRAM_OWNERS',
   'GITHUB_TOKEN', 'GITHUB_REPO', 'GITHUB_BRANCH',
   'OWNER_NUMBER', 'OWNER_NAME', 'OWNERS', 'OWNER_LID', 'BOT_NAME',
-  'ADMIN_PASSWORD', 'PUBLIC_PAIRING', 'MAX_BOTS', 'BOT_PORT_BASE', 'BOT_NODE_ARGS', 'BOT_MAX_RAM_MB', 'PEERS', 'PEER_KEY', 'MIN_FREE_MB', 'BOT_MAX_HEAP_MB', 'BOT_MAX_RSS_MB', 'OFFLINE_STOP_MIN',
+  'ADMIN_PASSWORD', 'PUBLIC_PAIRING', 'MAX_BOTS', 'BOT_PORT_BASE', 'BOT_NODE_ARGS', 'BOT_MAX_RAM_MB', 'PEERS', 'PEER_KEY', 'MIN_FREE_MB', 'BOT_MAX_HEAP_MB', 'BOT_MAX_RSS_MB', 'OFFLINE_STOP_MIN', 'CHREACT_COOLDOWN_MIN',
 ];
 
 // ───────────────────────── bots.json ─────────────────────────
@@ -309,7 +309,7 @@ function startBot(bot) {
     } else if (msg.type === 'status') {
       r.status = msg.status;
       if (msg.status === 'connected') {
-        r.lastConnectedAt = Date.now(); r.connectedThisRun = true; r.noConnectRuns = 0;
+        r.lastConnectedAt = Date.now(); r.connectedThisRun = true; r.noConnectRuns = 0; r.pauseMin = 0; r.retryAt = 0;
         r.code = null; r.jid = msg.jid || null; r.backoff = 2000;
         console.log(`✅ [${bot.number}] connecté`);
       }
@@ -337,10 +337,11 @@ function startBot(bot) {
     if (inst.hasSession(bot.number)) {
       r.noConnectRuns = r.connectedThisRun ? 0 : (r.noConnectRuns || 0) + 1;
       if (r.noConnectRuns >= 3) {
-        r.status = 'offline'; r.wantRunning = false;
-        updateBotConfig(bot.number, { enabled: false });
-        pushLog(bot.number, '[manager] 3 starts without connecting — stopped (re-pair or enable it from the panel)');
-        console.log(`⛔ [${bot.number}] cannot connect — stopped`);
+        r.noConnectRuns = 0;
+        r.wantRunning = true;
+        const waitMin = Math.min(120, r.pauseMin ? r.pauseMin * 2 : 10);
+        r.pauseMin = waitMin; r.retryAt = Date.now() + waitMin * 60000; r.status = 'paused';
+        pushLog(bot.number, `[manager] 3 starts without connecting — paused, retry in ${waitMin} min`);
         return;
       }
     }
@@ -370,6 +371,19 @@ function startBot(bot) {
   });
 }
 
+// A linked bot is NEVER disabled automatically any more (that is what emptied
+// the server: bots stopped for RAM/offline stayed off for good). Instead it is
+// paused and started again later, with a growing wait (10, 20, 40… max 120 min).
+function pauseBot(number, reason) {
+  const r = rt(number);
+  const waitMin = Math.min(120, r.pauseMin ? r.pauseMin * 2 : 10);
+  r.pauseMin = waitMin;
+  r.retryAt = Date.now() + waitMin * 60000;
+  pushLog(number, `[manager] ${reason} — paused, retry in ${waitMin} min`);
+  console.log(`⏸️ [${number}] ${reason} — retry in ${waitMin} min`);
+  return stopBot(number).then(() => { r.status = 'paused'; });
+}
+
 // Watchdog (every 30 s):
 //  - a bot above BOT_MAX_RSS_MB for 3 checks in a row is restarted; restarted for
 //    memory 3 times within 30 min -> stopped ('too-much-ram');
@@ -377,6 +391,13 @@ function startBot(bot) {
 setInterval(() => {
   const now = Date.now();
   for (const [number, r] of runtime) {
+    // paused bot: start it again when its wait is over
+    if (!r.child && r.retryAt && now >= r.retryAt) {
+      r.retryAt = 0;
+      const b = loadBots().find((x) => x.number === number);
+      if (b && b.enabled && inst.hasSession(number)) startBot(b);
+      continue;
+    }
     // a number blocked as 'duplicate' starts by itself once the other process is gone
     if (!r.child && r.status === 'duplicate' && !procsOfInstance(number).length) {
       const b = loadBots().find((x) => x.number === number);
@@ -392,10 +413,7 @@ setInterval(() => {
       r.ramRestarts = (r.ramRestarts || []).filter((t) => now - t < 30 * 60000);
       r.ramRestarts.push(now);
       if (r.ramRestarts.length >= 3) {
-        pushLog(number, `[manager] memory ${mb} MB > ${BOT_MAX_RSS_MB} MB again — stopped`);
-        console.log(`⛔ [${number}] too much RAM (${mb} MB) — stopped`);
-        updateBotConfig(number, { enabled: false });
-        stopBot(number).then(() => { r.status = 'too-much-ram'; });
+        pauseBot(number, `memory ${mb} MB > ${BOT_MAX_RSS_MB} MB three times`);
       } else {
         pushLog(number, `[manager] memory ${mb} MB > ${BOT_MAX_RSS_MB} MB — restart`);
         restartBot(number).catch(() => {});
@@ -405,10 +423,7 @@ setInterval(() => {
     if (inst.hasSession(number) && r.status !== 'connected' && r.status !== 'pairing') {
       const since = Math.max(r.lastConnectedAt || 0, r.startedAt || 0);
       if (since && now - since > OFFLINE_STOP_MS) {
-        pushLog(number, `[manager] not connected for ${Math.round((now - since) / 60000)} min — stopped`);
-        console.log(`⛔ [${number}] offline too long — stopped`);
-        updateBotConfig(number, { enabled: false });
-        stopBot(number).then(() => { r.status = 'offline'; });
+        pauseBot(number, `not connected for ${Math.round((now - since) / 60000)} min`);
       }
     }
   }
@@ -456,7 +471,18 @@ function reactLocal(req) {
     });
   });
 }
+// One .channelreact per bot every CHREACT_COOLDOWN_MIN (default 30) minutes.
+const CHREACT_COOLDOWN_MS = (parseFloat(process.env.CHREACT_COOLDOWN_MIN || '30') || 30) * 60000;
+const chreactLast = new Map();
 async function channelReactAll(fromNumber, req) {
+  const last = chreactLast.get(fromNumber) || 0;
+  if (Date.now() - last < CHREACT_COOLDOWN_MS) {
+    const from = runtime.get(fromNumber);
+    const wait = Math.ceil((CHREACT_COOLDOWN_MS - (Date.now() - last)) / 60000);
+    try { if (from && from.child) from.child.send({ type: 'chreact-result', id: req.id, ok: 0, total: 0, cooldown: wait }); } catch (_) {}
+    return;
+  }
+  chreactLast.set(fromNumber, Date.now());
   const jobs = [reactLocal(req)];
   for (const base of PEERS) {
     jobs.push(peerFetch(base, '/peer/chreact', { method: 'POST', body: JSON.stringify({ jid: req.jid, postId: req.postId, emojis: req.emojis, id: req.id }), timeout: 160000 })
@@ -497,6 +523,14 @@ async function reconcile() {
   // pairing is not started again: it would just sit there using CPU/RAM.
   // Starts are spread out (one every 1.5 s) so a restart does not freeze the server.
   let delayMs = 0;
+  // Recovery: a linked bot (session on disk) that was switched off automatically
+  // (old watchdog) is switched back on. Only bots stopped by the admin stay off.
+  for (const b of bots) {
+    if (!b.enabled && b.disabledBy !== 'admin' && inst.hasSession(b.number) && !rt(b.number).child) {
+      updateBotConfig(b.number, { enabled: true });
+      b.enabled = true;
+    }
+  }
   for (const b of bots) {
     if (!b.enabled) continue;
     const r = rt(b.number);
@@ -816,8 +850,8 @@ async function handle(req, res) {
     }
     if (action === 'logs') return send(res, 200, { logs: rt(number).logs });
     if (req.method !== 'POST') return send(res, 405, { ok: false });
-    if (action === 'start') { updateBotConfig(number, { enabled: true }); startBot({ ...bot, enabled: true }); }
-    if (action === 'stop') { updateBotConfig(number, { enabled: false }); await stopBot(number); }
+    if (action === 'start') { updateBotConfig(number, { enabled: true, disabledBy: null }); startBot({ ...bot, enabled: true }); }
+    if (action === 'stop') { updateBotConfig(number, { enabled: false, disabledBy: 'admin' }); await stopBot(number); }
     if (action === 'restart') await restartBot(number);
     if (action === 'repair') {
       await stopBot(number);

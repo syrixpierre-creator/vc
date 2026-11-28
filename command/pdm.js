@@ -3,7 +3,7 @@ const db = require('../lib/jsondb');
 const NAME = 'pdm';
 function isEnabled(groupJid) {
   const d = db.load(NAME, {});
-  return d[groupJid] !== false; // default ON
+  return d[groupJid] === true; // OFF by default
 }
 module.exports = {
   command: 'pdm',

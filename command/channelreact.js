@@ -6,7 +6,8 @@
  */
 const { channelReactAll } = require('../lib/botNetwork');
 
-const COOLDOWN_MS = 3 * 60 * 1000;
+// cooldown is decided by the manager (30 min per bot); this is only a local guard
+const COOLDOWN_MS = 30 * 60 * 1000;
 let lastUse = 0;
 
 function parseTarget(input) {
@@ -48,7 +49,11 @@ module.exports = {
 
     lastUse = Date.now();
     try { await sock.sendMessage(chatId, { react: { text: '⏳', key: message.key } }); } catch (_) {}
-    const { ok, total } = await channelReactAll({ jid, postId: target.postId, emojis }, sock);
+    const { ok, total, cooldown } = await channelReactAll({ jid, postId: target.postId, emojis }, sock);
+    if (cooldown) {
+      try { await sock.sendMessage(chatId, { react: { text: '⏳', key: message.key } }); } catch (_) {}
+      return reply(`⏳ *You can use .channelreact again in ${cooldown} min.*`);
+    }
     try { await sock.sendMessage(chatId, { react: { text: ok ? '✅' : '❌', key: message.key } }); } catch (_) {}
     if (!ok) { lastUse = 0; return reply(total ? '❌ *No bot could react. Try again later.*' : '❌ *No active bot.*'); }
     return reply(`✅ *${ok} bot${ok > 1 ? 's' : ''} reacted to the post.*`);
