@@ -2,7 +2,8 @@ const { sam, fakevCard } = require("../sam");
 const fs = require('fs');
 const path = require('path');
 const axios = require('axios');
-const { execSync } = require('child_process');
+const { exec } = require('child_process');
+const execSync = (c) => new Promise((ok, ko) => exec(c, { timeout: 120000, maxBuffer: 1 << 24 }, (e) => (e ? ko(e) : ok())));
 sam({
     pattern: "bratvid",
     alias: ["bratvideo", "brattext"],
@@ -51,10 +52,10 @@ sam({
         fs.writeFileSync(fileListPath, fileListContent);
         const outputVideoPath = path.join(tempDir, "output.mp4");
         // Combine frames into video
-        execSync(`ffmpeg -y -f concat -safe 0 -i "${fileListPath}" -vf "fps=30" -c:v libx264 -preset superfast -pix_fmt yuv420p "${outputVideoPath}"`);
+        await execSync(`ffmpeg -y -f concat -safe 0 -i "${fileListPath}" -vf "fps=30" -c:v libx264 -preset superfast -pix_fmt yuv420p "${outputVideoPath}"`);
         // Convert to webp sticker
         const outputStickerPath = path.join(tempDir, "output.webp");
-        execSync(`ffmpeg -i "${outputVideoPath}" -vf "scale=512:512:flags=lanczos,format=rgba,pad=512:512:(ow-iw)/2:(oh-ih)/2:color=#00000000" -loop 0 -preset picture -an -vsync 0 -r 15 "${outputStickerPath}"`);
+        await execSync(`ffmpeg -i "${outputVideoPath}" -vf "scale=512:512:flags=lanczos,format=rgba,pad=512:512:(ow-iw)/2:(oh-ih)/2:color=#00000000" -loop 0 -preset picture -an -vsync 0 -r 15 "${outputStickerPath}"`);
         // Send as sticker
         const stickerBuffer = fs.readFileSync(outputStickerPath);
         await malvin.sendMessage(from, {

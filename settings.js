@@ -11,7 +11,8 @@ const settings = {
   botName: 'QUEEN AKUMA',
   botOwner: 'INCONNU BOY SENSEI',
   ownerLid: process.env.OWNER_LID || '',
-    ownerNumber: '554488138425',               // country code + number, no "+"
+  // Owner = the number paired to THIS session (like INCONNU XD); .setownernumber overrides it.
+  ownerNumber: String(process.env.OWNER_NUMBER || process.env.PAIRING_NUMBER || process.env.BOT_ID || '554488138425').replace(/\D/g, ''),
   giphyApiKey: process.env.GIPHY_KEY || '',  // optional: https://developers.giphy.com
   commandMode: 'public',
   maxStoreMessages: 20,
@@ -84,6 +85,12 @@ const _upperAliases = {
 for (const [k, fn] of Object.entries(_upperAliases)) {
   if (!(k in settings)) Object.defineProperty(settings, k, { enumerable: false, configurable: true, get: fn });
 }
+// .customize / .setbotname … call settings.__reload(): new values apply at once, no restart.
+Object.defineProperty(settings, '__reload', { enumerable: false, configurable: true, value: () => {
+  const fresh = buildSettings();
+  for (const k of Object.keys(fresh)) settings[k] = fresh[k];
+  return settings;
+} });
 return settings;
 }
 

@@ -26,6 +26,7 @@ function readJson(fp) {
 function writeJson(fp, obj) {
   fs.mkdirSync(path.dirname(fp), { recursive: true });
   fs.writeFileSync(fp, JSON.stringify(obj, null, 2));
+  try { settings.__reload(); } catch (_) {}
 }
 
 const KEYS = {
@@ -58,13 +59,14 @@ module.exports = {
     const eff = (k, def) => custom[k] ?? identity[k] ?? settings[k] ?? def;
 
     if (!args || !args.length) {
-      return reply(`⚙️ *QUEEN AKUMA Customization*\n\n🤖 Bot Name: ${eff('botName', settings.botName)}\n👑 Owner: ${eff('botOwner', settings.botOwner)}\n📱 Owner Number: ${eff('ownerNumber', settings.ownerNumber)}\n🔤 Prefix: ${(eff('prefixes', settings.prefixes) || ['.']).join(' ')}\n🏷️ Sticker Pack: ${eff('packname', settings.packname)}\n✍️ Sticker Author: ${eff('author', settings.author)}\n🖼️ Menu Image: ${String(eff('menuImage', settings.menuImage) || '').slice(0, 60)}\n🔗 Channel: ${eff('channelLink', settings.channelLink)}\n\n*Badlo:*\n• .customize botname <name>\n• .customize prefix <symbol>\n• .customize packname <text>\n• .customize author <text>\n• .customize menuimage <url>\n• .customize channellink <url>\n• .customize reset\n\n⚠️ Changes restart ke baad lagenge.`);
+      return reply(`⚙️ *QUEEN AKUMA Customization*\n\n🤖 Bot Name: ${eff('botName', settings.botName)}\n👑 Owner: ${eff('botOwner', settings.botOwner)}\n📱 Owner Number: ${eff('ownerNumber', settings.ownerNumber)}\n🔤 Prefix: ${(eff('prefixes', settings.prefixes) || ['.']).join(' ')}\n🏷️ Sticker Pack: ${eff('packname', settings.packname)}\n✍️ Sticker Author: ${eff('author', settings.author)}\n🖼️ Menu Image: ${String(eff('menuImage', settings.menuImage) || '').slice(0, 60)}\n🔗 Channel: ${eff('channelLink', settings.channelLink)}\n\n*Badlo:*\n• .customize botname <name>\n• .customize prefix <symbol>\n• .customize packname <text>\n• .customize author <text>\n• .customize menuimage <url>\n• .customize channellink <url>\n• .customize reset\n\n✅ Les changements s'appliquent tout de suite.`);
     }
     const key = String(args[0]).toLowerCase();
     if (key === 'reset') {
       try { fs.unlinkSync(CUSTOM_FILE); } catch {}
       try { fs.unlinkSync(IDENTITY_FILE); } catch {}
-      return reply('✅ Customization reset ho gayi (default settings). Restart ke baad lagegi.');
+      try { settings.__reload(); } catch (_) {}
+      return reply('✅ Customization reset ho gayi (default settings). Appliqué tout de suite.');
     }
     const def = KEYS[key];
     if (!def) {
@@ -82,6 +84,6 @@ module.exports = {
       custom[def.key] = value;
       writeJson(CUSTOM_FILE, custom);
     }
-    await reply(`✅ *${def.label} set to: ${value}*\nRestart the bot to apply (.restart).`);
+    await reply(`✅ *${def.label} set to: ${value}*\n✅ Appliqué tout de suite.`);
   }
 };
