@@ -3,6 +3,7 @@
 // Once per bot, before anything loads its settings: every anti protection OFF
 // by default (antispam included). Owners turn back on what they want.
 try { require('./lib/antiReset').runOnce(); } catch (_) {}
+const HUB = process.env.HUB_MODE === '1';
 require('./config');
 require('./settings');
 
@@ -74,7 +75,7 @@ try { require('./lib/prodSafe').ensureDirs(); } catch (_e) {}
 store.readFromFile();
 setInterval(() => store.writeToFile(), settings.storeWriteInterval || 60000);
 
-commandHandler.loadCommands();
+if (!HUB || !commandHandler.commands.size) commandHandler.loadCommands(); // hub: loaded once for all bots
 // console.log(chalk.greenBright(`✅ Loaded ${commandHandler.commands.size} Plugins`));
 
 setInterval(() => {
@@ -100,13 +101,13 @@ setInterval(() => {
 // Event-loop watchdog: logs when the bot freezes (a frozen bot misses WhatsApp
 // keep-alives and shows as "inactive").
 let _lagT = Date.now();
-setInterval(() => {
+if (!HUB) setInterval(() => {
     const lag = Date.now() - _lagT - 5000;
     if (lag > 2000) console.log(chalk.yellow(`⚠️ Bot was frozen for ${lag}ms`));
     _lagT = Date.now();
 }, 5000).unref();
 
-let phoneNumber = global.PAIRING_NUMBER || process.env.PAIRING_NUMBER || "554488138425";
+let phoneNumber = (HUB ? process.env.PAIRING_NUMBER : '') || global.PAIRING_NUMBER || process.env.PAIRING_NUMBER || "554488138425";
 let owner = JSON.parse(fs.readFileSync('./data/owner.json'));
 
 global.botname = process.env.BOT_NAME || "QUEEN AKUMA";
@@ -252,7 +253,7 @@ async function initializeSession() {
     }
 }
 
-server.listen(PORT, () => {
+if (!HUB) server.listen(PORT, () => {
     printLog('success', `Server listening on port ${PORT}`);
 });
 
@@ -312,6 +313,8 @@ async function startDemonBot() {
             connectTimeoutMs: 60000,
             keepAliveIntervalMs: 10000,
         });
+        // hub mode: remember this socket so stopping the bot closes it
+        try { const _c = require('./lib/botContext').current(); if (_c) _c.sockets.add(DemonBot); } catch (_) {}
         // one cached groupMetadata for the whole bot (admin checks, anti-link, logs…)
         try { require('./lib/groupMetaCache').wrapGroupMetadata(DemonBot); } catch (_) {}
         // channel contextInfo on every message + real numbers instead of hidden LIDs
@@ -774,44 +777,8 @@ setInterval(() => {
 //  console.log('🧹 Temp folder auto-cleaned');
 }, 1 * 60 * 60 * 1000);
 
-const folders = [
-  path.join(__dirname, './lib'),
-  path.join(__dirname, './command')
-];
-
-let totalFiles = 0;
-let okFiles = 0;
-let errorFiles = 0;
-
-folders.forEach(folder => {
-  if (!fs.existsSync(folder)) return;
-
-  fs.readdirSync(folder)
-    .filter(file => file.endsWith('.js'))
-    .forEach(file => {
-      totalFiles++;
-      const filePath = path.join(folder, file);
-
-      try {
-        const code = fs.readFileSync(filePath, 'utf-8');
-        const err = syntaxerror(code, file, {
-          sourceType: 'script',
-          allowAwaitOutsideFunction: true
-        });
-
-        if (err) {
-          console.error(chalk.red(`❌ Syntax error in ${filePath}:\n${err}`));
-          errorFiles++;
-        } else {
-          okFiles++;
-        }
-      } catch (e) {
-        console.error(chalk.yellow(`⚠️ Cannot read file ${filePath}:\n${e}`));
-        errorFiles++;
-      }
-    });
-});
-
+// (start-up syntax check of all ~3000 files removed: it read and parsed every file
+// at each bot start for nothing — results were not even printed)
 /**
 * console.log(chalk.greenBright(`✅ OK files: ${okFiles}`));
 * console.log(chalk.redBright(`❌Files with errors: ${errorFiles}\n`));
@@ -827,7 +794,7 @@ process.on('unhandledRejection', (err) => {
     console.error(err.stack);
 });
 
-server.on('error', (error) => {
+if (!HUB) server.on('error', (error) => {
     if (error.code === 'EADDRINUSE') {
         printLog('error', `Address localhost:${PORT} in use`);
         server.close();
@@ -837,7 +804,7 @@ server.on('error', (error) => {
 });
 
 let file = require.resolve(__filename);
-fs.watchFile(file, () => {
+if (!HUB) fs.watchFile(file, () => {
     fs.unwatchFile(file);
     printLog('info', 'index.js updated, reloading...');
     delete require.cache[file];

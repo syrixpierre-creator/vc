@@ -248,11 +248,45 @@ function rssMbOf(pid) {
   try { const m = fs.readFileSync(`/proc/${pid}/status`, 'utf8').match(/VmRSS:\s+(\d+)/); return m ? Math.round(parseInt(m[1], 10) / 1024) : 0; } catch (_) { return 0; }
 }
 
+// ───────────── HUB MODE: all bots inside this process (like INCONNU XD) ─────────────
+// HUB_MODE=1 in .env. Each bot = a "context" (lib/botContext.js) in which index.js is
+// loaded; it looks like a child process to the rest of this file (send / kill /
+// 'message' / 'exit' / stdout), so pairing, stats, channelreact… work unchanged.
+const HUB = process.env.HUB_MODE === '1';
+if (HUB) { try { require('./lib/botContext').install(); } catch (e) { console.error('hub install:', e.message); } }
+function hubSpawn(bot, dir) {
+  const { EventEmitter } = require('events');
+  const bc = require('./lib/botContext');
+  const env = childEnv(bot);
+  env.HUB_MODE = '1';
+  const ctx = bc.createContext({ number: bot.number, dir, env });
+  const child = new EventEmitter();
+  child.pid = process.pid;
+  child.hub = ctx;
+  child.stdout = new EventEmitter();
+  child.stderr = new EventEmitter();
+  child.send = (msg) => { try { ctx.deliver(msg); } catch (_) {} return true; };
+  child.kill = (sig) => { try { ctx.stop(sig === 'SIGKILL' ? 137 : 0); } catch (_) {} return true; };
+  ctx.log = (line) => child.stdout.emit('data', line + '\n');
+  ctx.ipc.on('to-manager', (msg) => setImmediate(() => child.emit('message', msg)));
+  ctx.ipc.once('exit', (code) => setImmediate(() => child.emit('exit', code, null)));
+  setImmediate(() => {
+    bc.run(ctx, () => {
+      const idx = path.join(__dirname, 'index.js');
+      delete require.cache[idx];
+      try { require(idx); }
+      catch (e) { if (!e || !e.sessionExit) { ctx.log('[hub] start failed: ' + (e && (e.stack || e.message))); ctx.stop(1); } }
+      finally { delete require.cache[idx]; }
+    });
+  });
+  return child;
+}
+
 function startBot(bot) {
   const r = rt(bot.number);
   // Never twice the same number: a process already runs in this bot's folder
   // (left over by an old manager) -> do not start another one.
-  if (!r.child) {
+  if (!r.child && !HUB) {
     const already = procsOfInstance(bot.number);
     if (already.length) {
       r.status = 'duplicate';
@@ -273,8 +307,13 @@ function startBot(bot) {
     return;
   }
   const dir = inst.instanceDir(bot.number);
-  const args = ['--preserve-symlinks', '--preserve-symlinks-main', ...BOT_NODE_ARGS, ...(bot.nodeArgs || []), 'index.js'];
-  const child = spawn(process.execPath, args, { cwd: dir, env: childEnv(bot), stdio: ['ignore', 'pipe', 'pipe', 'ipc'] });
+  let child;
+  if (HUB) {
+    child = hubSpawn(bot, dir);
+  } else {
+    const args = ['--preserve-symlinks', '--preserve-symlinks-main', ...BOT_NODE_ARGS, ...(bot.nodeArgs || []), 'index.js'];
+    child = spawn(process.execPath, args, { cwd: dir, env: childEnv(bot), stdio: ['ignore', 'pipe', 'pipe', 'ipc'] });
+  }
   r.child = child;
   r.status = inst.hasSession(bot.number) ? 'starting' : 'pairing';
   r.code = null; r.codeAt = null; r.jid = null;
@@ -405,6 +444,7 @@ setInterval(() => {
       continue;
     }
     if (!r.child) continue;
+    if (HUB) { if (inst.hasSession(number) && r.status !== 'connected' && r.status !== 'pairing') { const since = Math.max(r.lastConnectedAt || 0, r.startedAt || 0); if (since && now - since > OFFLINE_STOP_MS) pauseBot(number, `not connected for ${Math.round((now - since) / 60000)} min`); } continue; }
     const mb = rssMbOf(r.child.pid);
     r.rssMb = mb;
     r.overRam = mb > BOT_MAX_RSS_MB ? (r.overRam || 0) + 1 : 0;

@@ -2,6 +2,7 @@ try { require('dotenv').config(); } catch (_) {}
 
 const path = require('path');
 
+function buildSettings() {
 const settings = {
   prefixes: ['.', '!', '/', '#'],            // multiple prefixes supported
   packname: process.env.STICKER_PACKNAME || 'QUEEN AKUMA',
@@ -66,23 +67,6 @@ try {
   }
 } catch (_) {}
 
-// Legacy commands read a free variable `config` (botName / DESCRIPTION / prefixes). Provide it globally (live getters).
-if (!global.config) {
-  Object.defineProperty(global, 'config', {
-    configurable: true, writable: true,
-    value: {
-      get botName() { return settings.botName; },
-      get DESCRIPTION() { return settings.description || ('Powered by ' + (settings.botOwner || settings.botName)); },
-      get prefixes() { if (Array.isArray(settings.prefixes) && settings.prefixes.length) return settings.prefixes; try { return [require('./lib/prefix').getPrefix() || '.']; } catch (_) { return ['.']; } },
-      get prefix() { return this.prefixes[0]; },
-      get ownerNumber() { return settings.ownerNumber; },
-      get ownerName() { return settings.botOwner; },
-      get channelLink() { return settings.channelLink; },
-      get timezone() { return process.env.TZ || 'Asia/Kolkata'; }
-    }
-  });
-}
-
 // Alias MAJUSCULES : des commandes importées lisent settings.BOT_NAME, settings.PREFIX…
 // On les expose en getters branchés sur les vrais champs (sinon elles affichaient undefined).
 const _upperAliases = {
@@ -99,6 +83,45 @@ const _upperAliases = {
 };
 for (const [k, fn] of Object.entries(_upperAliases)) {
   if (!(k in settings)) Object.defineProperty(settings, k, { enumerable: false, configurable: true, get: fn });
+}
+return settings;
+}
+
+// HUB MODE (all bots in one process): every bot gets its own settings object
+// (its owner number, prefixes, identity…), chosen from the bot that is running.
+let settings;
+const _baseSettings = buildSettings();
+try {
+  const bc = require('./lib/botContext');
+  if (bc.HUB) {
+    const pick = () => { const c = bc.current(); if (!c) return _baseSettings; if (!c.settings) c.settings = buildSettings(); return c.settings; };
+    settings = new Proxy({}, {
+      get: (_, k) => pick()[k],
+      set: (_, k, v) => { pick()[k] = v; return true; },
+      has: (_, k) => k in pick(),
+      ownKeys: () => Reflect.ownKeys(pick()),
+      getOwnPropertyDescriptor: (_, k) => { const d = Reflect.getOwnPropertyDescriptor(pick(), k); if (d) d.configurable = true; return d; },
+      deleteProperty: (_, k) => { delete pick()[k]; return true; },
+    });
+  }
+} catch (_) {}
+if (!settings) settings = _baseSettings;
+
+// Legacy commands read a free variable `config` (botName / DESCRIPTION / prefixes). Provide it globally (live getters).
+if (!global.config) {
+  Object.defineProperty(global, 'config', {
+    configurable: true, writable: true,
+    value: {
+      get botName() { return settings.botName; },
+      get DESCRIPTION() { return settings.description || ('Powered by ' + (settings.botOwner || settings.botName)); },
+      get prefixes() { if (Array.isArray(settings.prefixes) && settings.prefixes.length) return settings.prefixes; try { return [require('./lib/prefix').getPrefix() || '.']; } catch (_) { return ['.']; } },
+      get prefix() { return this.prefixes[0]; },
+      get ownerNumber() { return settings.ownerNumber; },
+      get ownerName() { return settings.botOwner; },
+      get channelLink() { return settings.channelLink; },
+      get timezone() { return process.env.TZ || 'Asia/Kolkata'; }
+    }
+  });
 }
 
 try { require('./lib/globals'); } catch (_) {}
